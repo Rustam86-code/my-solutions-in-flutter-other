@@ -1,0 +1,159 @@
+
+
+
+// @dart=2.9
+
+import 'package:cached_network_image/cached_network_image.dart';
+import 'package:flutter/material.dart';
+import 'package:quittercheck/common/shadows.dart';
+import 'package:quittercheck/common/texts/texts.dart';
+import 'package:quittercheck/features/common/app_progress_indicator.dart';
+import 'package:quittercheck/models/usd.dart';
+import 'package:quittercheck/resources/app_colors.dart';
+import 'package:quittercheck/utils/imgix_url_helper.dart';
+
+typedef DismissConfirmCallback = Future<bool> Function();
+
+class BottomSummaryStaticItem extends StatelessWidget {
+  const BottomSummaryStaticItem({
+    Key key,
+    @required this.itemTitle,
+    this.itemPrice,
+    this.imageUrl = '',
+    this.customImage,
+    this.customPriceText,
+    this.dismissConfirm,
+    this.onDismiss,
+  })  : assert(itemTitle != null),
+        assert(itemPrice != null || customPriceText != null),
+        super(key: key);
+
+  final String itemTitle;
+  final USD itemPrice;
+  final String imageUrl;
+  final Widget customImage;
+  final Widget customPriceText;
+  final DismissConfirmCallback dismissConfirm;
+  final Function onDismiss;
+
+  static const height = 92.0;
+  static const imgWidth = 90.0;
+  static const imgHeight = 66.0;
+  static const padding = EdgeInsets.symmetric(horizontal: 24);
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: padding,
+      height: height,
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.start,
+        // crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          if (customImage != null)
+            SizedBox(
+              width: imgWidth,
+              height: imgHeight,
+              child: customImage,
+            )
+          else
+            RoundedImageOrGreyContainer(
+              width: imgWidth,
+              height: imgHeight,
+              imageUrl: imageUrl,
+            ),
+          const SizedBox(width: 16.0),
+          Column(
+            children: [
+              const SizedBox(height: 16),
+              Text('$itemTitle', style: TextStyles.poppins13MediumBlack),
+              const SizedBox(height: 4.0),
+              if (customPriceText != null)
+                customPriceText
+              else
+                Text('${itemPrice.toDisplayText(forceCents: true)}',
+                    style: TextStyles.poppins13MediumBlack),
+              const SizedBox(height: 30),
+            ],
+          ),
+          if (onDismiss != null) Spacer(),
+          Column(
+            mainAxisAlignment: MainAxisAlignment.start,
+            children: [
+              const SizedBox(height: 16),
+              SizedBox(
+                height: 14,
+                child: GestureDetector(
+                  onTap: _deleteItem,
+                  child: Icon(Icons.close, size: 14.0),
+                ),
+              ),
+            ],
+          ),
+        ],
+      ),
+    );
+  }
+
+  Future<void> _deleteItem() async {
+    final deleteItem = await dismissConfirm.call();
+    if (deleteItem == false) {
+      return;
+    }
+    return onDismiss();
+  }
+}
+
+class RoundedImageOrGreyContainer extends StatelessWidget {
+  const RoundedImageOrGreyContainer({
+    Key key,
+    this.imageUrl,
+    this.customImage,
+    this.width,
+    this.height,
+  })  : assert((imageUrl != null) ^ (customImage != null)),
+        super(key: key);
+
+  final String imageUrl;
+  final Widget customImage;
+  final double width;
+  final double height;
+
+  @override
+  Widget build(BuildContext context) {
+    final renderUrl = imageUrl != null && imageUrl.isNotEmpty;
+
+    return Container(
+      width: width,
+      height: height,
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(12),
+        color: renderUrl ? AppColors.white : Colors.transparent,
+        boxShadow: [Shadows.dark8(yOffset: 8)],
+      ),
+      child: ClipRRect(
+        borderRadius: BorderRadius.circular(12),
+        child: renderUrl
+            ? CachedNetworkImage(
+                imageUrl: ImgIxHelper.getSizedImage(
+                  imageUrl,
+                  width: width == null ? null : context.pixelRatio * width,
+                  height: height == null ? null : context.pixelRatio * height,
+                ),
+                width: width,
+                height: height,
+                errorWidget: (context, _, dynamic __) => const Offstage(),
+                placeholder: (context, url) {
+                  return Center(
+                    child: Transform.scale(
+                      scale: 0.6,
+                      child: const AppProgressIndicator(),
+                    ),
+                  );
+                },
+              )
+            : customImage,
+      ),
+    );
+  }
+}
