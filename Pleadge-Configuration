@@ -1,0 +1,89 @@
+// @dart=2.9
+
+import 'package:flutter/material.dart';
+import 'package:flutter_hooks/flutter_hooks.dart';
+import 'package:flutter_text_styled/flutter_text_styled.dart';
+import 'package:quittercheck/app/navigation/app_navigator.dart';
+import 'package:quittercheck/common/appbars/white_appbar.dart';
+import 'package:quittercheck/common/paddings.dart';
+import 'package:quittercheck/common/texts/texts.dart';
+import 'package:quittercheck/common/widgets/handle_layout_building.dart';
+import 'package:quittercheck/data/app_cqrs.dart';
+import 'package:quittercheck/features/demo_homescreen/widgets/demo_info_card.dart';
+import 'package:quittercheck/features/pledge_configuration/anti_charity/presentation/anti_charity_page.dart';
+import 'package:quittercheck/features/pledge_purchase/pledge_stuff_cubit.dart';
+import 'package:quittercheck/features/pledge_purchase/widgets/amount_in_dollars.dart';
+import 'package:quittercheck/features/pledge_purchase/widgets/go_to_payment_sheet.dart';
+import 'package:quittercheck/gen/assets.gen.dart';
+import 'package:quittercheck/hooks/use_cubit.dart';
+import 'package:quittercheck/resources/app_colors.dart';
+import 'package:quittercheck/resources/strings.dart';
+
+class PledgePurchaseView extends HookWidget {
+  const PledgePurchaseView({
+    Key key,
+    @required this.userPlanId,
+    this.hasPledge = true,
+    this.hasNext = true,
+  })  : assert(userPlanId != null),
+        super(key: key);
+
+  final String userPlanId;
+  final bool hasPledge;
+  final bool hasNext;
+
+  @override
+  Widget build(BuildContext context) {
+    final pledgeCubit = useCubit(
+      () => PledgeStuffCubit(context.read<AppCQRS>(), userPlanId)..fetch(),
+    );
+    final pledgeState = useCubitState<PledgeStuffState>(pledgeCubit);
+
+    useListenable(pledgeState.supervisor ?? ValueNotifier(null));
+
+    return Scaffold(
+      appBar: WhiteAppBar(title: S.Pledge_Title.tr()),
+      bottomSheet: pledgeState.success
+          ? GoToPaymentBottomSheet(
+              onTap: pledgeState.supervisor.pledgeMessage == null
+                  ? () => AppNavigator.of(context).push(AntiCharityPage(
+                        pledgeStuffCubit: pledgeCubit,
+                        hasNext: hasNext,
+                        hasPledge: hasPledge,
+                      ))
+                  : null,
+            )
+          : null,
+      body: HandleLayoutBuilding(
+        error: pledgeState.error,
+        loading: pledgeState.loading,
+        onRefresh: pledgeCubit.fetch,
+        builder: (context) => SingleChildScrollView(
+          child: SafeArea(
+            child: Padding(
+              padding: PagePadding.padding + const EdgeInsets.only(bottom: 80),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  TextStyled(textStyle: TextStyles.poppins14RegularGrey00)
+                      .getRichText(S.Pledge_AmountDescription.tr()),
+                  if (!hasPledge) ...[
+                    const SizedBox(height: 12),
+                    DemoInfoCard(
+                      S.TrialUser_MessageBox.tr(),
+                      icon: Assets.images.warningBlue.svg(),
+                      background: AppColors.appBlue.withOpacity(.3),
+                      border: AppColors.appBlue,
+                    ),
+                  ],
+                  const SizedBox(height: 12),
+                  AmountInDollars(supervisor: pledgeState.supervisor),
+                ],
+              ),
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+}
