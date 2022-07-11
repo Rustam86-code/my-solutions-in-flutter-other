@@ -1,0 +1,611 @@
+// @dart=2.9
+
+import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter_hooks/flutter_hooks.dart';
+import 'package:quittercheck/app/navigation/app_navigator.dart';
+import 'package:quittercheck/common/appbars/white_appbar.dart';
+import 'package:quittercheck/common/buttons/buttons.dart';
+import 'package:quittercheck/common/paddings.dart';
+import 'package:quittercheck/common/texts/text_styles.dart';
+import 'package:quittercheck/common/widgets/focus_absorber.dart';
+import 'package:quittercheck/common/widgets/handle_layout_building.dart';
+import 'package:quittercheck/common/widgets/opacity_content_indicator.dart';
+import 'package:quittercheck/contracts/contracts.dart';
+import 'package:quittercheck/data/app_cqrs.dart';
+import 'package:quittercheck/features/addresses/manage_address_page.dart';
+import 'package:quittercheck/features/addresses/my_addresses_cubit.dart';
+import 'package:quittercheck/features/addresses/shipping_and_billing/shipping_and_billing_page.dart';
+import 'package:quittercheck/features/homescreen/homescreen_page.dart';
+import 'package:quittercheck/features/manual_payment/extensions.dart';
+import 'package:quittercheck/features/manual_payment/pay_results_pages/payment_succeeded_page.dart';
+import 'package:quittercheck/features/order_summary/early_bird/early_bird_special_page.dart';
+import 'package:quittercheck/features/order_summary/plan_order/active_order_cubit.dart';
+import 'package:quittercheck/features/order_summary/plan_order/order_summary_bloc.dart';
+import 'package:quittercheck/features/order_summary/plan_order/plan_order_summary_page.dart';
+import 'package:quittercheck/features/order_summary/shopping_basket/shopping_basket_cubit.dart';
+import 'package:quittercheck/features/order_summary/widgets/address_section.dart';
+import 'package:quittercheck/features/order_summary/widgets/enter_gift_code_widget.dart';
+import 'package:quittercheck/features/order_summary/widgets/order_info.dart';
+import 'package:quittercheck/features/order_summary/widgets/shipping_options.dart';
+import 'package:quittercheck/features/order_summary/widgets/summary_info.dart';
+import 'package:quittercheck/features/payments/presentation/plan/plan_payment_page.dart';
+import 'package:quittercheck/features/pledge_purchase/pledge_purchase_page.dart';
+import 'package:quittercheck/features/remote_configuration/app_server_config.dart';
+import 'package:quittercheck/features/remote_configuration/plan_setup_disabled_dialog.dart';
+import 'package:quittercheck/gen/assets.gen.dart';
+import 'package:quittercheck/hooks/use_cubit.dart';
+import 'package:quittercheck/models/usd.dart';
+import 'package:quittercheck/resources/strings.dart';
+import 'package:quittercheck/utils/analytics/analytics.dart';
+
+// TODO RB: there should be EditAddressOrder endpoint available on address change
+class PlanOrderSummaryView extends HookWidget {
+  static const proceedToPaymentBtnKey = ValueKey('proceedToPaymentBtn');
+
+  void _createAddress(
+    BuildContext context, {
+    @required MyAddressesCubit cubit,
+    @required ShoppingBasketCubit basketCubit,
+    @required ValueNotifier<String> selectedShippingAddressNotifier,
+    @required ValueNotifier<String> selectedBillingAddressNotifier,
+    bool billing = false,
+  }) {
+    AppNavigator.of(context).push(
+      ManageAddressPage(
+        showBottomBasket: true,
+        onAddressAdded: (addressId) async {
+          await cubit.fetch();
+          _selectAddress(
+            selectedAddressId: addressId,
+            selectedAddressIdNotifier: billing
+                ? selectedBillingAddressNotifier
+                : selectedShippingAddressNotifier,
+            allAddresses: cubit.state.addresses,
+            updateBasket: billing
+                ? basketCubit.setBillingData
+                : basketCubit.setShippingData,
+          );
+        },
+      ),
+    );
+  }
+
+  void _editAddress(
+    BuildContext context, {
+    @required OrderSummaryBloc orderSummaryBloc,
+    @required UserAddressDTO address,
+    @required MyAddressesCubit cubit,
+    @required ShoppingBasketCubit basketCubit,
+    @required ValueNotifier<String> selectedShippingAddressNotifier,
+    @required ValueNotifier<String> selectedBillingAddressNotifier,
+    bool billing = false,
+  }) {
+    AppNavigator.of(context).push(
+      ManageAddressPage(
+        showBottomBasket: true,
+        address: address,
+        onAddressAdded: (addressId) async {
+          await cubit.fetch();
+          _updateEditedAddresses(
+            selectedAddressId: addressId,
+            allAddresses: cubit.state.addresses,
+            orderSummaryBloc: orderSummaryBloc,
+            basketCubit: basketCubit,
+            selectedShippingAddressNotifier: selectedShippingAddressNotifier,
+            selectedBillingAddressNotifier: selectedBillingAddressNotifier,
+            billingEdited: billing,
+          );
+        },
+      ),
+    );
+  }
+
+  void _updateEditedAddresses({
+    @required String selectedAddressId,
+    @required List<UserAddressDTO> allAddresses,
+    @required OrderSummaryBloc orderSummaryBloc,
+    @required ShoppingBasketCubit basketCubit,
+    @required ValueNotifier<String> selectedShippingAddressNotifier,
+    @required ValueNotifier<String> selectedBillingAddressNotifier,
+    bool billingEdited = false,
+  }) {
+    final selectedAddress =
+        allAddresses.firstWhere((address) => address.id == selectedAddressId);
+    final addressData = AddressData()
+      ..addressId = selectedAddress.id
+      ..addressDTO = selectedAddress.address;
+
+    if (selectedShippingAddressNotifier.value == selectedAddressId) {
+      basketCubit.setShippingData(addressData);
+    }
+
+    if (selectedBillingAddressNotifier.value == selectedAddressId) {
+      basketCubit.setBillingData(addressData);
+    }
+
+    // This is a workaround to recreate order manually, otherwise they won't be updated
+    // if selected orders will be edited
+    if (selectedShippingAddressNotifier.value == selectedAddressId &&
+        selectedBillingAddressNotifier.value == selectedAddressId) {
+      return orderSummaryBloc.add(CreateUserPlan(basketCubit.state));
+    }
+
+    if (billingEdited) {
+      basketCubit.setBillingData(addressData);
+      selectedBillingAddressNotifier.value = selectedAddressId;
+    } else {
+      basketCubit.setShippingData(addressData);
+      selectedShippingAddressNotifier.value = selectedAddressId;
+    }
+  }
+
+  void _selectAddress({
+    @required String selectedAddressId,
+    @required ValueNotifier<String> selectedAddressIdNotifier,
+    @required List<UserAddressDTO> allAddresses,
+    @required void Function(AddressData data) updateBasket,
+  }) {
+    if (selectedAddressId == selectedAddressIdNotifier.value) {
+      return;
+    }
+
+    final selectedAddress =
+        allAddresses.firstWhere((address) => address.id == selectedAddressId);
+    final addressData = AddressData()
+      ..addressId = selectedAddress.id
+      ..addressDTO = selectedAddress.address;
+
+    updateBasket(addressData);
+    selectedAddressIdNotifier.value = addressData.addressId;
+  }
+
+  void _earlyBirdNavigationListener(
+    BuildContext context, {
+    @required OrderSummaryState orderSummaryState,
+    @required ObjectRef<bool> earlyBirdShownPopupRef,
+  }) {
+    if (!earlyBirdShownPopupRef.value) {
+      earlyBirdShownPopupRef.value = true;
+      AppNavigator.of(context).push(
+        EarlyBirdSpecialPage(
+          giftProduct: orderSummaryState.getEarlyBirdProduct(),
+        ),
+      );
+    }
+  }
+
+  void _cancelOrder(
+    BuildContext context, {
+    OrderSummaryBloc orderSummaryBloc,
+  }) {
+    final state = orderSummaryBloc.state;
+    if (state.info != null) {
+      orderSummaryBloc.add(CancelActiveOrder(state.info.orderId));
+    }
+
+    AppNavigator.of(context).pop();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final cqrs = Provider.of<AppCQRS>(context);
+
+    final basketCubit = context.watch<ShoppingBasketCubit>();
+
+    final orderSummaryBloc = useCubit(
+      () => OrderSummaryBloc(
+        cqrs: cqrs,
+        basketCubit: basketCubit,
+        analytics: context.read<Analytics>(),
+        activeOrdersCubit: context.read<ActiveOrdersCubit>(),
+      ),
+    );
+    final orderSummaryState = useCubitState(orderSummaryBloc);
+
+    final addressesCubit = useCubit(() => MyAddressesCubit(cqrs)..fetch());
+    final addressesState = useCubitState(addressesCubit);
+
+    final didRequestOrderCompletion = useValueNotifier<bool>(false);
+
+    final selectedShippingAddressId = useState<String>(null);
+    final selectedBillingAddressId = useState<String>(null);
+
+    useEffect(() {
+      if (selectedShippingAddressId.value != null &&
+          selectedBillingAddressId.value != null) {
+        orderSummaryBloc.add(
+          CreateUserPlan(basketCubit.state),
+        );
+      }
+
+      return;
+    }, [
+      selectedShippingAddressId.value,
+      selectedBillingAddressId.value,
+    ]);
+
+    final planOrderInfo = orderSummaryState.info;
+    final gift =
+        planOrderInfo?.amountGiftCode?.amount?.giftValueUSDAmountSmallestUnit;
+    final initialRewards = planOrderInfo?.initialRewardUSDSmallestUnit;
+
+    final loading = addressesState.loading ||
+        orderSummaryState.loading ||
+        (!orderSummaryState.error && planOrderInfo == null);
+
+    final error = (orderSummaryState.error && planOrderInfo == null) ||
+        addressesState.error;
+
+    final earlyBirdShownPopup = useRef(false);
+    final earlyBirdProduct = orderSummaryState.getEarlyBirdProduct();
+
+    return FocusAbsorber(
+      child: WillPopScope(
+        onWillPop: () async {
+          _cancelOrder(
+            context,
+            orderSummaryBloc: orderSummaryBloc,
+          );
+          return true;
+        },
+        child: Scaffold(
+          appBar: WhiteAppBar(
+            title: S.OrderSummary.tr(),
+            onBackButton: () => _cancelOrder(
+              context,
+              orderSummaryBloc: orderSummaryBloc,
+            ),
+          ),
+          body: BlocProvider<OrderSummaryBloc>.value(
+            value: orderSummaryBloc,
+            child: MultiBlocListener(
+              listeners: [
+                BlocListener<MyAddressesCubit, MyAddressesState>(
+                  bloc: addressesCubit,
+                  listener: (ctx, state) => _addressesListener(
+                    ctx,
+                    state: state,
+                    orderSummaryBloc: orderSummaryBloc,
+                    basketCubit: basketCubit,
+                    selectedBillingAddressId: selectedBillingAddressId,
+                    selectedShippingAddressId: selectedShippingAddressId,
+                  ),
+                ),
+                BlocListener<OrderSummaryBloc, OrderSummaryState>(
+                  listener: (ctx, state) => _orderSummaryListener(
+                    ctx,
+                    state: state,
+                    didRequestOrderCompletion: didRequestOrderCompletion.value,
+                    basketCubit: basketCubit,
+                  ),
+                ),
+                BlocListener<OrderSummaryBloc, OrderSummaryState>(
+                  listener: (ctx, state) => _earlyBirdNavigationListener(
+                    ctx,
+                    orderSummaryState: state,
+                    earlyBirdShownPopupRef: earlyBirdShownPopup,
+                  ),
+                  listenWhen: (prevState, currState) =>
+                      prevState.eligibleForEarlyBird !=
+                          currState.eligibleForEarlyBird &&
+                      currState.eligibleForEarlyBird,
+                ),
+              ],
+              child: HandleLayoutBuilding(
+                error: error,
+                loading: loading,
+                onRefresh: () => addressesCubit.fetch(),
+                builder: (context) {
+                  return OpacityContentIndicator(
+                    isLoading: orderSummaryState.refreshing,
+                    child: SingleChildScrollView(
+                      padding: ScrollablePagePadding.padding
+                          .copyWith(left: 0, right: 0),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          HorizontalPadding(
+                            child: OrderInfo(
+                              productQuantityMap:
+                                  orderSummaryState.getExtraProducts(),
+                              quittingPlan: planOrderInfo?.quittingPlan,
+                              testingFrequencyBundle:
+                                  planOrderInfo?.testingFrequencyBundle,
+                              earlyBirdProduct: earlyBirdProduct,
+                              productBundles:
+                                  orderSummaryState.info.extraBundles,
+                              onQuantityChanged: (productId, quantity) =>
+                                  orderSummaryBloc.add(
+                                ChangeProductQuantity(productId, quantity),
+                              ),
+                            ),
+                          ),
+                          const SizedBox(height: 32),
+                          EnterGiftCodeWidget(
+                            planOrderId: planOrderInfo.orderId,
+                            errorText: _getErrorTextForState(orderSummaryState),
+                            initialGiftCode: basketCubit.state.giftCode?.code,
+                          ),
+
+                          // === Address start ===
+                          const SizedBox(height: 35),
+                          HorizontalPadding(
+                            child: AddressSection(
+                              addresses: addressesState.addresses,
+                              onBillingAddressChanged: (id) => _selectAddress(
+                                allAddresses: addressesState.addresses,
+                                selectedAddressId: id,
+                                selectedAddressIdNotifier:
+                                    selectedBillingAddressId,
+                                updateBasket: basketCubit.setBillingData,
+                              ),
+                              onShippingAddressChanged: (id) => _selectAddress(
+                                allAddresses: addressesState.addresses,
+                                selectedAddressIdNotifier:
+                                    selectedShippingAddressId,
+                                selectedAddressId: id,
+                                updateBasket: basketCubit.setShippingData,
+                              ),
+                              onAddressCreateTap: ({billing}) => _createAddress(
+                                context,
+                                cubit: addressesCubit,
+                                basketCubit: basketCubit,
+                                selectedShippingAddressNotifier:
+                                    selectedShippingAddressId,
+                                selectedBillingAddressNotifier:
+                                    selectedBillingAddressId,
+                                billing: billing,
+                              ),
+                              onAddressEditTap: ({address, billing}) =>
+                                  _editAddress(
+                                context,
+                                cubit: addressesCubit,
+                                orderSummaryBloc: orderSummaryBloc,
+                                basketCubit: basketCubit,
+                                address: address,
+                                selectedShippingAddressNotifier:
+                                    selectedShippingAddressId,
+                                selectedBillingAddressNotifier:
+                                    selectedBillingAddressId,
+                                billing: billing,
+                              ),
+                              selectedShippingAddressId:
+                                  selectedShippingAddressId.value,
+                              selectedBillingAddressId:
+                                  selectedBillingAddressId.value,
+                            ),
+                          ),
+                          // === Address end ===
+
+                          const SizedBox(height: 24),
+                          HorizontalPadding(
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(
+                                  S.OrderSummary_DeliveryMethods.tr(),
+                                  style: TextStyles.poppins15SemiBoldBlack,
+                                ),
+                                const SizedBox(height: 24),
+                                ShippingOptions(
+                                  items: orderSummaryState.shippingOptions,
+                                  selectedOptionId: orderSummaryState
+                                      .selectedShippingOptionId,
+                                  onTap: (optionId) => orderSummaryBloc.add(
+                                    EditShippingOption(
+                                      planOrderInfo.orderId,
+                                      optionId,
+                                    ),
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                          const SizedBox(height: 24),
+                          HorizontalPadding(
+                            child: SummaryInfo(
+                              total: USD.smallestUnit(
+                                planOrderInfo.totalPriceUSDSmallestUnit,
+                              ),
+                              subtotal: orderSummaryState.subtotalPrice,
+                              giftCode:
+                                  gift == null ? null : USD.smallestUnit(gift),
+                              tax: USD.smallestUnit(
+                                  planOrderInfo.taxUSDSmallestUnit),
+                              initialReward: initialRewards == null
+                                  ? null
+                                  : USD.smallestUnit(initialRewards),
+                              earlyBird: earlyBirdProduct == null
+                                  ? null
+                                  : earlyBirdProduct.discount,
+                            ),
+                          ),
+                          const SizedBox(height: 40),
+                          if (orderSummaryState.info.orderStatus ==
+                              UserPlanOrderPaymentStatusDTO.waitingForPayment)
+                            HorizontalPadding(
+                              child: PrimaryButton(
+                                key: proceedToPaymentBtnKey,
+                                isExpanded: true,
+                                text: S.OrderSummary_ConfirmButtonText.tr(),
+                                onPressed: () => _navigateToPaymentPage(
+                                  context,
+                                  userPlan: planOrderInfo,
+                                ),
+                              ),
+                            )
+                          else
+                            HorizontalPadding(
+                              child: PrimaryButton(
+                                key: proceedToPaymentBtnKey,
+                                isExpanded: true,
+                                text:
+                                    S.OrderSummary_CompleteOrderButtonText.tr(),
+                                onPressed: () {
+                                  didRequestOrderCompletion.value = true;
+                                  orderSummaryBloc.add(
+                                    CompleteFreeOrder(planOrderInfo.orderId),
+                                  );
+                                },
+                              ),
+                            ),
+                          const SizedBox(height: 24),
+                        ],
+                      ),
+                    ),
+                  );
+                },
+              ),
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
+  void _navigateToPaymentPage(
+    BuildContext context, {
+    @required UserPlanOrderV2DTO userPlan,
+  }) {
+    context.read<Analytics>().logCheckout(userPlan.toCheckoutEvent());
+    AppNavigator.of(context).push(
+      PlanPaymentPage(userPlan.orderId),
+    );
+  }
+
+  String _getErrorTextForState(OrderSummaryState state) {
+    if (state.editGiftCodeErrorCodes.isNotEmpty) {
+      if (state.editGiftCodeErrorCodes.contains(
+            EditUserPlanOrderGiftCodeErrorCodes.giftCodeAlreadyUsed,
+          ) ||
+          state.editGiftCodeErrorCodes.contains(
+            EditUserPlanOrderGiftCodeErrorCodes.giftCodeDoesNotExist,
+          )) {
+        return S.TextFieldError_InvalidOrderCode.tr();
+      } else if (state.editGiftCodeErrorCodes
+          .contains(EditUserPlanOrderGiftCodeErrorCodes.invalidGiftCodeType)) {
+        return S.OrderSummary_GiftCodeIsPreorderCode.tr();
+      }
+    }
+    return null;
+  }
+
+  void _addressesListener(
+    BuildContext context, {
+    @required MyAddressesState state,
+    @required OrderSummaryBloc orderSummaryBloc,
+    @required ShoppingBasketCubit basketCubit,
+    @required ValueNotifier<String> selectedShippingAddressId,
+    @required ValueNotifier<String> selectedBillingAddressId,
+  }) {
+    if (state.loading) {
+      return;
+    }
+
+    if (state.noAddresses) {
+      AppNavigator.of(context).pushReplacement(
+        ShippingAndBillingPage(
+          onSuccess: (ctx, _, __) => AppNavigator.of(ctx).pushReplacement(
+            const PlanOrderSummaryPage(),
+          ),
+        ),
+      );
+      return;
+    }
+
+    final addressList = state.addresses;
+    final selectedShippingData = basketCubit.state.shippingData;
+    final selectedBillingData = basketCubit.state.billingData;
+
+    if (!_isValidAddress(addressList, selectedShippingData?.addressId) ||
+        !_isValidAddress(addressList, selectedBillingData?.addressId)) {
+      final address = addressList.first;
+
+      basketCubit.setShippingData(
+        AddressData()
+          ..addressDTO = address.address
+          ..addressId = address.id,
+      );
+      basketCubit.setBillingData(
+        AddressData()
+          ..addressDTO = address.address
+          ..addressId = address.id,
+      );
+      selectedShippingAddressId.value = address.id;
+      selectedBillingAddressId.value = address.id;
+    } else {
+      selectedShippingAddressId.value = selectedShippingData.addressId;
+      selectedBillingAddressId.value = selectedBillingData.addressId;
+      if (basketCubit.state.selectedShipping == null) {
+        final addressToSet = addressList.firstWhere(
+          (address) => address.id == selectedShippingAddressId.value,
+        );
+
+        final addressDataToSet = AddressData()
+          ..addressDTO = addressToSet.address
+          ..addressId = addressToSet.id;
+
+        basketCubit.setShippingData(addressDataToSet);
+        basketCubit.setBillingData(addressDataToSet);
+      }
+    }
+  }
+
+  bool _isValidAddress(
+    List<UserAddressDTO> addressList,
+    String addressId,
+  ) {
+    final target = addressList.firstWhere(
+      (addr) => addr.id == addressId,
+      orElse: () => null,
+    );
+    return target != null;
+  }
+
+  void _orderSummaryListener(
+    BuildContext context, {
+    @required OrderSummaryState state,
+    @required bool didRequestOrderCompletion,
+    @required ShoppingBasketCubit basketCubit,
+  }) {
+    if (didRequestOrderCompletion &&
+        state.info?.orderStatus ==
+            UserPlanOrderPaymentStatusDTO.orderConfirmedWithoutPayment) {
+      final navigator = AppNavigator.of(context);
+      final disableUserPlanSetup =
+          context.read<AppServerConfig>().userPlanSetupDisabled;
+
+      if (navigator.pages.any((p) => p is HomeScreenPage)) {
+        navigator.popUntil((p) => p is HomeScreenPage);
+      } else {
+        navigator.setPagesStack([HomeScreenPage()]);
+      }
+      basketCubit.clear();
+      navigator.push(
+        PaymentSucceededPage(
+          customImage: Assets.images.giftCodeSuccess.svg(height: 164),
+          congratulationsText: S.OrderPlaced_Congratulations.tr(),
+          infoText: S.OrderPlaced_OrderComplete.tr(),
+          ctaText: S.PaymentEndPage_SetUpPledge.tr(),
+          onCtaPressed: (context) {
+            if (disableUserPlanSetup) {
+              return showPlanSetupDisabledDialog(context);
+            }
+
+            AppNavigator.of(context).setPagesStack([
+              HomeScreenPage(),
+              PledgePurchasePage(userPlanId: state.info.orderId),
+            ]);
+          },
+          secondaryCtaText: S.PaymentEndPage_GoToHomeScreen.tr(),
+          onSecondaryCtaPressed: (context) {
+            AppNavigator.of(context).setPagesStack([
+              HomeScreenPage(),
+            ]);
+          },
+        ),
+      );
+    }
+  }
+}
