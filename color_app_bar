@@ -1,0 +1,96 @@
+// @dart=2.9
+
+import 'package:flutter/material.dart';
+import 'package:quittercheck/common/buttons/app_back_button.dart';
+import 'package:quittercheck/common/texts/texts.dart';
+
+class ColorAppBar extends StatelessWidget implements PreferredSizeWidget {
+  const ColorAppBar({
+    Key key,
+    @required this.color,
+    this.title,
+    this.titleWidth,
+    this.showArrowBack = true,
+    this.actions = const <Widget>[],
+    this.onBackButton,
+    this.tabs,
+  })  : assert(actions != null),
+        super(key: key);
+
+  final String title;
+  final double titleWidth;
+  final bool showArrowBack;
+  final List<Widget> actions;
+  final Color color;
+  final VoidCallback onBackButton;
+  final Widget tabs;
+
+  @override
+  Widget build(BuildContext context) {
+    final parentRoute = ModalRoute.of(context);
+    final canPop = parentRoute?.canPop ?? false;
+    final showBackButton = canPop && showArrowBack;
+
+    return Material(
+      color: color,
+      child: SafeArea(
+        bottom: false,
+        child: Container(
+          height: preferredSize.height,
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Expanded(
+                child: Stack(
+                  fit: StackFit.expand,
+                  children: [
+                    if (title != null)
+                      Container(
+                        alignment: Alignment.center,
+                        padding: showBackButton
+                            // 82 = 32 page + 25 icon * 2 (equal space on both sides)
+                            ? const EdgeInsets.fromLTRB(82, 0, 82, 2)
+                            : const EdgeInsets.fromLTRB(32, 0, 32, 2),
+                        child: SizedBox(
+                          width: titleWidth,
+                          child: Text(
+                            title,
+                            style: TextStyles.ubuntu18BoldBlack,
+                            textAlign: TextAlign.center,
+                          ),
+                        ),
+                      ),
+                    if (canPop && showArrowBack)
+                      Container(
+                        padding: const EdgeInsets.only(left: 32),
+                        alignment: Alignment.centerLeft,
+                        child: AppBackButton(
+                          onPressed: onBackButton,
+                        ),
+                      ),
+                    Row(
+                      children: [
+                        const Spacer(),
+                        ...actions,
+                        const SizedBox(height: 24),
+                      ],
+                    ),
+                  ],
+                ),
+              ),
+              if (tabs != null)
+                Container(
+                  height: kTextTabBarHeight,
+                  child: tabs,
+                ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  @override
+  Size get preferredSize => Size.fromHeight(
+      kToolbarHeight * 1.2 + (tabs != null ? kTextTabBarHeight : 0));
+}
