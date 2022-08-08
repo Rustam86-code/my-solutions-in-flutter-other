@@ -1,0 +1,1137 @@
+import 'package:flutter/material.dart';
+import 'package:quittercheck/resources/app_colors.dart';
+
+// ignore: avoid_classes_with_only_static_members
+abstract class TextStyles {
+  static const _poppins = TextStyle(
+    color: AppColors.black,
+    fontWeight: FontWeight.normal,
+    fontFamily: 'Poppins',
+  );
+
+  static const _ubuntu = TextStyle(
+    color: AppColors.black,
+    fontWeight: FontWeight.normal,
+    fontFamily: 'Ubuntu',
+  );
+
+  static TextStyle poppins({
+    double? size,
+    Color? color,
+    FontWeight? weight,
+    double? heightPx,
+    FontStyle? style,
+    double? letterSpacing,
+    TextDecoration? decoration,
+  }) =>
+      _poppins.copyWith(
+        fontSize: size,
+        color: color,
+        fontWeight: weight,
+        height: size != null && heightPx != null ? heightPx / size : null,
+        fontStyle: style,
+        letterSpacing: letterSpacing,
+        decoration: decoration,
+      );
+
+  static TextStyle ubuntu({
+    double? size,
+    Color? color,
+    FontWeight? weight,
+    double? heightPx,
+    FontStyle? style,
+    double? letterSpacing,
+    TextDecoration? decoration,
+  }) =>
+      _ubuntu.copyWith(
+        fontSize: size,
+        color: color,
+        fontWeight: weight,
+        height: size != null && heightPx != null ? heightPx / size : null,
+        fontStyle: style,
+        letterSpacing: letterSpacing,
+        decoration: decoration,
+      );
+
+  //Custom text styles
+
+  static TextStyle get ubuntu14RegularBlack => ubuntu(
+        size: 14,
+        heightPx: 20,
+        weight: FontWeight.normal,
+        color: AppColors.black,
+      );
+
+  static TextStyle get ubuntu14BoldBlack => ubuntu(
+        size: 14,
+        heightPx: 20,
+        weight: FontWeight.bold,
+        color: AppColors.black,
+      );
+
+  static TextStyle get ubuntu14RegularGrey00 => ubuntu(
+        size: 14,
+        heightPx: 20,
+        weight: FontWeight.normal,
+        color: AppColors.grey00,
+      );
+
+  static TextStyle get ubuntu18BoldGrey00 => ubuntu(
+        size: 18,
+        heightPx: 21,
+        weight: FontWeight.bold,
+        color: AppColors.grey00,
+      );
+
+  static TextStyle get ubuntu18BoldBlack => ubuntu(
+        size: 18,
+        heightPx: 21,
+        weight: FontWeight.bold,
+        color: AppColors.black,
+      );
+
+  static TextStyle get poppins14SemiBoldWhite => poppins(
+        size: 14,
+        heightPx: 18,
+        weight: FontWeight.w600,
+        color: AppColors.white,
+      );
+
+  static TextStyle get poppins11p5RegularGrey00 => poppins(
+        size: 11.5,
+        heightPx: 22,
+        weight: FontWeight.normal,
+        color: AppColors.grey00,
+      );
+
+  static TextStyle get poppins11p5RegularLink => poppins(
+        size: 11.5,
+        heightPx: 22,
+        weight: FontWeight.normal,
+        color: AppColors.link,
+        decoration: TextDecoration.underline,
+      );
+
+  static TextStyle get poppins13BoldPrimary => poppins(
+        size: 13,
+        heightPx: 18,
+        weight: FontWeight.bold,
+        letterSpacing: -0.25,
+        color: AppColors.primaryGreen,
+      );
+
+  static TextStyle get poppins15SemiBoldBlack => poppins(
+        size: 15,
+        heightPx: 22,
+        weight: FontWeight.w600,
+        color: AppColors.black,
+      );
+
+  static TextStyle get poppins15MediumBlack => poppins(
+        size: 15,
+        heightPx: 22,
+        weight: FontWeight.w500,
+        color: AppColors.black,
+      );
+
+  static TextStyle get poppins15MediumBlackItalic => poppins(
+        size: 15,
+        heightPx: 22,
+        weight: FontWeight.w500,
+        color: AppColors.black,
+        style: FontStyle.italic,
+      );
+
+  static TextStyle get poppins15MediumGreen => poppins(
+        size: 15,
+        heightPx: 22,
+        weight: FontWeight.w500,
+        color: AppColors.primaryGreen,
+      );
+
+  static TextStyle get poppins13SemiBoldPrimary => poppins(
+        size: 13,
+        heightPx: 19,
+        weight: FontWeight.w600,
+        color: AppColors.primaryGreen,
+      );
+
+  static TextStyle get poppins13SemiBoldWhite => poppins(
+        size: 13,
+        heightPx: 19,
+        weight: FontWeight.w600,
+        color: AppColors.white,
+      );
+
+  static TextStyle get poppins13SemiBoldBlack => poppins(
+        size: 13,
+        heightPx: 19,
+        weight: FontWeight.w600,
+        color: AppColors.black,
+      );
+
+  static TextStyle get poppins11SemiBoldWhite => poppins(
+        size: 11,
+        heightPx: 16,
+        weight: FontWeight.w600,
+        color: AppColors.white,
+      );
+
+  static TextStyle get poppins20SemiboldWhite => poppins(
+        size: 20,
+        heightPx: 30,
+        weight: FontWeight.w600,
+        color: AppColors.white,
+      );
+
+  static TextStyle get poppins20SemiBoldBlack => poppins(
+        size: 20,
+        heightPx: 30,
+        weight: FontWeight.w600,
+        color: AppColors.black,
+      );
+
+  static TextStyle get poppins13RegularBlack => poppins(
+        size: 13,
+        heightPx: 18,
+        weight: FontWeight.normal,
+        color: AppColors.black,
+      );
+
+  static TextStyle get ubuntu14RegularGrey00Tight => ubuntu(
+        size: 14,
+        heightPx: 24,
+        letterSpacing: -0.3,
+        weight: FontWeight.normal,
+        color: AppColors.grey00,
+      );
+
+  static TextStyle get ubuntu14RegularLinkTight => ubuntu(
+        size: 14,
+        heightPx: 24,
+        letterSpacing: -0.3,
+        weight: FontWeight.normal,
+        color: AppColors.link,
+        decoration: TextDecoration.underline,
+      );
+
+  static TextStyle get poppins13RegularGrey00 => poppins(
+        size: 13,
+        heightPx: 19,
+        weight: FontWeight.normal,
+        color: AppColors.grey00,
+      );
+
+  static TextStyle get poppins13RegularInputGrey => poppins(
+        size: 13,
+        heightPx: 19,
+        weight: FontWeight.normal,
+        color: AppColors.nInputGrey,
+      );
+
+  static TextStyle get poppins18SemiBoldGrey00 => poppins(
+        size: 18,
+        heightPx: 27,
+        weight: FontWeight.w600,
+        color: AppColors.grey00,
+      );
+
+  static TextStyle get poppins18SemiBoldPrimary => poppins(
+        size: 18,
+        heightPx: 27,
+        weight: FontWeight.w600,
+        color: AppColors.primaryGreen,
+      );
+
+  static TextStyle get poppins18SemiBoldBlack => poppins(
+        size: 18,
+        heightPx: 27,
+        weight: FontWeight.w600,
+        color: AppColors.black,
+      );
+
+  static TextStyle get poppins12RegularErrorRed => poppins(
+        size: 12,
+        heightPx: 18,
+        weight: FontWeight.normal,
+        color: AppColors.nErrorRed,
+      );
+
+  static TextStyle get poppins12SemiBoldWhite => poppins(
+        size: 12,
+        heightPx: 18,
+        weight: FontWeight.w600,
+        color: AppColors.white,
+      );
+
+  static TextStyle get poppins12SemiBoldTransparent => poppins(
+        size: 12,
+        heightPx: 18,
+        weight: FontWeight.w600,
+        color: Colors.transparent,
+      );
+
+  static TextStyle get poppins40SemiBoldBlack => poppins(
+        size: 40,
+        heightPx: 60,
+        weight: FontWeight.w600,
+        color: AppColors.black,
+      );
+
+  static TextStyle get poppins18ExtraBoldGrey00 => poppins(
+        size: 18,
+        heightPx: 22,
+        weight: FontWeight.w800,
+        color: AppColors.grey00,
+      );
+
+  static TextStyle get poppins15SemiBoldWhite => poppins(
+        size: 15,
+        heightPx: 22,
+        weight: FontWeight.w600,
+        color: AppColors.white,
+      );
+
+  static TextStyle get poppins15SemiBoldMelanie => poppins(
+        size: 15,
+        heightPx: 22,
+        weight: FontWeight.w600,
+        color: AppColors.melanie,
+      );
+
+  static TextStyle get poppins18RegularGrey00Tight => poppins(
+        size: 18,
+        heightPx: 28,
+        weight: FontWeight.normal,
+        color: AppColors.grey00,
+        letterSpacing: -0.4,
+      );
+
+  static TextStyle get poppins18RegularGreyLightTight => poppins(
+        size: 18,
+        heightPx: 28,
+        weight: FontWeight.normal,
+        color: AppColors.nGreyLight,
+        letterSpacing: -0.4,
+      );
+
+  static TextStyle get poppins18RegularPrimaryTight => poppins(
+        size: 18,
+        heightPx: 28,
+        weight: FontWeight.normal,
+        color: AppColors.primaryGreen,
+        letterSpacing: -0.4,
+      );
+
+  static TextStyle get poppins15MediumGrey => poppins(
+        size: 15,
+        heightPx: 22,
+        weight: FontWeight.w500,
+        color: AppColors.nGrey,
+      );
+
+  static TextStyle get poppins13MediumWhite => poppins(
+        size: 13,
+        heightPx: 19,
+        weight: FontWeight.w500,
+        color: AppColors.white,
+      );
+
+  static TextStyle get poppins14MediumGrey00Underline => poppins(
+        size: 14,
+        heightPx: 21,
+        weight: FontWeight.w500,
+        color: AppColors.grey00,
+        decoration: TextDecoration.underline,
+      );
+
+  static TextStyle get poppins14MediumGrey00 => poppins(
+        size: 14,
+        heightPx: 21,
+        weight: FontWeight.w500,
+        color: AppColors.grey00,
+      );
+
+  static TextStyle get ubuntu25BoldBlack => ubuntu(
+        size: 25,
+        heightPx: 29,
+        weight: FontWeight.bold,
+        color: AppColors.black,
+      );
+
+  static TextStyle get poppins13MediumBlack => poppins(
+        size: 13,
+        heightPx: 19,
+        weight: FontWeight.w500,
+        color: AppColors.black,
+      );
+
+  static TextStyle get poppins13MediumBlackItalic => poppins(
+        size: 13,
+        heightPx: 19,
+        weight: FontWeight.w500,
+        color: AppColors.black,
+        style: FontStyle.italic,
+      );
+
+  static TextStyle get poppins13MediumGreyItalic => poppins(
+        size: 13,
+        heightPx: 19,
+        weight: FontWeight.w500,
+        color: AppColors.grey01,
+        style: FontStyle.italic,
+      );
+
+  static TextStyle get poppins15RegularPrimary => poppins(
+        size: 15,
+        heightPx: 22,
+        weight: FontWeight.normal,
+        color: AppColors.primaryGreen,
+      );
+
+  static TextStyle get poppins15BoldGrey00 => poppins(
+        size: 15,
+        heightPx: 17,
+        weight: FontWeight.bold,
+        color: AppColors.grey00,
+      );
+
+  static TextStyle get poppins15RegularBlack => poppins(
+        size: 15,
+        heightPx: 22,
+        weight: FontWeight.normal,
+        color: AppColors.black,
+      );
+
+  static TextStyle get ubuntu14MediumBlack => ubuntu(
+        size: 14,
+        heightPx: 16,
+        weight: FontWeight.w500,
+        color: AppColors.black,
+      );
+
+  static TextStyle get ubuntu14MediumRed => ubuntu(
+        size: 14,
+        heightPx: 16,
+        weight: FontWeight.w500,
+        color: AppColors.nErrorRedVivid,
+      );
+
+  static TextStyle get ubuntu45BoldBlack => ubuntu(
+        size: 45,
+        heightPx: 52,
+        weight: FontWeight.bold,
+        color: AppColors.black,
+      );
+
+  static TextStyle get ubuntu12RegularGrey00 => ubuntu(
+        size: 12,
+        heightPx: 17,
+        weight: FontWeight.normal,
+        color: AppColors.grey00,
+      );
+
+  static TextStyle get ubuntu32BoldBlack => ubuntu(
+        size: 32,
+        heightPx: 32,
+        weight: FontWeight.bold,
+        color: AppColors.black,
+      );
+
+  static TextStyle get ubuntu35BoldBlack => ubuntu(
+        size: 35,
+        heightPx: 40,
+        weight: FontWeight.bold,
+        color: AppColors.black,
+      );
+
+  static TextStyle get poppins20MediumGrey => poppins(
+        size: 20,
+        heightPx: 30,
+        weight: FontWeight.w500,
+        color: AppColors.nGrey,
+      );
+
+  static TextStyle get ubuntu22RegularGreyDark => ubuntu(
+        size: 22,
+        heightPx: 25,
+        weight: FontWeight.normal,
+        color: AppColors.nGreyDark,
+      );
+
+  static TextStyle get ubuntu22RegularDarkBlack => ubuntu(
+        size: 22,
+        heightPx: 25,
+        weight: FontWeight.normal,
+        color: AppColors.darkBlack,
+      );
+
+  static TextStyle get ubuntu13RegularGrey00 => ubuntu(
+        size: 13,
+        heightPx: 19,
+        weight: FontWeight.normal,
+        color: AppColors.grey00,
+      );
+
+  static TextStyle get ubuntu13MediumGrey00 => ubuntu(
+        size: 13,
+        heightPx: 19,
+        weight: FontWeight.w500,
+        color: AppColors.grey00,
+      );
+
+  static TextStyle get ubuntu13BoldGrey00 => ubuntu(
+        size: 13,
+        heightPx: 17,
+        weight: FontWeight.bold,
+        color: AppColors.grey00,
+      );
+
+  static TextStyle get ubuntu12RegularPrimary => ubuntu(
+        size: 12,
+        heightPx: 14,
+        weight: FontWeight.normal,
+        color: AppColors.primaryGreen,
+      );
+
+  static TextStyle get ubuntu15BoldGrey00 => ubuntu(
+        size: 15,
+        heightPx: 17,
+        weight: FontWeight.bold,
+        color: AppColors.grey00,
+      );
+
+  static TextStyle get ubuntu15BoldBlack => ubuntu(
+        size: 15,
+        heightPx: 17,
+        weight: FontWeight.bold,
+        color: AppColors.black,
+      );
+
+  static TextStyle get ubuntu15RegularGrey00 => ubuntu(
+        size: 15,
+        heightPx: 17,
+        weight: FontWeight.normal,
+        color: AppColors.grey00,
+      );
+
+  static TextStyle get ubuntu24BoldBlack => ubuntu(
+        size: 24,
+        heightPx: 25,
+        weight: FontWeight.bold,
+        color: AppColors.black,
+      );
+
+  static TextStyle get poppins8RegularGrey00 => poppins(
+        size: 8,
+        heightPx: 14,
+        weight: FontWeight.normal,
+        color: AppColors.grey00,
+      );
+
+  static TextStyle get poppins10RegularGrey00 => poppins(
+        size: 10,
+        heightPx: 14,
+        weight: FontWeight.normal,
+        color: AppColors.grey00,
+      );
+
+  static TextStyle get poppins10RegularWhite => poppins(
+        size: 10,
+        heightPx: 14,
+        weight: FontWeight.normal,
+        color: AppColors.white,
+      );
+
+  static TextStyle get poppins10MediumWhite => poppins(
+        size: 10,
+        heightPx: 16,
+        weight: FontWeight.w500,
+        color: AppColors.white,
+      );
+
+  static TextStyle get poppins11MediumBlack => poppins(
+        size: 11,
+        heightPx: 14,
+        weight: FontWeight.w500,
+        color: AppColors.black,
+      );
+
+  static TextStyle get poppins12RegularBlackWide => poppins(
+        size: 12,
+        heightPx: 18,
+        weight: FontWeight.normal,
+        letterSpacing: 0.2,
+        color: AppColors.black,
+      );
+
+  static TextStyle get poppins12RegularWhite => poppins(
+        size: 12,
+        heightPx: 18,
+        weight: FontWeight.normal,
+        letterSpacing: 0.2,
+        color: AppColors.white,
+      );
+
+  static TextStyle get poppins12MediumWhite => poppins(
+        size: 12,
+        heightPx: 18,
+        weight: FontWeight.w500,
+        letterSpacing: 0.2,
+        color: AppColors.white,
+      );
+
+  static TextStyle get poppins12RegularGrey00 => poppins(
+        size: 12,
+        heightPx: 18,
+        weight: FontWeight.normal,
+        color: AppColors.grey00,
+      );
+
+  static TextStyle get poppins12RegularPrimaryGreen => poppins(
+        size: 12,
+        heightPx: 18,
+        weight: FontWeight.normal,
+        color: AppColors.primaryGreen,
+      );
+
+  static TextStyle get poppins12RegularBlue => poppins(
+        size: 12,
+        heightPx: 18,
+        weight: FontWeight.normal,
+        color: AppColors.appBlue,
+      );
+
+  static TextStyle get poppins12RegularRed => poppins(
+        size: 12,
+        heightPx: 18,
+        weight: FontWeight.normal,
+        color: AppColors.nErrorRed,
+      );
+
+  static TextStyle get poppins14RegularGrey00 => poppins(
+        size: 14,
+        heightPx: 21,
+        weight: FontWeight.normal,
+        color: AppColors.grey00,
+      );
+
+  static TextStyle get poppins14BoldGrey00 => poppins(
+        size: 14,
+        heightPx: 21,
+        weight: FontWeight.bold,
+        color: AppColors.grey00,
+      );
+
+  static TextStyle get poppins14BoldWhite => poppins(
+        size: 14,
+        heightPx: 21,
+        weight: FontWeight.bold,
+        color: AppColors.white,
+      );
+
+  static TextStyle get poppins14RegularWhiteTight => poppins(
+        size: 14,
+        heightPx: 20,
+        weight: FontWeight.normal,
+        color: AppColors.white,
+        letterSpacing: -0.24,
+      );
+
+  static TextStyle get poppins17RegularWhiteTight => poppins(
+        size: 17,
+        heightPx: 20,
+        weight: FontWeight.normal,
+        color: AppColors.white,
+        letterSpacing: -0.24,
+      );
+
+  static TextStyle get poppins17SemiBoldWhite => poppins(
+        size: 17,
+        heightPx: 20,
+        weight: FontWeight.w600,
+        color: AppColors.white,
+      );
+
+  static TextStyle get poppins20RegularWhiteTight => poppins(
+        size: 20,
+        heightPx: 30,
+        weight: FontWeight.normal,
+        color: AppColors.white,
+        letterSpacing: -0.24,
+      );
+
+  static TextStyle get poppins20RegularBlack => poppins(
+        size: 20,
+        heightPx: 22,
+        weight: FontWeight.normal,
+        color: AppColors.black,
+      );
+
+  static TextStyle get poppins20RegularPrimaryLight => poppins(
+        size: 20,
+        heightPx: 22,
+        weight: FontWeight.normal,
+        color: AppColors.nPrimaryLight,
+      );
+
+  static TextStyle get poppins20RegularErrorRed => poppins(
+        size: 20,
+        heightPx: 22,
+        weight: FontWeight.normal,
+        color: AppColors.nErrorRed,
+      );
+
+  static TextStyle get poppins20BoldWhiteTight => poppins(
+        size: 20,
+        heightPx: 30,
+        weight: FontWeight.bold,
+        color: AppColors.white,
+        letterSpacing: -0.24,
+      );
+
+  static TextStyle get poppins20BoldBlack => poppins(
+        size: 20,
+        heightPx: 23,
+        weight: FontWeight.bold,
+        color: AppColors.black,
+      );
+
+  static TextStyle get poppins21SemiBoldPrimaryTight => poppins(
+        size: 21,
+        heightPx: 30,
+        weight: FontWeight.w600,
+        color: AppColors.primaryGreen,
+        letterSpacing: -0.24,
+      );
+
+  static TextStyle get poppins10BoldBlackWide => poppins(
+        size: 10,
+        heightPx: 16,
+        weight: FontWeight.w700,
+        color: AppColors.black,
+        letterSpacing: 1.5,
+      );
+
+  static TextStyle get poppins16MediumBlackWide => poppins(
+        size: 16,
+        heightPx: 24,
+        weight: FontWeight.w500,
+        color: AppColors.black,
+        letterSpacing: 0.12,
+      );
+
+  static TextStyle get poppins12RegularBlackTight => poppins(
+        size: 12,
+        heightPx: 16,
+        weight: FontWeight.normal,
+        color: AppColors.black,
+        letterSpacing: -0.32,
+      );
+
+  static TextStyle get poppins14RegularBlack => poppins(
+        size: 14,
+        heightPx: 19,
+        weight: FontWeight.normal,
+        color: AppColors.black,
+      );
+
+  static TextStyle get poppins11RegularGrey00 => poppins(
+        size: 11,
+        heightPx: 16,
+        weight: FontWeight.normal,
+        color: AppColors.grey00,
+      );
+
+  static TextStyle get poppins11RegularInputGrey => poppins(
+        size: 11,
+        heightPx: 16,
+        weight: FontWeight.normal,
+        color: AppColors.nInputGrey,
+      );
+
+  static TextStyle get poppins18MediumGrey00 => poppins(
+        size: 18,
+        heightPx: 27,
+        weight: FontWeight.w500,
+        color: AppColors.grey00,
+      );
+
+  static TextStyle get poppins18MediumPrimary => poppins(
+        size: 18,
+        heightPx: 27,
+        weight: FontWeight.w500,
+        color: AppColors.primaryGreen,
+      );
+
+  static TextStyle get poppins18MediumBlack => poppins(
+        size: 18,
+        heightPx: 27,
+        weight: FontWeight.w500,
+        color: AppColors.black,
+      );
+
+  static TextStyle get poppins8MediumWhite => poppins(
+        size: 8,
+        heightPx: 14,
+        weight: FontWeight.w500,
+        color: AppColors.white,
+      );
+
+  static TextStyle get poppins18ExtraBoldBlack => poppins(
+        size: 18,
+        heightPx: 22,
+        weight: FontWeight.w800,
+        color: AppColors.black,
+      );
+
+  static TextStyle get poppins18BoldWhite => poppins(
+        size: 18,
+        heightPx: 22,
+        weight: FontWeight.w700,
+        color: AppColors.white,
+      );
+
+  static TextStyle get poppins13BoldWhiteTight => poppins(
+        size: 13,
+        heightPx: 18,
+        weight: FontWeight.bold,
+        color: AppColors.white,
+        letterSpacing: -0.08,
+      );
+
+  static TextStyle get poppins13MediumPrimaryTight => poppins(
+        size: 13,
+        heightPx: 18,
+        weight: FontWeight.w500,
+        color: AppColors.primaryGreen,
+        letterSpacing: -0.08,
+      );
+
+  static TextStyle get poppins24BoldBlackTight => poppins(
+        size: 24,
+        heightPx: 36,
+        weight: FontWeight.w600,
+        color: AppColors.black,
+        letterSpacing: -0.32,
+      );
+
+  static TextStyle get poppins14SemiBoldGrey00 => poppins(
+        size: 14,
+        heightPx: 21,
+        weight: FontWeight.w600,
+        color: AppColors.grey00,
+      );
+
+  static TextStyle get ubuntu11MediumBlack => ubuntu(
+        size: 11,
+        heightPx: 14,
+        weight: FontWeight.w500,
+        color: AppColors.black,
+      );
+
+  static TextStyle get poppins13RegularPrimary => poppins(
+        size: 13,
+        heightPx: 19,
+        weight: FontWeight.normal,
+        color: AppColors.primaryGreen,
+      );
+
+  static TextStyle get poppins15RegularYellowDark => poppins(
+        size: 15,
+        heightPx: 22,
+        weight: FontWeight.normal,
+        color: AppColors.nYellowDark,
+      );
+
+  static TextStyle get poppins15BoldBlack => poppins(
+        size: 15,
+        heightPx: 22,
+        weight: FontWeight.bold,
+        color: AppColors.black,
+      );
+
+  static TextStyle get ubuntu14RegularPrimary => poppins(
+        size: 14,
+        heightPx: 20,
+        weight: FontWeight.normal,
+        color: AppColors.primaryGreen,
+      );
+
+  static TextStyle get poppins14RegularRed => poppins(
+        size: 14,
+        heightPx: 20,
+        weight: FontWeight.normal,
+        color: AppColors.nRed,
+      );
+
+  static TextStyle get poppins14MediumLink => poppins(
+        size: 14,
+        heightPx: 20,
+        weight: FontWeight.w500,
+        color: AppColors.link,
+        decoration: TextDecoration.underline,
+      );
+
+  static TextStyle get poppins14MediumPrimary => poppins(
+        size: 14,
+        heightPx: 21,
+        weight: FontWeight.w500,
+        color: AppColors.primaryGreen,
+      );
+
+  static TextStyle get ubuntu12MediumWhite => ubuntu(
+        size: 12,
+        heightPx: 18,
+        weight: FontWeight.w500,
+        color: AppColors.white,
+        letterSpacing: 0.5,
+      );
+
+  static TextStyle get poppins11RegularWhite => poppins(
+        size: 11,
+        heightPx: 16.5,
+        weight: FontWeight.normal,
+        color: AppColors.white,
+      );
+
+  static TextStyle get poppins11RegularWhiteItalic => poppins(
+        size: 11,
+        heightPx: 11,
+        weight: FontWeight.normal,
+        style: FontStyle.italic,
+        color: AppColors.white,
+      );
+
+  static TextStyle get poppins15RegularWhiteWide => poppins(
+        size: 15,
+        heightPx: 22,
+        weight: FontWeight.normal,
+        color: AppColors.white,
+        letterSpacing: 0.5,
+      );
+
+  static TextStyle get poppins15RegularGrey00 => poppins(
+        size: 15,
+        heightPx: 22,
+        weight: FontWeight.normal,
+        color: AppColors.nGrey,
+      );
+
+  static TextStyle get poppins13RegularYellowDark => poppins(
+        size: 13,
+        heightPx: 19,
+        weight: FontWeight.normal,
+        color: AppColors.nYellowDark,
+      );
+
+  static TextStyle get poppins12MediumGreyLight => poppins(
+        size: 12,
+        heightPx: 18,
+        weight: FontWeight.w500,
+        color: AppColors.nGreyLight,
+      );
+
+  static TextStyle get poppins9MediumInputGrey => poppins(
+        size: 9,
+        heightPx: 14,
+        weight: FontWeight.w500,
+        color: AppColors.nInputGrey,
+      );
+
+  static TextStyle get poppins9RegularBlack => poppins(
+        size: 9,
+        heightPx: 14,
+        weight: FontWeight.w400,
+        color: AppColors.black,
+      );
+
+  static TextStyle get poppins9RegularGrey00 => poppins(
+        size: 9,
+        heightPx: 14,
+        weight: FontWeight.w400,
+        color: AppColors.black,
+      );
+
+  static TextStyle get poppins12MediumInputGrey => poppins(
+        size: 12,
+        heightPx: 18,
+        weight: FontWeight.w500,
+        color: AppColors.nInputGrey,
+        style: FontStyle.normal,
+      );
+
+  static TextStyle get poppins13MediumInputGreyLight => poppins(
+        size: 13,
+        heightPx: 19,
+        weight: FontWeight.w500,
+        color: AppColors.nInputGreyLight,
+      );
+
+  static TextStyle get poppins14MediumPrimaryUnderline => poppins(
+        size: 14,
+        heightPx: 21,
+        weight: FontWeight.w500,
+        color: AppColors.primaryGreen,
+        decoration: TextDecoration.underline,
+      );
+
+  static TextStyle get poppins14MediumGreyLightUnderline => poppins(
+        size: 14,
+        heightPx: 21,
+        weight: FontWeight.w500,
+        color: AppColors.nGreyLight,
+        decoration: TextDecoration.underline,
+      );
+
+  static TextStyle get poppins18RegularBlack => poppins(
+        size: 18,
+        heightPx: 27,
+        weight: FontWeight.normal,
+        color: AppColors.black,
+      );
+
+  static TextStyle get poppins14MediumBlack => poppins(
+        color: AppColors.black,
+        size: 14,
+        heightPx: 21,
+        weight: FontWeight.w500,
+      );
+
+  static TextStyle get poppins15RegularBlackItalic => poppins(
+        color: AppColors.black,
+        size: 14,
+        heightPx: 22.5,
+        style: FontStyle.italic,
+      );
+
+  static TextStyle get poppins18BoldBlack => poppins(
+        size: 18,
+        heightPx: 22,
+        weight: FontWeight.bold,
+        color: AppColors.black,
+      );
+
+  static TextStyle get poppins30MediumBlack => poppins(
+        size: 30,
+        heightPx: 30,
+        weight: FontWeight.w500,
+        color: AppColors.black,
+      );
+
+  static TextStyle get poppins30BoldBlack => poppins(
+        size: 30,
+        heightPx: 22,
+        weight: FontWeight.bold,
+        color: AppColors.black,
+      );
+
+  static TextStyle get poppins12SemiBoldPrimaryUnderline => poppins(
+        size: 12,
+        heightPx: 18,
+        weight: FontWeight.w600,
+        color: AppColors.primaryGreen,
+        decoration: TextDecoration.underline,
+      );
+
+  static TextStyle get poppins14SemiBoldBlack => poppins(
+        size: 14,
+        heightPx: 21,
+        weight: FontWeight.w600,
+        color: AppColors.black,
+      );
+
+  static TextStyle get poppins14SemiBoldPrimary => poppins(
+        size: 14,
+        heightPx: 21,
+        weight: FontWeight.w600,
+        color: AppColors.primaryGreen,
+      );
+
+  static TextStyle get poppins12RegularGrey00Wide => poppins(
+        size: 12,
+        heightPx: 17,
+        weight: FontWeight.normal,
+        color: AppColors.grey00,
+        letterSpacing: 0.5,
+      );
+
+  static TextStyle get poppins12RegularLink => poppins(
+        size: 12,
+        heightPx: 18,
+        weight: FontWeight.normal,
+        color: AppColors.link,
+        decoration: TextDecoration.underline,
+      );
+
+  static TextStyle get poppins12MediumBlack => poppins(
+        color: AppColors.black,
+        size: 12,
+        heightPx: 14,
+        weight: FontWeight.w500,
+      );
+
+  static TextStyle get poppins14BoldGrey05 => poppins(
+        color: AppColors.grey05,
+        size: 14,
+        heightPx: 18,
+        weight: FontWeight.bold,
+      );
+
+  static TextStyle get poppins14RegularGrey05 => poppins(
+        color: AppColors.grey05,
+        size: 14,
+        heightPx: 18,
+        weight: FontWeight.normal,
+      );
+
+  static TextStyle get poppins35SemiBoldPrimary => poppins(
+        color: AppColors.primaryGreen,
+        size: 35,
+        heightPx: 48,
+        weight: FontWeight.w600,
+      );
+
+  static TextStyle get ubuntu22BoldBlack => ubuntu(
+        color: AppColors.black,
+        size: 22,
+        heightPx: 25,
+        weight: FontWeight.w700,
+      );
+
+  static TextStyle get poppins14RegularLink => poppins(
+        size: 14,
+        heightPx: 20,
+        weight: FontWeight.normal,
+        color: AppColors.link,
+        decoration: TextDecoration.underline,
+      );
+
+  static TextStyle get poppins10RegularBlack => poppins(
+        size: 10,
+        heightPx: 15,
+        color: AppColors.black,
+        weight: FontWeight.normal,
+      );
+
+  static TextStyle get poppins16SemiBoldBlack => poppins(
+        size: 18,
+        heightPx: 27,
+        color: AppColors.black,
+        weight: FontWeight.w600,
+      );
+
+  static TextStyle get poppins16SemiBoldGrey00 => poppins(
+        size: 18,
+        heightPx: 27,
+        color: AppColors.grey00,
+        weight: FontWeight.w600,
+      );
+
+  static TextStyle get poppins12MediumGrey00 => poppins(
+        size: 12,
+        heightPx: 22,
+        color: AppColors.grey00,
+        weight: FontWeight.w500,
+      );
+}
