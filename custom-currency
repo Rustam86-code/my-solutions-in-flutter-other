@@ -1,0 +1,52 @@
+import 'package:intl/intl.dart';
+
+class USD {
+  const USD(int amount) : _cents = 100 * amount;
+
+  const USD.smallestUnit(this._cents);
+
+  const USD.nullableSmallestUnit(int? cents) : _cents = cents ?? 0;
+
+  final int _cents;
+
+  int get unit => _cents ~/ 100;
+
+  int get smallestUnit => _cents;
+
+  String toDisplayText({
+    bool currencySign = true,
+    bool forceCents = false,
+  }) {
+    final formatter = NumberFormat.currency(
+      locale: "en_US",
+      decimalDigits: !forceCents && _cents % 100 == 0 ? 0 : 2,
+      symbol: currencySign ? '\$' : '',
+    );
+
+    return formatter.format(_cents / 100);
+  }
+
+  USD operator +(USD b) => USD.smallestUnit(_cents + b._cents);
+
+  USD operator -(USD b) => USD.smallestUnit(_cents - b._cents);
+
+  USD operator *(int b) => USD.smallestUnit(_cents * b);
+
+  bool operator <(USD b) => _cents < b._cents;
+
+  bool operator >(USD b) => _cents > b._cents;
+
+  bool operator <=(USD b) => _cents <= b._cents;
+
+  bool operator >=(USD b) => _cents >= b._cents;
+
+  @override
+  bool operator ==(Object other) {
+    if (identical(this, other)) return true;
+
+    return other is USD && other._cents == _cents;
+  }
+
+  @override
+  int get hashCode => _cents.hashCode;
+}
