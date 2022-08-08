@@ -1,0 +1,972 @@
+import 'package:flutter/material.dart';
+import 'package:quittercheck/common/texts/text_styles.dart';
+
+export 'text_styles.dart';
+
+// ignore: avoid_classes_with_only_static_members
+abstract class Texts {
+  static Text ubuntu14RegularBlack(String text, {TextAlign? textAlign}) => Text(
+        text,
+        textAlign: textAlign,
+        style: TextStyles.ubuntu14RegularBlack,
+      );
+
+  static Text ubuntu14BoldBlack(String text, {TextAlign? textAlign}) => Text(
+        text,
+        textAlign: textAlign,
+        style: TextStyles.ubuntu14BoldBlack,
+      );
+
+  static Text ubuntu14RegularGrey00(String text, {TextAlign? textAlign}) =>
+      Text(
+        text,
+        textAlign: textAlign,
+        style: TextStyles.ubuntu14RegularGrey00,
+      );
+
+  static Text ubuntu18BoldGrey00(String text, {TextAlign? textAlign}) => Text(
+        text,
+        textAlign: textAlign,
+        style: TextStyles.ubuntu18BoldGrey00,
+      );
+
+  static Text ubuntu18BoldBlack(String text, {TextAlign? textAlign}) => Text(
+        text,
+        textAlign: textAlign,
+        style: TextStyles.ubuntu18BoldBlack,
+      );
+
+  static Text poppins14SemiBoldWhite(String text, {TextAlign? textAlign}) =>
+      Text(
+        text,
+        textAlign: textAlign,
+        style: TextStyles.poppins14SemiBoldWhite,
+      );
+
+  static Text poppins8RegularGrey00(String text, {TextAlign? textAlign}) =>
+      Text(
+        text,
+        textAlign: textAlign,
+        style: TextStyles.poppins8RegularGrey00,
+      );
+
+  static Text poppins10RegularGrey00(String text, {TextAlign? textAlign}) =>
+      Text(
+        text,
+        textAlign: textAlign,
+        style: TextStyles.poppins10RegularGrey00,
+      );
+
+  static Text poppins10RegularWhite(String text, {TextAlign? textAlign}) =>
+      Text(
+        text,
+        textAlign: textAlign,
+        style: TextStyles.poppins10RegularWhite,
+      );
+
+  static Text poppins10MediumWhite(String text, {TextAlign? textAlign}) => Text(
+        text,
+        textAlign: textAlign,
+        style: TextStyles.poppins10MediumWhite,
+      );
+
+  static Text poppins11MediumBlack(String text, {TextAlign? textAlign}) => Text(
+        text,
+        textAlign: textAlign,
+        style: TextStyles.poppins11MediumBlack,
+      );
+
+  static Text poppins11p5RegularLink(String text, {TextAlign? textAlign}) =>
+      Text(
+        text,
+        textAlign: textAlign,
+        style: TextStyles.poppins11p5RegularLink,
+      );
+
+  static Text poppins11p5RegularGrey00(String text, {TextAlign? textAlign}) =>
+      Text(
+        text,
+        textAlign: textAlign,
+        style: TextStyles.poppins11p5RegularGrey00,
+      );
+
+  static Text poppins15SemiBoldBlack(String text, {TextAlign? textAlign}) =>
+      Text(
+        text,
+        textAlign: textAlign,
+        style: TextStyles.poppins15SemiBoldBlack,
+      );
+
+  static Text poppins15SemiBoldMelanie(String text, {TextAlign? textAlign}) =>
+      Text(
+        text,
+        textAlign: textAlign,
+        style: TextStyles.poppins15SemiBoldMelanie,
+      );
+
+  static Text poppins15MediumBlack(String text, {TextAlign? textAlign}) => Text(
+        text,
+        textAlign: textAlign,
+        style: TextStyles.poppins15MediumBlack,
+      );
+
+  static Text poppins15MediumBlackItalic(String text, {TextAlign? textAlign}) =>
+      Text(
+        text,
+        textAlign: textAlign,
+        style: TextStyles.poppins15MediumBlackItalic,
+      );
+
+  static Text poppins15MediumGreen(String text, {TextAlign? textAlign}) => Text(
+        text,
+        textAlign: textAlign,
+        style: TextStyles.poppins15MediumGreen,
+      );
+
+  static Text poppins13BoldPrimary(String text, {TextAlign? textAlign}) => Text(
+        text,
+        textAlign: textAlign,
+        style: TextStyles.poppins13BoldPrimary,
+      );
+
+  static Text poppins13SemiBoldPrimary(String text, {TextAlign? textAlign}) =>
+      Text(
+        text,
+        textAlign: textAlign,
+        style: TextStyles.poppins13SemiBoldPrimary,
+      );
+
+  static Text poppins13SemiBoldWhite(String text, {TextAlign? textAlign}) =>
+      Text(
+        text,
+        textAlign: textAlign,
+        style: TextStyles.poppins13SemiBoldWhite,
+      );
+
+  static Text poppins13SemiBoldBlack(
+    String text, {
+    TextAlign? textAlign,
+    int? maxLines,
+    TextOverflow? textOverflow,
+  }) =>
+      Text(
+        text,
+        textAlign: textAlign,
+        maxLines: maxLines,
+        overflow: textOverflow,
+        style: TextStyles.poppins13SemiBoldBlack,
+      );
+
+  static Text poppins11SemiBoldWhite(String text, {TextAlign? textAlign}) =>
+      Text(
+        text,
+        textAlign: textAlign,
+        style: TextStyles.poppins11SemiBoldWhite,
+      );
+
+  static Text poppins20SemiboldWhite(String text, {TextAlign? textAlign}) =>
+      Text(
+        text,
+        textAlign: textAlign,
+        style: TextStyles.poppins20SemiboldWhite,
+      );
+
+  static Text poppins20SemiBoldBlack(String text, {TextAlign? textAlign}) =>
+      Text(
+        text,
+        textAlign: textAlign,
+        style: TextStyles.poppins20SemiBoldBlack,
+      );
+
+  static Text poppins13RegularBlack(String text, {TextAlign? textAlign}) =>
+      Text(
+        text,
+        textAlign: textAlign,
+        style: TextStyles.poppins13RegularBlack,
+      );
+
+  static Text ubuntu14RegularGrey00Tight(String text, {TextAlign? textAlign}) =>
+      Text(
+        text,
+        textAlign: textAlign,
+        style: TextStyles.ubuntu14RegularGrey00Tight,
+      );
+
+  static Text ubuntu14RegularLinkTight(String text, {TextAlign? textAlign}) =>
+      Text(
+        text,
+        textAlign: textAlign,
+        style: TextStyles.ubuntu14RegularLinkTight,
+      );
+
+  static Text poppins13RegularGrey00(String text, {TextAlign? textAlign}) =>
+      Text(
+        text,
+        textAlign: textAlign,
+        style: TextStyles.poppins13RegularGrey00,
+      );
+
+  static Text poppins18SemiBoldGrey00(String text, {TextAlign? textAlign}) =>
+      Text(
+        text,
+        textAlign: textAlign,
+        style: TextStyles.poppins18SemiBoldGrey00,
+      );
+
+  static Text poppins18SemiBoldPrimary(String text, {TextAlign? textAlign}) =>
+      Text(
+        text,
+        textAlign: textAlign,
+        style: TextStyles.poppins18SemiBoldPrimary,
+      );
+
+  static Text poppins18SemiBoldBlack(String text, {TextAlign? textAlign}) =>
+      Text(
+        text,
+        textAlign: textAlign,
+        style: TextStyles.poppins18SemiBoldBlack,
+      );
+
+  static Text poppins12RegularErrorRed(String text, {TextAlign? textAlign}) =>
+      Text(
+        text,
+        textAlign: textAlign,
+        style: TextStyles.poppins12RegularErrorRed,
+      );
+
+  static Text poppins40SemiBoldBlack(String text, {TextAlign? textAlign}) =>
+      Text(
+        text,
+        textAlign: textAlign,
+        style: TextStyles.poppins40SemiBoldBlack,
+      );
+
+  static Text poppins18ExtraBoldGrey00(String text, {TextAlign? textAlign}) =>
+      Text(
+        text,
+        textAlign: textAlign,
+        style: TextStyles.poppins18ExtraBoldGrey00,
+      );
+
+  static Text poppins15SemiBoldWhite(String text, {TextAlign? textAlign}) =>
+      Text(
+        text,
+        textAlign: textAlign,
+        style: TextStyles.poppins15SemiBoldWhite,
+      );
+
+  static Text poppins18RegularGrey00Tight(String text,
+          {TextAlign? textAlign}) =>
+      Text(
+        text,
+        textAlign: textAlign,
+        style: TextStyles.poppins18RegularGrey00Tight,
+      );
+
+  static Text poppins18RegularGreyLightTight(
+    String text, {
+    TextAlign? textAlign,
+  }) =>
+      Text(
+        text,
+        textAlign: textAlign,
+        style: TextStyles.poppins18RegularGreyLightTight,
+      );
+
+  static Text poppins18RegularPrimaryTight(
+    String text, {
+    TextAlign? textAlign,
+  }) =>
+      Text(
+        text,
+        textAlign: textAlign,
+        style: TextStyles.poppins18RegularPrimaryTight,
+      );
+
+  static Text poppins13MediumWhite(String text, {TextAlign? textAlign}) => Text(
+        text,
+        textAlign: textAlign,
+        style: TextStyles.poppins13MediumWhite,
+      );
+
+  static Text poppins14MediumGrey00Underline(
+    String text, {
+    TextAlign? textAlign,
+  }) =>
+      Text(
+        text,
+        textAlign: textAlign,
+        style: TextStyles.poppins14MediumGrey00Underline,
+      );
+
+  static Text poppins14MediumGrey00(String text, {TextAlign? textAlign}) =>
+      Text(
+        text,
+        textAlign: textAlign,
+        style: TextStyles.poppins14MediumGrey00,
+      );
+
+  static Text ubuntu25BoldBlack(String text, {TextAlign? textAlign}) => Text(
+        text,
+        textAlign: textAlign,
+        style: TextStyles.ubuntu25BoldBlack,
+      );
+
+  static Text poppins13MediumBlack(
+    String text, {
+    TextAlign? textAlign,
+    int? maxLines,
+    TextOverflow? textOverflow,
+  }) =>
+      Text(
+        text,
+        textAlign: textAlign,
+        maxLines: maxLines,
+        overflow: textOverflow,
+        style: TextStyles.poppins13MediumBlack,
+      );
+
+  static Text poppins13MediumBlackItalic(String text, {TextAlign? textAlign}) =>
+      Text(
+        text,
+        textAlign: textAlign,
+        style: TextStyles.poppins13MediumBlackItalic,
+      );
+
+  static Text poppins13MediumGreyItalic(String text, {TextAlign? textAlign}) =>
+      Text(
+        text,
+        textAlign: textAlign,
+        style: TextStyles.poppins13MediumGreyItalic,
+      );
+
+  static Text poppins15RegularPrimary(String text, {TextAlign? textAlign}) =>
+      Text(
+        text,
+        textAlign: textAlign,
+        style: TextStyles.poppins15RegularPrimary,
+      );
+
+  static Text poppins15BoldGrey00(String text, {TextAlign? textAlign}) => Text(
+        text,
+        textAlign: textAlign,
+        style: TextStyles.poppins15BoldGrey00,
+      );
+
+  static Text poppins15RegularBlack(String text, {TextAlign? textAlign}) =>
+      Text(
+        text,
+        textAlign: textAlign,
+        style: TextStyles.poppins15RegularBlack,
+        overflow: TextOverflow.fade,
+      );
+
+  static Text ubuntu14MediumBlack(
+    String text, {
+    TextAlign? textAlign,
+    FontStyle? fontStyle,
+  }) =>
+      Text(
+        text,
+        textAlign: textAlign,
+        style: TextStyles.ubuntu14MediumBlack.copyWith(fontStyle: fontStyle),
+      );
+
+  static Text ubuntu14MediumRed(String text, {TextAlign? textAlign}) => Text(
+        text,
+        textAlign: textAlign,
+        style: TextStyles.ubuntu14MediumRed,
+      );
+
+  static Text ubuntu45BoldBlack(String text, {TextAlign? textAlign}) => Text(
+        text,
+        textAlign: textAlign,
+        style: TextStyles.ubuntu45BoldBlack,
+      );
+
+  static Text ubuntu12RegularGrey00(String text, {TextAlign? textAlign}) =>
+      Text(
+        text,
+        textAlign: textAlign,
+        style: TextStyles.ubuntu12RegularGrey00,
+      );
+
+  static Text ubuntu35BoldBlack(
+    String text, {
+    TextAlign? textAlign,
+    TextStyle? textStyle,
+  }) =>
+      Text(
+        text,
+        textAlign: textAlign,
+        style: TextStyles.ubuntu35BoldBlack.merge(textStyle),
+      );
+
+  static Text ubuntu22RegularGreyDark(String text, {TextAlign? textAlign}) =>
+      Text(
+        text,
+        textAlign: textAlign,
+        style: TextStyles.ubuntu22RegularGreyDark,
+      );
+
+  static Text ubuntu22RegularDarkBlack(String text, {TextAlign? textAlign}) =>
+      Text(
+        text,
+        textAlign: textAlign,
+        style: TextStyles.ubuntu22RegularDarkBlack,
+      );
+
+  static Text ubuntu13RegularGrey00(String text, {TextAlign? textAlign}) =>
+      Text(
+        text,
+        textAlign: textAlign,
+        style: TextStyles.ubuntu13RegularGrey00,
+      );
+
+  static Text ubuntu13MediumGrey00(String text, {TextAlign? textAlign}) => Text(
+        text,
+        textAlign: textAlign,
+        style: TextStyles.ubuntu13MediumGrey00,
+      );
+
+  static Text ubuntu13BoldGrey00(String text, {TextAlign? textAlign}) => Text(
+        text,
+        textAlign: textAlign,
+        style: TextStyles.ubuntu13BoldGrey00,
+      );
+
+  static Text ubuntu12RegularPrimary(String text, {TextAlign? textAlign}) =>
+      Text(
+        text,
+        textAlign: textAlign,
+        style: TextStyles.ubuntu12RegularPrimary,
+      );
+
+  static Text ubuntu15BoldGrey00(String text, {TextAlign? textAlign}) => Text(
+        text,
+        textAlign: textAlign,
+        style: TextStyles.ubuntu15BoldGrey00,
+      );
+
+  static Text ubuntu15BoldBlack(String text, {TextAlign? textAlign}) => Text(
+        text,
+        textAlign: textAlign,
+        style: TextStyles.ubuntu15BoldBlack,
+      );
+
+  static Text ubuntu15RegularGrey00(String text, {TextAlign? textAlign}) =>
+      Text(
+        text,
+        textAlign: textAlign,
+        style: TextStyles.ubuntu15RegularGrey00,
+      );
+
+  static Text ubuntu24BoldBlack(String text, {TextAlign? textAlign}) => Text(
+        text,
+        textAlign: textAlign,
+        style: TextStyles.ubuntu24BoldBlack,
+      );
+
+  static Text poppins12RegularBlackWide(String text, {TextAlign? textAlign}) =>
+      Text(
+        text,
+        textAlign: textAlign,
+        style: TextStyles.poppins12RegularBlackWide,
+      );
+
+  static Text poppins12RegularWhite(String text, {TextAlign? textAlign}) =>
+      Text(
+        text,
+        textAlign: textAlign,
+        style: TextStyles.poppins12RegularWhite,
+      );
+
+  static Text poppins12RegularGrey00(String text, {TextAlign? textAlign}) =>
+      Text(
+        text,
+        textAlign: textAlign,
+        style: TextStyles.poppins12RegularGrey00,
+        overflow: TextOverflow.fade,
+      );
+
+  static Text poppins12RegularPrimaryGreen(
+    String text, {
+    TextAlign? textAlign,
+  }) =>
+      Text(
+        text,
+        textAlign: textAlign,
+        style: TextStyles.poppins12RegularPrimaryGreen,
+      );
+
+  static Text poppins12RegularBlue(String text, {TextAlign? textAlign}) => Text(
+        text,
+        textAlign: textAlign,
+        style: TextStyles.poppins12RegularBlue,
+      );
+
+  static Text poppins12RegularRed(String text, {TextAlign? textAlign}) => Text(
+        text,
+        textAlign: textAlign,
+        style: TextStyles.poppins12RegularRed,
+      );
+
+  static Text poppins12SemiBoldWhite(String text, {TextAlign? textAlign}) =>
+      Text(
+        text,
+        textAlign: textAlign,
+        style: TextStyles.poppins12SemiBoldWhite,
+      );
+
+  static Text poppins12SemiBoldTransparent(
+    String text, {
+    TextAlign? textAlign,
+  }) =>
+      Text(
+        text,
+        textAlign: textAlign,
+        style: TextStyles.poppins12SemiBoldTransparent,
+      );
+
+  static Text poppins14RegularGrey00(String text, {TextAlign? textAlign}) =>
+      Text(
+        text,
+        textAlign: textAlign,
+        style: TextStyles.poppins14RegularGrey00,
+      );
+
+  static Text poppins14BoldGrey00(String text, {TextAlign? textAlign}) => Text(
+        text,
+        textAlign: textAlign,
+        style: TextStyles.poppins14BoldGrey00,
+      );
+
+  static Text poppins14RegularWhiteTight(String text, {TextAlign? textAlign}) =>
+      Text(
+        text,
+        textAlign: textAlign,
+        style: TextStyles.poppins14RegularWhiteTight,
+      );
+
+  static Text poppins17RegularWhiteTight(String text, {TextAlign? textAlign}) =>
+      Text(
+        text,
+        textAlign: textAlign,
+        style: TextStyles.poppins17RegularWhiteTight,
+      );
+
+  static Text poppins20RegularWhiteTight(String text, {TextAlign? textAlign}) =>
+      Text(
+        text,
+        textAlign: textAlign,
+        style: TextStyles.poppins20RegularWhiteTight,
+      );
+
+  static Text poppins20RegularBlack(String text, {TextAlign? textAlign}) =>
+      Text(
+        text,
+        textAlign: textAlign,
+        style: TextStyles.poppins20RegularBlack,
+      );
+
+  static Text poppins20RegularPrimaryLight(
+    String text, {
+    TextAlign? textAlign,
+  }) =>
+      Text(
+        text,
+        textAlign: textAlign,
+        style: TextStyles.poppins20RegularPrimaryLight,
+      );
+
+  static Text poppins20RegularErrorRed(
+    String text, {
+    TextAlign? textAlign,
+  }) =>
+      Text(
+        text,
+        textAlign: textAlign,
+        style: TextStyles.poppins20RegularErrorRed,
+      );
+
+  static Text poppins20BoldWhiteTight(String text, {TextAlign? textAlign}) =>
+      Text(
+        text,
+        textAlign: textAlign,
+        style: TextStyles.poppins20BoldWhiteTight,
+      );
+
+  static Text poppins20BoldBlack(String text, {TextAlign? textAlign}) => Text(
+        text,
+        textAlign: textAlign,
+        style: TextStyles.poppins20BoldBlack,
+      );
+
+  static Text poppins21SemiBoldPrimaryTight(
+    String text, {
+    TextAlign? textAlign,
+  }) =>
+      Text(
+        text,
+        textAlign: textAlign,
+        style: TextStyles.poppins21SemiBoldPrimaryTight,
+      );
+
+  static Text poppins10BoldBlackWide(String text, {TextAlign? textAlign}) =>
+      Text(
+        text,
+        textAlign: textAlign,
+        style: TextStyles.poppins10BoldBlackWide,
+      );
+
+  static Text poppins16MediumBlackWide(String text, {TextAlign? textAlign}) =>
+      Text(
+        text,
+        textAlign: textAlign,
+        style: TextStyles.poppins16MediumBlackWide,
+      );
+
+  static Text poppins24BoldBlackTight(String text, {TextAlign? textAlign}) =>
+      Text(
+        text,
+        textAlign: textAlign,
+        style: TextStyles.poppins24BoldBlackTight,
+      );
+
+  static Text poppins12RegularBlackTight(String text, {TextAlign? textAlign}) =>
+      Text(
+        text,
+        textAlign: textAlign,
+        style: TextStyles.poppins12RegularBlackTight,
+      );
+
+  static Text poppins14RegularBlack(String text, {TextAlign? textAlign}) =>
+      Text(
+        text,
+        textAlign: textAlign,
+        style: TextStyles.poppins14RegularBlack,
+      );
+
+  static Text poppins11RegularGrey00(String text, {TextAlign? textAlign}) =>
+      Text(
+        text,
+        textAlign: textAlign,
+        style: TextStyles.poppins11RegularGrey00,
+      );
+
+  static Text poppins18MediumGrey00(String text, {TextAlign? textAlign}) =>
+      Text(
+        text,
+        textAlign: textAlign,
+        style: TextStyles.poppins18MediumGrey00,
+      );
+
+  static Text poppins18MediumPrimary(String text, {TextAlign? textAlign}) =>
+      Text(
+        text,
+        textAlign: textAlign,
+        style: TextStyles.poppins18MediumPrimary,
+      );
+
+  static Text poppins18MediumBlack(String text, {TextAlign? textAlign}) => Text(
+        text,
+        textAlign: textAlign,
+        style: TextStyles.poppins18MediumBlack,
+      );
+
+  static Text poppins18ExtraBoldBlack(String text, {TextAlign? textAlign}) =>
+      Text(
+        text,
+        textAlign: textAlign,
+        style: TextStyles.poppins18ExtraBoldBlack,
+      );
+
+  static Text poppins14SemiBoldGrey00(String text, {TextAlign? textAlign}) =>
+      Text(
+        text,
+        textAlign: textAlign,
+        style: TextStyles.poppins14SemiBoldGrey00,
+      );
+
+  static Text ubuntu11MediumBlack(String text, {TextAlign? textAlign}) => Text(
+        text,
+        textAlign: textAlign,
+        style: TextStyles.ubuntu11MediumBlack,
+      );
+
+  static Text poppins13RegularPrimary(String text, {TextAlign? textAlign}) =>
+      Text(
+        text,
+        textAlign: textAlign,
+        style: TextStyles.poppins13RegularPrimary,
+      );
+
+  static Text poppins15RegularYellowDark(String text, {TextAlign? textAlign}) =>
+      Text(
+        text,
+        textAlign: textAlign,
+        style: TextStyles.poppins15RegularYellowDark,
+      );
+
+  static Text poppins15BoldBlack(String text, {TextAlign? textAlign}) => Text(
+        text,
+        textAlign: textAlign,
+        style: TextStyles.poppins15BoldBlack,
+      );
+
+  static Text ubuntu14RegularPrimary(String text, {TextAlign? textAlign}) =>
+      Text(
+        text,
+        textAlign: textAlign,
+        style: TextStyles.ubuntu14RegularPrimary,
+      );
+
+  static Text poppins14RegularRed(String text, {TextAlign? textAlign}) => Text(
+        text,
+        textAlign: textAlign,
+        style: TextStyles.poppins14RegularRed,
+      );
+
+  static Text poppins14MediumLink(String text, {TextAlign? textAlign}) => Text(
+        text,
+        textAlign: textAlign,
+        style: TextStyles.poppins14MediumLink,
+      );
+
+  static Text poppins14MediumPrimary(String text, {TextAlign? textAlign}) =>
+      Text(
+        text,
+        textAlign: textAlign,
+        style: TextStyles.poppins14MediumPrimary,
+      );
+
+  static Text ubuntu12MediumWhite(String text, {TextAlign? textAlign}) => Text(
+        text,
+        textAlign: textAlign,
+        style: TextStyles.ubuntu12MediumWhite,
+      );
+
+  static Text poppins11RegularWhite(String text, {TextAlign? textAlign}) =>
+      Text(
+        text,
+        textAlign: textAlign,
+        style: TextStyles.poppins11RegularWhite,
+      );
+
+  static Text poppins11RegularWhiteItalic(String text,
+          {TextAlign? textAlign}) =>
+      Text(
+        text,
+        textAlign: textAlign,
+        style: TextStyles.poppins11RegularWhiteItalic,
+      );
+
+  static Text poppins15RegularWhiteWide(String text, {TextAlign? textAlign}) =>
+      Text(
+        text,
+        textAlign: textAlign,
+        style: TextStyles.poppins15RegularWhiteWide,
+      );
+
+  static Text poppins15RegularGrey00(String text, {TextAlign? textAlign}) =>
+      Text(
+        text,
+        textAlign: textAlign,
+        style: TextStyles.poppins15RegularGrey00,
+      );
+
+  static Text poppins13RegularYellowDark(String text, {TextAlign? textAlign}) =>
+      Text(
+        text,
+        textAlign: textAlign,
+        style: TextStyles.poppins13RegularYellowDark,
+      );
+
+  static Text poppins14MediumPrimaryUnderline(
+    String text, {
+    TextAlign? textAlign,
+  }) =>
+      Text(
+        text,
+        textAlign: textAlign,
+        style: TextStyles.poppins14MediumPrimaryUnderline,
+      );
+
+  static Text poppins14MediumGreyLightUnderline(
+    String text, {
+    TextAlign? textAlign,
+  }) =>
+      Text(
+        text,
+        textAlign: textAlign,
+        style: TextStyles.poppins14MediumGreyLightUnderline,
+      );
+
+  static Text poppins9MediumInputGrey(String text, {TextAlign? textAlign}) =>
+      Text(
+        text,
+        textAlign: textAlign,
+        style: TextStyles.poppins14MediumPrimaryUnderline,
+      );
+
+  static Text poppins9RegularBlack(String text, {TextAlign? textAlign}) => Text(
+        text,
+        textAlign: textAlign,
+        style: TextStyles.poppins9RegularBlack,
+      );
+
+  static Text poppins12MediumGreyLight(String text, {TextAlign? textAlign}) =>
+      Text(
+        text,
+        textAlign: textAlign,
+        style: TextStyles.poppins12MediumGreyLight,
+      );
+
+  static Text poppins12MediumInputGrey(String text, {TextAlign? textAlign}) =>
+      Text(
+        text,
+        textAlign: textAlign,
+        style: TextStyles.poppins12MediumInputGrey,
+      );
+
+  static Text poppins14MediumBlack(String text, {TextAlign? textAlign}) => Text(
+        text,
+        textAlign: textAlign,
+        style: TextStyles.poppins14MediumBlack,
+      );
+
+  static Text poppins14Medium(String text, {TextAlign? textAlign}) => Text(
+        text,
+        textAlign: textAlign,
+        style: TextStyles.poppins14MediumBlack,
+      );
+
+  static Text poppins15RegularBlackItalic(String text,
+          {TextAlign? textAlign}) =>
+      Text(
+        text,
+        textAlign: textAlign,
+        style: TextStyles.poppins15RegularBlackItalic,
+      );
+
+  static Text poppins18BoldBlack(String text, {TextAlign? textAlign}) => Text(
+        text,
+        textAlign: textAlign,
+        style: TextStyles.poppins18BoldBlack,
+      );
+
+  static Text poppins12SemiBoldPrimaryUnderline(
+    String text, {
+    TextAlign? textAlign,
+  }) =>
+      Text(
+        text,
+        textAlign: textAlign,
+        style: TextStyles.poppins12SemiBoldPrimaryUnderline,
+      );
+
+  static Text poppins14SemiBoldBlack(String text, {TextAlign? textAlign}) =>
+      Text(
+        text,
+        textAlign: textAlign,
+        style: TextStyles.poppins14SemiBoldBlack,
+      );
+
+  static Text poppins14SemiBoldPrimary(String text, {TextAlign? textAlign}) =>
+      Text(
+        text,
+        textAlign: textAlign,
+        style: TextStyles.poppins14SemiBoldPrimary,
+      );
+
+  static Text poppins12RegularGrey00Wide(String text, {TextAlign? textAlign}) =>
+      Text(
+        text,
+        textAlign: textAlign,
+        style: TextStyles.poppins12RegularGrey00Wide,
+      );
+
+  static Text poppins12RegularLink(String text, {TextAlign? textAlign}) => Text(
+        text,
+        textAlign: textAlign,
+        style: TextStyles.poppins12RegularLink,
+      );
+
+  static Text poppins12MediumBlack(String text, {TextAlign? textAlign}) => Text(
+        text,
+        textAlign: textAlign,
+        style: TextStyles.poppins12MediumBlack,
+      );
+
+  static Text poppins8MediumWhite(String text, {TextAlign? textAlign}) => Text(
+        text,
+        textAlign: textAlign,
+        style: TextStyles.poppins8MediumWhite,
+      );
+
+  static Text poppins14BoldGrey05(String text, {TextAlign? textAlign}) => Text(
+        text,
+        textAlign: textAlign,
+        style: TextStyles.poppins14BoldGrey05,
+      );
+
+  static Text poppins14RegularGrey05(String text, {TextAlign? textAlign}) =>
+      Text(
+        text,
+        textAlign: textAlign,
+        style: TextStyles.poppins14RegularGrey05,
+      );
+
+  static Text poppins30MediumBlack(String text, {TextAlign? textAlign}) => Text(
+        text,
+        textAlign: textAlign,
+        style: TextStyles.poppins30MediumBlack,
+      );
+
+  static Text poppins35SemiBoldPrimary(String text, {TextAlign? textAlign}) =>
+      Text(
+        text,
+        textAlign: textAlign,
+        style: TextStyles.poppins35SemiBoldPrimary,
+      );
+
+  static Text ubuntu22BoldBlack(String text, {TextAlign? textAlign}) => Text(
+        text,
+        textAlign: textAlign,
+        style: TextStyles.ubuntu22BoldBlack,
+      );
+
+  static Text poppins14RegularLink(String text, {TextAlign? textAlign}) => Text(
+        text,
+        textAlign: textAlign,
+        style: TextStyles.poppins14RegularLink,
+      );
+
+  static Text poppins10RegularBlack(String text, {TextAlign? textAlign}) =>
+      Text(
+        text,
+        textAlign: textAlign,
+        style: TextStyles.poppins10RegularBlack,
+      );
+
+  static Text poppins16SemiBoldBlack(String text, {TextAlign? textAlign}) =>
+      Text(
+        text,
+        textAlign: textAlign,
+        style: TextStyles.poppins16SemiBoldBlack,
+      );
+
+  static Text poppins16SemiBoldGrey00(String text, {TextAlign? textAlign}) =>
+      Text(
+        text,
+        textAlign: textAlign,
+        style: TextStyles.poppins16SemiBoldGrey00,
+      );
+
+  static Text poppins12MediumGrey00(String text, {TextAlign? textAlign}) =>
+      Text(
+        text,
+        textAlign: textAlign,
+        style: TextStyles.poppins12MediumGrey00,
+      );
+}
