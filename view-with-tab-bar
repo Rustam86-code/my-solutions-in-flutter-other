@@ -1,0 +1,198 @@
+// @dart=2.9
+
+import 'package:flutter/material.dart' hide OutlinedButton;
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter_hooks/flutter_hooks.dart';
+import 'package:quittercheck/common/appbars/color_appbar.dart';
+import 'package:quittercheck/common/paddings.dart';
+import 'package:quittercheck/common/shadows.dart';
+import 'package:quittercheck/common/texts/texts.dart';
+import 'package:quittercheck/common/widgets/handle_layout_building.dart';
+import 'package:quittercheck/data/app_cqrs.dart';
+import 'package:quittercheck/features/demo_homescreen/widgets/demo_info_card.dart';
+import 'package:quittercheck/features/rewards/rewards_history_cubit.dart';
+import 'package:quittercheck/features/rewards/widgets/reward_list.dart';
+import 'package:quittercheck/features/rewards/widgets/reward_tab_bar.dart';
+import 'package:quittercheck/gen/assets.gen.dart';
+import 'package:quittercheck/hooks/use_cubit.dart';
+import 'package:quittercheck/models/usd.dart';
+import 'package:quittercheck/resources/app_colors.dart';
+import 'package:quittercheck/resources/strings.dart';
+
+class RewardsView extends HookWidget {
+  const RewardsView({
+    Key key,
+    this.userPlanId,
+    this.isTrial = false,
+  }) : super(key: key);
+
+  final String userPlanId;
+  final bool isTrial;
+
+  Widget _buildRewardChange(Reward reward) {
+    if (reward.reduction) {
+      return Texts.poppins12RegularRed(
+        '-${USD.smallestUnit(reward.amountUsd).toDisplayText(forceCents: true)}',
+      );
+    }
+
+    return Texts.poppins12RegularPrimaryGreen(
+      '+${USD.smallestUnit(reward.amountUsd).toDisplayText(forceCents: true)}',
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final cqrs = Provider.of<AppCQRS>(context);
+    final cubit =
+        useCubit(() => RewardsHistoryCubit(userPlanId, cqrs)..fetch());
+
+    final tabController = useTabController(initialLength: 2);
+
+    return Scaffold(
+      //transparent to make shadow from rewards overflowing on the appbar
+      appBar:
+          ColorAppBar(color: Colors.transparent, title: S.Rewards_Title.tr()),
+      body: isTrial
+          ? SingleChildScrollView(
+              padding: const EdgeInsets.symmetric(horizontal: 32),
+              child: Column(
+                children: [
+                  Assets.images.emptyState.svg(),
+                  const SizedBox(height: 32),
+                  Texts.poppins15SemiBoldBlack(S.Rewards_NoRewardsTitle.tr()),
+                  const SizedBox(height: 8),
+                  Texts.poppins13RegularGrey00(
+                    S.Rewards_NoRewardsDescription.tr(),
+                  ),
+                  const SizedBox(height: 24),
+                  DemoInfoCard(
+                    S.TrialUser_Rewards.tr(),
+                    icon: Assets.images.warningBlue.svg(),
+                    background: AppColors.appBlue.withOpacity(.3),
+                    border: AppColors.appBlue,
+                  ),
+                  const SizedBox(height: 24),
+                  const _InfoCard(),
+                  const SizedBox(height: 24),
+                ],
+              ),
+            )
+          : BlocBuilder<RewardsHistoryCubit, RewardsHistoryState>(
+              bloc: cubit,
+              builder: (context, state) => HandleLayoutBuilding(
+                loading: state.loading,
+                error: state.dto == null,
+                onRefresh: cubit.fetch,
+                builder: (context) => state.userHasHistory
+                    ? NestedScrollView(
+                        headerSliverBuilder: (context, _) => [
+                          SliverPagePadding.only(
+                            horizontal: true,
+                            sliver: SliverToBoxAdapter(
+                              child: Column(
+                                mainAxisSize: MainAxisSize.min,
+                                children: [
+                                  Container(
+                                    width: double.infinity,
+                                    padding: const EdgeInsets.symmetric(
+                                      vertical: 32,
+                                    ),
+                                    decoration: BoxDecoration(
+                                      boxShadow: [Shadows.light50()],
+                                      color: AppColors.white,
+                                    ),
+                                    child: Column(
+                                      children: [
+                                        Texts.poppins12RegularGrey00(
+                                          S.Rewards_TotalRewards.tr(),
+                                          textAlign: TextAlign.center,
+                                        ),
+                                        Texts.poppins40SemiBoldBlack(
+                                          USD
+                                              .smallestUnit(
+                                                state.dto
+                                                    .totalBalanceUSDSmallestUnit,
+                                              )
+                                              .toDisplayText(forceCents: true),
+                                        ),
+                                        if (state.rewards.isNotEmpty) ...[
+                                          const SizedBox(height: 4),
+                                          _buildRewardChange(
+                                            state.lastReward,
+                                          ),
+                                        ],
+                                      ],
+                                    ),
+                                  ),
+                                  const SizedBox(height: 30),
+                                ],
+                              ),
+                            ),
+                          ),
+                          if (state.userHasHistory)
+                            RewardTabBar(
+                              tabController: tabController,
+                            ),
+                        ],
+                        body: Padding(
+                          padding: const EdgeInsets.symmetric(horizontal: 32),
+                          child: TabBarView(
+                            controller: tabController,
+                            children: [
+                              RewardList(
+                                rewards: state.rewards,
+                                child: const Padding(
+                                  padding: EdgeInsets.all(20),
+                                  child: _InfoCard(),
+                                ),
+                              ),
+                              RewardList(
+                                rewards: state.giftRewards,
+                                child: const Padding(
+                                  padding: EdgeInsets.all(20),
+                                  child: _InfoCard(),
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      )
+                    : SingleChildScrollView(
+                        padding: const EdgeInsets.symmetric(horizontal: 32),
+                        child: Column(
+                          children: [
+                            Assets.images.emptyState.svg(),
+                            const SizedBox(height: 32),
+                            Texts.poppins15SemiBoldBlack(
+                              S.Rewards_NoRewardsTitle.tr(),
+                            ),
+                            const SizedBox(height: 8),
+                            Texts.poppins13RegularGrey00(
+                              S.Rewards_NoRewardsDescription.tr(),
+                            ),
+                            const SizedBox(height: 24),
+                            const _InfoCard(),
+                            const SizedBox(height: 24),
+                          ],
+                        ),
+                      ),
+              ),
+            ),
+    );
+  }
+}
+
+class _InfoCard extends StatelessWidget {
+  const _InfoCard({
+    Key key,
+  }) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return DemoInfoCard(
+      S.Rewards_Bubble_Body.tr(),
+      icon: Assets.images.warningGreen.svg(),
+    );
+  }
+}
