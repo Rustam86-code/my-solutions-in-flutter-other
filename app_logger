@@ -1,0 +1,42 @@
+import 'package:logging/logging.dart';
+
+// ignore: avoid_classes_with_only_static_members
+abstract class AppLogger {
+  static final logger = Logger.root;
+
+  static void finest(Object message, [Object? error, StackTrace? stackTrace]) {
+    logger.finest(message, error, stackTrace);
+  }
+
+  static void finer(Object message, [Object? error, StackTrace? stackTrace]) {
+    logger.finer(message, error, stackTrace);
+  }
+
+  static void fine(Object message, [Object? error, StackTrace? stackTrace]) {
+    logger.fine(message, error, stackTrace);
+  }
+
+  static void config(Object message, [Object? error, StackTrace? stackTrace]) {
+    logger.config(message, error, stackTrace);
+  }
+
+  static void info(Object message, [Object? error, StackTrace? stackTrace]) {
+    logger.info(message, error, stackTrace);
+  }
+
+  static void warning(Object message, [Object? error, StackTrace? stackTrace]) {
+    logger.warning(message, error, stackTrace);
+  }
+
+  static void severe(Object message, [Object? error, StackTrace? stackTrace]) {
+    logger.severe(message, error, stackTrace);
+  }
+
+  static void shout(Object message, [Object? error, StackTrace? stackTrace]) {
+    logger.shout(message, error, stackTrace);
+  }
+
+  static void logException(Object exception, [StackTrace? stackTrace]) {
+    severe('', exception, stackTrace);
+  }
+}
