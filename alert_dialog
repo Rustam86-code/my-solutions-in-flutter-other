@@ -1,0 +1,168 @@
+// @dart=2.9
+
+import 'package:flutter/material.dart';
+import 'package:quittercheck/common/texts/texts.dart';
+import 'package:quittercheck/common/widgets/app_alert_button.dart';
+import 'package:quittercheck/resources/app_colors.dart';
+
+export 'app_alert_button.dart';
+
+enum ActionsAlignment { adaptive, row, column }
+
+class AppAlertDialog extends StatelessWidget {
+  const AppAlertDialog({
+    Key key,
+    this.actions,
+    this.message,
+    this.messageWidget,
+    this.icon,
+    this.title,
+    this.cancelable = false,
+    this.actionsAlignment = ActionsAlignment.adaptive,
+  })  : assert(
+          (message != null) ^ (messageWidget != null),
+          'either message or messageWidget should be provided',
+        ),
+        super(key: key);
+
+  final List<AppAlertButton> actions;
+  final String title;
+  final String message;
+  final Widget icon;
+  final Widget messageWidget;
+  final bool cancelable;
+  final ActionsAlignment actionsAlignment;
+
+  @override
+  Widget build(BuildContext context) {
+    return AlertDialog(
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+      contentPadding: EdgeInsets.zero,
+      elevation: 8,
+      scrollable: true,
+      content: Material(
+        color: Colors.transparent,
+        child: Stack(
+          alignment: Alignment.topRight,
+          children: [
+            Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                const SizedBox(height: 26),
+                icon ?? Container(),
+                if (title != null)
+                  Padding(
+                    padding:
+                        const EdgeInsets.only(top: 20, left: 16.0, right: 16.0),
+                    child: Texts.poppins18BoldBlack(
+                      title,
+                      textAlign: TextAlign.center,
+                    ),
+                  ),
+                messageWidget ??
+                    Padding(
+                      padding: const EdgeInsets.all(30),
+                      child: Texts.poppins15RegularGrey00(
+                        message,
+                        textAlign: TextAlign.center,
+                      ),
+                    ),
+                if (actions != null && actions.isNotEmpty) ...[
+                  const Divider(
+                    color: AppColors.nGreyForm,
+                    thickness: 2,
+                    height: 2,
+                  ),
+                  _Actions(actions, actionsAlignment),
+                ],
+              ],
+            ),
+            if (cancelable)
+              Positioned(
+                top: 12,
+                right: 12,
+                child: IconButton(
+                  icon: const Icon(Icons.close),
+                  onPressed: () => Navigator.pop(context),
+                ),
+              ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class _Actions extends StatelessWidget {
+  const _Actions(this.actions, this.actionsAlignment, {Key key})
+      : super(key: key);
+
+  final List<AppAlertButton> actions;
+  final ActionsAlignment actionsAlignment;
+
+  bool _shouldAlignInRow(BuildContext context) {
+    if (actionsAlignment == ActionsAlignment.row) {
+      return true;
+    }
+
+    if (actionsAlignment == ActionsAlignment.column) {
+      return false;
+    }
+
+    if (MediaQuery.of(context).orientation == Orientation.landscape) {
+      return true;
+    }
+
+    final hasEnoughSpace = MediaQuery.of(context).size.width >= 360;
+    final textsAreShort = actions
+        .map(
+          (e) => e.label.length,
+        )
+        .every((e) => e <= 6);
+
+    final isLessThan3Actions = actions.length < 3;
+    return hasEnoughSpace && textsAreShort && isLessThan3Actions;
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final buttons = <Widget>[];
+
+    final isPortrait =
+        MediaQuery.of(context).orientation == Orientation.portrait;
+
+    final divider = isPortrait
+        ? const SizedBox(width: 16, height: 16)
+        : const SizedBox(width: 36, height: 36);
+
+    final isRowAlignment = _shouldAlignInRow(context);
+
+    for (var i = 0; i < actions.length; i++) {
+      buttons.add(
+        isRowAlignment && isPortrait ? Expanded(child: actions[i]) : actions[i],
+      );
+
+      if (i != actions.length - 1) {
+        buttons.add(divider);
+      }
+    }
+
+    return Container(
+      constraints: BoxConstraints(
+        maxWidth: isPortrait
+            ? double.infinity
+            : MediaQuery.of(context).size.width * 0.7,
+      ),
+      padding: const EdgeInsets.fromLTRB(28, 24, 28, 28),
+      child: isRowAlignment
+          ? Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: buttons,
+            )
+          : Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: buttons,
+            ),
+    );
+  }
+}
