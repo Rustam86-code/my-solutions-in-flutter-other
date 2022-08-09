@@ -1,0 +1,148 @@
+// @dart=2.9
+
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:meta/meta.dart';
+import 'package:quittercheck/contracts/contracts.dart';
+import 'package:quittercheck/data/app_cqrs.dart';
+import 'package:quittercheck/features/manual_payment/models.dart';
+
+class RewardsHistoryCubit extends Cubit<RewardsHistoryState> {
+  RewardsHistoryCubit(this._userPlanId, this._cqrs)
+      : super(const RewardsHistoryState(loading: true));
+
+  final AppCQRS _cqrs;
+  final String _userPlanId;
+
+  Future<void> fetch() async {
+    emit(const RewardsHistoryState(loading: true));
+
+    final res = await _cqrs.noThrowGet(
+      RewardsHistoryByUserPlanId()..userPlanOrderId = _userPlanId,
+    );
+
+    if (res.error) {
+      emit(const RewardsHistoryState());
+      return;
+    }
+
+    final grantedRewards = res.data.rewards ?? [];
+    final reducedRewards = res.data.rewardReductions ?? [];
+
+    final rewards = _mergeRewards(grantedRewards, reducedRewards);
+    final giftRewards = _mergeRewards(
+      res.data.giftRewards,
+      res.data.giftRewardReductions,
+      gift: true,
+    );
+
+    emit(
+      RewardsHistoryState(
+        dto: res.data,
+        rewards: rewards,
+        giftRewards: giftRewards,
+      ),
+    );
+  }
+
+  List<Reward> _mergeRewards(
+    List<GrantedRewardDTO> grantedRewards,
+    List<ReducedRewardDTO> reducedRewards, {
+    bool gift = false,
+  }) {
+    final rewards = [
+      ...grantedRewards.map<Reward>(
+        (reward) => Reward.fromGrantedReward(
+          reward,
+          gift: gift,
+        ),
+      ),
+      ...reducedRewards.map<Reward>(
+        (reward) => Reward.fromReducedReward(
+          reward,
+          gift: gift,
+        ),
+      ),
+    ];
+    rewards.sort((rew1, rew2) => rew2.dateCreated.compareTo(rew1.dateCreated));
+
+    return rewards;
+  }
+}
+
+class RewardsHistoryState {
+  const RewardsHistoryState({
+    this.loading = false,
+    this.rewards = const <Reward>[],
+    this.giftRewards = const <Reward>[],
+    this.dto,
+  });
+
+  final bool loading;
+  final RewardsHistoryDTO dto;
+  final List<Reward> rewards;
+  final List<Reward> giftRewards;
+
+  bool get userHasHistory => rewards.isNotEmpty || giftRewards.isNotEmpty;
+
+  Reward get lastReward {
+    if (!userHasHistory) {
+      return null;
+    }
+    if (rewards.isNotEmpty && giftRewards.isEmpty) {
+      return rewards.first;
+    }
+    if (rewards.isEmpty && giftRewards.isNotEmpty) {
+      return giftRewards.first;
+    }
+    return latestRewards(rewards.first, giftRewards.first);
+  }
+
+  bool _getLatestDate(DateTime a, DateTime b) => b.isBefore(a);
+
+  Reward latestRewards(Reward r1, Reward r2) {
+    DateTime r1Date = r1.dateCreated;
+    DateTime r2Date = r2.dateCreated;
+    return _getLatestDate(r1Date, r2Date) ? r1 : r2;
+  }
+}
+
+class Reward {
+  const Reward({
+    @required this.id,
+    @required this.amountUsd,
+    @required this.dateCreated,
+    this.reduction = false,
+    this.gift = false,
+  });
+
+  factory Reward.fromGrantedReward(
+    GrantedRewardDTO reward, {
+    bool gift,
+  }) {
+    return Reward(
+      id: reward.grantedRewardId,
+      amountUsd: reward.rewardUSDSmallestUnit,
+      dateCreated: reward.dateCreated,
+      gift: gift,
+    );
+  }
+
+  factory Reward.fromReducedReward(
+    ReducedRewardDTO reward, {
+    bool gift,
+  }) {
+    return Reward(
+      id: reward.reducedRewardId,
+      amountUsd: reward.rewardReductionUSDSmallestUnit,
+      dateCreated: reward.dateCreated,
+      reduction: true,
+      gift: gift,
+    );
+  }
+
+  final String id;
+  final int amountUsd;
+  final DateTime dateCreated;
+  final bool reduction;
+  final bool gift;
+}
