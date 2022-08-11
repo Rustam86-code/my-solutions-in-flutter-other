@@ -1,0 +1,239 @@
+// @dart=2.9
+
+import 'package:animations/animations.dart';
+import 'package:flutter/material.dart' hide BottomNavigationBar;
+import 'package:flutter_hooks/flutter_hooks.dart';
+import 'package:quittercheck/common/widgets/show_overlay.dart';
+import 'package:quittercheck/data/firestore/excuses_firestore.dart';
+import 'package:quittercheck/data/firestore/reasons_firestore.dart';
+import 'package:quittercheck/features/common/habit_cubit.dart';
+import 'package:quittercheck/features/common/me_query_cubit.dart';
+import 'package:quittercheck/features/education/excuses_cubit.dart';
+import 'package:quittercheck/features/education/reasons_cubit.dart';
+import 'package:quittercheck/features/homescreen/acknowledge_cubit.dart';
+import 'package:quittercheck/features/homescreen/event_bus_cubit.dart';
+import 'package:quittercheck/features/homescreen/homescreen_cubit.dart';
+import 'package:quittercheck/features/homescreen/homescreen_tabs/bottom_navigation_bar.dart';
+import 'package:quittercheck/features/homescreen/homescreen_tabs/education_tab.dart';
+import 'package:quittercheck/features/homescreen/homescreen_tabs/home_tab/home_tab.dart';
+import 'package:quittercheck/features/homescreen/homescreen_tabs/profile_tab.dart';
+import 'package:quittercheck/features/homescreen/homescreen_tabs/shop_tab.dart';
+import 'package:quittercheck/features/homescreen/homescreen_tabs/tab_bar_icons.dart';
+import 'package:quittercheck/features/homescreen/homescreen_tabs/tab_bar_item.dart';
+import 'package:quittercheck/features/lessons/data/repositories/lessons_repository.dart';
+import 'package:quittercheck/features/lessons/presentation/pages/all_lessons/all_lessons_cubit.dart';
+import 'package:quittercheck/features/manual_payment/models.dart';
+import 'package:quittercheck/features/order_summary/shopping_basket/shopping_basket_cubit.dart';
+import 'package:quittercheck/features/products/products_cubit.dart';
+import 'package:quittercheck/features/quitting_plan/quitting_plans_cubit.dart';
+import 'package:quittercheck/features/test_day_uploader/confirm_video_cubit.dart';
+import 'package:quittercheck/features/test_day_uploader/test_day_upload_cubit.dart';
+import 'package:quittercheck/features/video_testing/video_summary/submit_video.dart';
+import 'package:quittercheck/hooks/use_cubit.dart';
+import 'package:quittercheck/hooks/use_fcm_notifications_listener.dart';
+import 'package:quittercheck/resources/app_colors.dart';
+import 'package:quittercheck/utils/analytics/analytics.dart';
+
+enum Tabs { home, education, shop, profile }
+
+class HomescreenView extends HookWidget {
+  const HomescreenView({Key key, Tabs initialTab})
+      : _initialTab = initialTab ?? Tabs.home,
+        super(key: key);
+
+  static const shopTabKey = ValueKey('shopTab');
+
+  final Tabs _initialTab;
+
+  void _acknowledgeListener(BuildContext context, AcknowledgeState state) {
+    if (state.error) {
+      showGenericOverlayError(context);
+    }
+  }
+
+  void _confirmVideoListener(
+    BuildContext context,
+    ConfirmVideoState state,
+    HomescreenCubit cubit,
+  ) {
+    if (state.error) {
+      showGenericOverlayError(context);
+    } else if (state.confirmed) {
+      cubit.fetchCurrentPlan();
+      showOverlaySuccess(
+        context,
+        S.Common_Success.tr(),
+        S.UploadCard_SnackbarMessage.tr(),
+      );
+    }
+  }
+
+  void _submitVideoListener(BuildContext context, SubmitVideoState state) {
+    if (state.error) {
+      showGenericOverlayError(context);
+    }
+  }
+
+  void _eventBusListener(
+    BuildContext context,
+    EventBusState state,
+    HomescreenCubit homescreenCubit,
+  ) {
+    if (state is TestDayVideoSaved ||
+        state is TestDayVideoRemoved ||
+        state is UserPlanStarted ||
+        state is PledgeStatusChanged) {
+      homescreenCubit.refreshCurrentPlan();
+    } else if (state is UsernameChanged) {
+      context.read<MeQueryCubit>().getUser();
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final cqrs = Provider.of<AppCQRS>(context);
+    final shoppingBasketCubit = Provider.of<ShoppingBasketCubit>(context);
+
+    final uploadCubit = useCubit(
+      () => TestDayUploadCubit(
+        cqrs,
+        analytics: context.read<Analytics>(),
+      ),
+    );
+    final homescreenCubit =
+        useCubit(() => HomescreenCubit(cqrs, uploadCubit)..fetchCurrentPlan());
+    final acknowledgeCubit =
+        useCubit(() => AcknowledgeCubit(cqrs, homescreenCubit));
+    final confirmVideoCubit = useCubit(() => ConfirmVideoCubit(cqrs));
+    final submitVideoCubit = useCubit(() => SubmitVideo(cqrs));
+    final reasonsCubit = useCubit(
+      () => ReasonsCubit(
+        context.read<ReasonsFirestore>(),
+        context.read<Analytics>(),
+      )..fetch(),
+    );
+    final excusesCubit = useCubit(
+      () => ExcusesCubit(
+        context.read<ExcusesFirestore>(),
+        context.read<Analytics>(),
+      )..fetch(),
+    );
+    final productsCubit = useCubit(
+      () => ProductsCubit(cqrs, onlyProductsAvailableDuringPlanPurchase: false)
+        ..fetch(),
+    );
+    final plansCubit = useCubit(() => QuittingPlansCubit(cqrs)..fetch());
+
+    final habitCubit = useCubit(
+      () => HabitCubit(
+        initialValue: homescreenCubit.state is ActivePlan
+            ? (homescreenCubit.state as ActivePlan).plan.habitToBreak
+            : shoppingBasketCubit.state.habit,
+        homeScreenStream: homescreenCubit.stream,
+        shoppingBasketStream: shoppingBasketCubit.stream,
+      )..init(),
+    );
+
+    final lessonsCubit = useCubit(
+      () => AllLessonsCubit(context.read<LessonsRepository>())
+        ..fetch(habitCubit.state.habit),
+    );
+
+    useFcmNotificationsListener((notification) {
+      if (notification is TestDayPushNotificationDTO ||
+          notification is TestPushNotificationDTO) {
+        homescreenCubit.fetchCurrentPlan();
+      }
+    });
+
+    useEffect(
+      () {
+        context.read<MeQueryCubit>().getUser();
+        return;
+      },
+      [],
+    );
+
+    final activeTab = useState(_initialTab);
+
+    void handleItemTap(int i) {
+      final tab = Tabs.values[i];
+      activeTab.value = tab;
+    }
+
+    return MultiBlocProvider(
+      providers: [
+        BlocProvider.value(value: homescreenCubit),
+        BlocProvider.value(value: acknowledgeCubit),
+        BlocProvider.value(value: confirmVideoCubit),
+        BlocProvider.value(value: submitVideoCubit),
+        BlocProvider.value(value: uploadCubit),
+        BlocProvider.value(value: lessonsCubit),
+        BlocProvider.value(value: reasonsCubit),
+        BlocProvider.value(value: excusesCubit),
+        BlocProvider.value(value: productsCubit),
+        BlocProvider.value(value: plansCubit),
+        BlocProvider.value(value: habitCubit),
+      ],
+      child: MultiBlocListener(
+        listeners: [
+          BlocListener<AcknowledgeCubit, AcknowledgeState>(
+            listener: _acknowledgeListener,
+          ),
+          BlocListener<ConfirmVideoCubit, ConfirmVideoState>(
+            listener: (c, s) => _confirmVideoListener(c, s, homescreenCubit),
+          ),
+          BlocListener<SubmitVideo, SubmitVideoState>(
+            listener: _submitVideoListener,
+          ),
+          BlocListener<EventBusCubit, EventBusState>(
+            listener: (c, s) => _eventBusListener(c, s, homescreenCubit),
+          ),
+          BlocListener<HabitCubit, HabitState>(
+            bloc: habitCubit,
+            listener: (_, state) => lessonsCubit.fetch(state.habit),
+          ),
+        ],
+        child: Scaffold(
+          bottomNavigationBar: BottomNavigationBar(
+            currentIndex: activeTab.value.index,
+            onTap: handleItemTap,
+            items: [
+              TabBarItem(S.Menu_Home.tr(), TabBarIcons.home),
+              TabBarItem(S.Menu_Education.tr(), TabBarIcons.education),
+              TabBarItem(S.Menu_Shop.tr(), TabBarIcons.shop),
+              TabBarItem(S.Menu_Menu.tr(), TabBarIcons.more),
+            ],
+          ),
+          body: PageTransitionSwitcher(
+            transitionBuilder: (child, animation, secondaryAnimation) {
+              return SharedAxisTransition(
+                animation: animation,
+                secondaryAnimation: secondaryAnimation,
+                transitionType: SharedAxisTransitionType.horizontal,
+                fillColor: AppColors.white,
+                child: child,
+              );
+            },
+            child: _getViewForIndex(activeTab.value, context),
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+Widget _getViewForIndex(Tabs currentIndex, BuildContext context) {
+  switch (currentIndex) {
+    case Tabs.home:
+      return const HomeTab();
+    case Tabs.education:
+      return const EducationTab();
+    case Tabs.shop:
+      return const ShopTab();
+    case Tabs.profile:
+      return const ProfileTab();
+    default:
+      return Container();
+  }
+}
