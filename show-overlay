@@ -1,0 +1,141 @@
+// @dart=2.9
+
+import 'dart:async';
+
+import 'package:flutter/material.dart';
+import 'package:quittercheck/common/paddings.dart';
+import 'package:quittercheck/common/texts/texts.dart';
+import 'package:quittercheck/gen/assets.gen.dart';
+import 'package:quittercheck/resources/app_colors.dart';
+import 'package:quittercheck/resources/strings.dart';
+
+void showGenericOverlayError(BuildContext context) =>
+    showOverlayError(context, S.GenericError_Title.tr(), S.GenericError.tr());
+
+void showOverlayError(BuildContext context, String title, String message) =>
+    _showOverlay(
+      context,
+      title: title,
+      message: message,
+      color: AppColors.vividRed,
+    );
+
+void showOverlaySuccess(BuildContext context, String title, String message) =>
+    _showOverlay(
+      context,
+      title: title,
+      message: message,
+      color: AppColors.primaryGreen,
+    );
+
+void showOverlayMessage(BuildContext context, String message) => _showOverlay(
+      context,
+      message: message,
+      color: AppColors.nBlueMessageBackground,
+      textColor: AppColors.black,
+      showBubbles: true,
+    );
+
+void _showOverlay(
+  BuildContext context, {
+  String title,
+  String message,
+  Color color,
+  Color textColor = AppColors.grey05,
+  bool showBubbles = false,
+}) {
+  OverlayEntry entry;
+
+  entry = OverlayEntry(
+    builder: (context) {
+      return Positioned(
+        left: PagePadding.padding.left,
+        right: PagePadding.padding.right,
+        bottom: 48,
+        child: Container(
+          width: double.infinity,
+          clipBehavior: Clip.antiAlias,
+          decoration: BoxDecoration(
+            color: color,
+            borderRadius: BorderRadius.circular(12),
+            boxShadow: [
+              BoxShadow(
+                color: AppColors.black.withOpacity(0.15),
+                offset: const Offset(2, 2),
+                blurRadius: 8,
+                spreadRadius: 0.1,
+              ),
+            ],
+          ),
+          child: Stack(
+            children: [
+              Material(
+                color: Colors.transparent,
+                child: Row(
+                  children: [
+                    if (showBubbles) Assets.images.overlayBlueBubbles.svg(),
+                    Expanded(
+                      child: Padding(
+                        padding: showBubbles
+                            ? const EdgeInsets.fromLTRB(6, 8, 56, 8)
+                            : const EdgeInsets.all(16),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            if (title != null) ...[
+                              Text(
+                                title,
+                                style: TextStyles.poppins13BoldPrimary
+                                    .copyWith(color: textColor),
+                              ),
+                              const SizedBox(height: 8),
+                            ],
+                            Text(
+                              message,
+                              style: TextStyles.poppins13RegularGrey00
+                                  .copyWith(color: textColor),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              Positioned(
+                top: 0,
+                right: 0,
+                child: ClipRRect(
+                  borderRadius: BorderRadius.circular(48),
+                  child: Material(
+                    color: Colors.transparent,
+                    child: InkWell(
+                      onTap: () {
+                        entry?.remove();
+                        entry = null;
+                      },
+                      child: Padding(
+                        padding: const EdgeInsets.all(16),
+                        child: Icon(Icons.close, color: textColor),
+                      ),
+                    ),
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ),
+      );
+    },
+  );
+
+  Overlay.of(context).insert(entry);
+
+  Timer(
+    const Duration(seconds: 10), //TODO(Julia)
+    () {
+      entry?.remove();
+      entry = null;
+    },
+  );
+}
