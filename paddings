@@ -1,0 +1,111 @@
+// @dart=2.9
+
+import 'package:flutter/material.dart';
+
+const double _left = 32.0;
+const double _right = 32.0;
+const double _bottom = 48.0;
+const double _top = 20.0;
+
+class PagePadding extends StatelessWidget {
+  const PagePadding({Key key, this.child})
+      : _padding = padding,
+        super(key: key);
+
+  PagePadding.only({
+    Key key,
+    bool horizontal = false,
+    bool top = false,
+    bool bottom = false,
+    this.child,
+  })  : _padding = EdgeInsets.only(
+          bottom: bottom ? padding.bottom : 0,
+          left: horizontal ? padding.left : 0,
+          right: horizontal ? padding.right : 0,
+          top: top ? padding.top : 0,
+        ),
+        super(key: key);
+
+  final Widget child;
+  final EdgeInsets _padding;
+
+  static const EdgeInsets padding =
+      EdgeInsets.fromLTRB(_left, _top, _right, _bottom);
+
+  @override
+  Widget build(BuildContext context) => Padding(
+        padding: _padding,
+        child: child,
+      );
+}
+
+class PageWithBottomSummaryPadding extends StatelessWidget {
+  const PageWithBottomSummaryPadding({Key key, this.child}) : super(key: key);
+
+  final Widget child;
+
+  static const EdgeInsets padding =
+      EdgeInsets.fromLTRB(_left, _top, _right, 136.0);
+
+  @override
+  Widget build(BuildContext context) => Padding(
+        padding: padding,
+        child: child,
+      );
+}
+
+class SliverPagePadding extends SliverPadding {
+  SliverPagePadding.only({
+    Widget sliver,
+    bool horizontal = false,
+    bool top = false,
+    bool bottom = false,
+    this.usesBottomSheet = false,
+  }) : super(
+          sliver: sliver,
+          padding: EdgeInsets.only(
+            bottom: bottom
+                ? usesBottomSheet
+                    ? PageWithBottomSummaryPadding.padding.bottom
+                    : PagePadding.padding.bottom
+                : 0,
+            top: top ? PagePadding.padding.top : 0,
+            left: horizontal ? PagePadding.padding.left : 0,
+            right: horizontal ? PagePadding.padding.right : 0,
+          ),
+        );
+
+  final bool usesBottomSheet;
+}
+
+class HorizontalPadding extends StatelessWidget {
+  const HorizontalPadding({this.child});
+
+  final Widget child;
+
+  static const padding = EdgeInsets.only(left: _left, right: _right);
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: padding,
+      child: child,
+    );
+  }
+}
+
+class ScrollablePagePadding extends StatelessWidget {
+  const ScrollablePagePadding({this.child});
+
+  final Widget child;
+
+  static const padding = EdgeInsets.fromLTRB(_left, _top, _right, 32.0);
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: padding,
+      child: child,
+    );
+  }
+}
