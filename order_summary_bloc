@@ -1,0 +1,454 @@
+// @dart=2.9
+
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:meta/meta.dart';
+import 'package:quittercheck/contracts/contracts.dart';
+import 'package:quittercheck/data/app_cqrs.dart';
+import 'package:quittercheck/features/manual_payment/extensions.dart';
+import 'package:quittercheck/features/order_summary/data/models.dart';
+import 'package:quittercheck/features/order_summary/domain/early_bird_product.dart';
+import 'package:quittercheck/features/order_summary/domain/shipping_option.dart';
+import 'package:quittercheck/features/order_summary/plan_order/active_order_cubit.dart';
+import 'package:quittercheck/features/order_summary/shopping_basket/domain/inventory.dart';
+import 'package:quittercheck/features/order_summary/shopping_basket/shopping_basket_cubit.dart';
+import 'package:quittercheck/models/usd.dart';
+import 'package:quittercheck/utils/analytics/analytics.dart';
+import 'package:quittercheck/utils/app_logger.dart';
+import 'package:quittercheck/utils/get_shipping_tier.dart';
+import 'package:uuid/uuid.dart';
+
+class OrderSummaryBloc extends Bloc<OrderSummaryEvent, OrderSummaryState> {
+  OrderSummaryBloc({
+    @required AppCQRS cqrs,
+    @required ShoppingBasketCubit basketCubit,
+    @required Analytics analytics,
+    @required ActiveOrdersCubit activeOrdersCubit,
+  })  : assert(cqrs != null),
+        assert(basketCubit != null),
+        assert(analytics != null),
+        assert(activeOrdersCubit != null),
+        _cqrs = cqrs,
+        _basketCubit = basketCubit,
+        _analytics = analytics,
+        _activeOrderCubit = activeOrdersCubit,
+        super(const OrderSummaryState(loading: true));
+
+  final AppCQRS _cqrs;
+  final ShoppingBasketCubit _basketCubit;
+  final ActiveOrdersCubit _activeOrderCubit;
+  final Analytics _analytics;
+
+  final uuid = const Uuid();
+  String _orderId;
+  UserPlanOrderV2DTO _userPlanOrderDTO;
+
+  @override
+  Stream<OrderSummaryState> mapEventToState(OrderSummaryEvent event) async* {
+    if (event is CreateUserPlan) {
+      yield* _createUserPlanOrder(event.basketState);
+    } else if (event is EditShippingOption) {
+      yield* _editShippingOption(event.userPlanOrderId, event.shippingOptionId);
+    } else if (event is EditGiftCode) {
+      yield* _editGiftCode(event.userPlanOrderId, event.giftCode);
+    } else if (event is CompleteFreeOrder) {
+      yield* _completeFreeOrder(event.userPlanOrderId);
+    } else if (event is ChangeProductQuantity) {
+      yield* _changeProductQuantity(event);
+    } else if (event is CancelActiveOrder) {
+      yield* _cancelOrder(event);
+    }
+  }
+
+  Stream<OrderSummaryState> _createUserPlanOrder(
+    ShoppingBasketState basketState,
+  ) async* {
+    yield OrderSummaryState(refreshing: true, info: _userPlanOrderDTO);
+
+    _orderId = uuid.v4();
+
+    final productsDTOs = basketState.products.entries
+        .map((entry) =>
+            OrderProductDTOFactory.fromProduct(entry.key, entry.value))
+        .toList();
+
+    final bundleDTOs = basketState.bundles
+        .map((bundle) => bundle.toOrderBundleDTO())
+        .toList(growable: false);
+
+    final order = CreateUserPlanOrderV5()
+      ..billingAddress = basketState.billingData.addressDTO
+      ..shippingAddress = basketState.shippingData.addressDTO
+      ..emailUpdates = false // TODO: disabled for now
+      ..phoneUpdates = false // TODO: disabled for now
+      ..habitToBreak = basketState.habit
+      ..paymentType = QuittingPlanPaymentTypeDTO.oneTimePayment
+      ..quittingPlanId = basketState.selectedQuittingPlan.id
+      ..shippingOptionId = basketState.selectedShipping.shippingOptionId
+      ..userPlanId = _orderId
+      ..testingFrequencyBundleId = basketState.testingFrequencyBundle?.id
+      ..extraProducts = productsDTOs
+      ..extraBundles = bundleDTOs
+      ..giftCodeId = basketState.giftCode?.giftCodeId;
+
+    final res = await _cqrs.noThrowRun(order);
+
+    if (res.wasSuccessful) {
+      _activeOrderCubit.add(_orderId);
+      yield* _onSuccess();
+    } else {
+      yield* _onError();
+    }
+  }
+
+  Stream<OrderSummaryState> _changeProductQuantity(
+    ChangeProductQuantity event,
+  ) async* {
+    if (_userPlanOrderDTO == null) {
+      AppLogger.severe(
+        'Cannot increase product quantity while UserPlanOrderDTO is null',
+      );
+      yield const OrderSummaryState(error: true);
+      return;
+    }
+
+    yield OrderSummaryState(
+      info: _userPlanOrderDTO,
+      refreshing: true,
+    );
+    final products = _userPlanOrderDTO.extraProducts
+        .map((product) {
+          int quantity = product.quantity;
+          if (product.productId == event.productId) {
+            quantity = event.quantity;
+          }
+
+          return OrderProductDTOFactory.fromProduct(product, quantity);
+        })
+        .where((product) => product.quantity > 0)
+        .toList(growable: false);
+
+    final productBundles = _userPlanOrderDTO.extraBundles
+        // ChangeProductQuantity event for bundles means a deletion only
+        .where((orderBundle) => orderBundle.bundle.productId != event.productId)
+        .map((bundle) => _toOrderBundleDTO(bundle))
+        .toList(growable: false);
+
+    final res = await _cqrs.noThrowRun(
+      EditUserPlanOrderExtraProductsV3()
+        ..userPlanOrderId = _userPlanOrderDTO.orderId
+        ..extraProducts = products
+        ..extraBundles = productBundles,
+    );
+
+    final userPlanRes = await _cqrs.noThrowGet(
+      UserPlanOrderByIdV2()..userPlanOrderId = _orderId,
+    );
+    _userPlanOrderDTO = userPlanRes.data;
+
+    final Map<ProductV2DTO, int> productsMap = {};
+    for (final p in _userPlanOrderDTO.extraProducts) {
+      final product = ProductV2DTO()
+        ..description = p.description
+        ..imageLink = p.imageLink
+        ..isRecommended = p.isRecommended
+        ..name = p.name
+        ..priceUSDSmallestUnit = p.priceUSDSmallestUnit
+        ..attributes = p.attributes
+        ..productId = p.productId;
+
+      productsMap.addAll({product: p.quantity});
+    }
+    _basketCubit.setProducts(productsMap);
+    _syncProductBundlesWithShoppingBasket();
+
+    if (!res.wasSuccessful) {
+      yield* _onError();
+    } else {
+      yield OrderSummaryState(
+        info: _userPlanOrderDTO,
+        error: userPlanRes.data == null,
+      );
+    }
+  }
+
+  OrderBundleDTO _toOrderBundleDTO(OrderExtraBundleDTO orderBundle) {
+    return OrderBundleDTO()
+      ..bundleId = orderBundle.bundle.productId
+      ..productIds = orderBundle.bundle.items
+          .map((bundleItem) => bundleItem.productId)
+          .toList(growable: false);
+  }
+
+  void _syncProductBundlesWithShoppingBasket() {
+    final bundles = _userPlanOrderDTO.extraBundles
+        .map((orderBundle) => BundleInventory(
+              product: orderBundle.bundle,
+              quantity: orderBundle.quantity,
+            ))
+        .toList(growable: false);
+
+    _basketCubit.setProductBundles(bundles);
+  }
+
+  Stream<OrderSummaryState> _editShippingOption(
+    String userPlanOrderId,
+    String shippingOptionId,
+  ) async* {
+    if (shippingOptionId == state.selectedShippingOptionId) {
+      return;
+    }
+
+    yield OrderSummaryState(refreshing: true, info: _userPlanOrderDTO);
+
+    final res = await _cqrs.noThrowRun(
+      EditUserOrderShippingOptionV2()
+        ..userPlanOrderId = userPlanOrderId
+        ..shippingOptionId = shippingOptionId,
+    );
+
+    if (res.wasSuccessful) {
+      yield* _onSuccess();
+    } else {
+      yield* _onError();
+    }
+  }
+
+  Stream<OrderSummaryState> _editGiftCode(
+    String userPlanOrderId,
+    String giftCode,
+  ) async* {
+    yield OrderSummaryState(refreshing: true, info: _userPlanOrderDTO);
+
+    final res = await _cqrs.noThrowRun(
+      EditUserPlanOrderGiftCode()
+        ..userPlanOrderId = userPlanOrderId
+        ..giftCode = giftCode,
+    );
+
+    if (res.wasSuccessful) {
+      yield* _onSuccess();
+
+      _analytics.log(
+        AnalyticsEvent.giftCodeActivated,
+        parameters: <String, dynamic>{
+          'userPlanOrderId': userPlanOrderId,
+          'giftCode': giftCode,
+        },
+      );
+    } else {
+      yield OrderSummaryState(
+        error: true,
+        info: _userPlanOrderDTO,
+        editGiftCodeErrorCodes: res.errorCodes,
+      );
+    }
+  }
+
+  Stream<OrderSummaryState> _completeFreeOrder(String userPlanOrderId) async* {
+    yield OrderSummaryState(refreshing: true, info: _userPlanOrderDTO);
+
+    _sendCheckoutEventToAnalytics();
+
+    final res = await _cqrs
+        .noThrowRun(ConfirmOrder()..userPlanOrderId = userPlanOrderId);
+
+    if (res.wasSuccessful) {
+      _activeOrderCubit.complete(_orderId);
+      _sendPurchaseEventToAnalytics();
+
+      yield* _onSuccess();
+    } else {
+      yield OrderSummaryState(
+        error: true,
+        info: _userPlanOrderDTO,
+        editGiftCodeErrorCodes: res.errorCodes,
+      );
+    }
+  }
+
+  void _sendCheckoutEventToAnalytics() {
+    _analytics.logCheckout(_userPlanOrderDTO.toCheckoutEvent());
+  }
+
+  void _sendPurchaseEventToAnalytics() {
+    _analytics.logPurchase(_userPlanOrderDTO.toPurchaseEvent());
+  }
+
+  Stream<OrderSummaryState> _onSuccess() async* {
+    final res = await _cqrs.noThrowGet(
+      UserPlanOrderByIdV2()..userPlanOrderId = _orderId,
+    );
+
+    _userPlanOrderDTO = res.data;
+
+    if (res.data != null) {
+      _basketCubit.setShippingOption(_userPlanOrderDTO.selectedShippingOption);
+      _basketCubit.setGiftCode(_userPlanOrderDTO.amountGiftCode);
+    }
+
+    yield OrderSummaryState(
+      info: _userPlanOrderDTO,
+      error: res.data == null,
+    );
+  }
+
+  Stream<OrderSummaryState> _onError() async* {
+    yield OrderSummaryState(error: true, info: _userPlanOrderDTO);
+  }
+
+  Stream<OrderSummaryState> _cancelOrder(CancelActiveOrder event) async* {
+    _activeOrderCubit.cancel(_orderId);
+  }
+}
+
+abstract class OrderSummaryEvent {
+  const OrderSummaryEvent();
+}
+
+class CreateUserPlan extends OrderSummaryEvent {
+  const CreateUserPlan(this.basketState);
+
+  final ShoppingBasketState basketState;
+}
+
+class ChangeProductQuantity extends OrderSummaryEvent {
+  ChangeProductQuantity(
+    this.productId,
+    this.quantity,
+  )   : assert(productId != null),
+        assert(quantity != null);
+
+  final String productId;
+  final int quantity;
+}
+
+class EditShippingOption extends OrderSummaryEvent {
+  const EditShippingOption(this.userPlanOrderId, this.shippingOptionId);
+
+  final String userPlanOrderId;
+  final String shippingOptionId;
+}
+
+class CompleteFreeOrder extends OrderSummaryEvent {
+  const CompleteFreeOrder(this.userPlanOrderId);
+
+  final String userPlanOrderId;
+}
+
+class EditGiftCode extends OrderSummaryEvent {
+  const EditGiftCode(this.userPlanOrderId, this.giftCode);
+
+  final String userPlanOrderId;
+  final String giftCode;
+}
+
+class CancelActiveOrder extends OrderSummaryEvent {
+  const CancelActiveOrder(this.orderId);
+
+  final String orderId;
+}
+
+class OrderSummaryState {
+  const OrderSummaryState({
+    this.loading = false,
+    this.refreshing = false,
+    this.error = false,
+    this.editGiftCodeErrorCodes = const [],
+    this.info,
+  });
+
+  final bool loading;
+  final bool refreshing;
+  final bool error;
+  final UserPlanOrderV2DTO info;
+  final List<int> editGiftCodeErrorCodes;
+
+  bool get eligibleForEarlyBird => info?.earlyBirdProduct != null;
+
+  EarlyBirdProduct getEarlyBirdProduct() {
+    if (!eligibleForEarlyBird) {
+      return null;
+    }
+
+    final earlyBirdInfo = info.earlyBirdProduct;
+    final product = [
+      ...info.extraProducts,
+      ...info.extraBundles.expand((orderedBundle) => orderedBundle.bundle.items)
+    ].firstWhere(
+      (product) => product.productId == earlyBirdInfo.productId,
+      orElse: () => null,
+    );
+
+    if (product == null) {
+      AppLogger.warning(
+        'Failed to find early bird product with id ${earlyBirdInfo.productId} within extra products',
+      );
+      return null;
+    }
+
+    return EarlyBirdProduct(
+      product: product,
+      description: earlyBirdInfo.earlyBirdDescription,
+      discount: earlyBirdInfo.earlyBirdProductDiscountUSDSmallestUnit,
+    );
+  }
+
+  Map<ProductV2DTO, int> getExtraProducts() {
+    final products = info?.extraProducts;
+    if (products == null) {
+      return {};
+    }
+
+    final result = <ProductV2DTO, int>{};
+    final earlyBirdProductId = info?.earlyBirdProduct?.productId;
+
+    return products.fold(result, (map, product) {
+      final containsEarlyBird = product.productId == earlyBirdProductId;
+
+      int productQuantity = product.quantity;
+      if (containsEarlyBird) {
+        productQuantity--;
+      }
+
+      if (productQuantity > 0) {
+        map[product] = productQuantity;
+      }
+
+      return map;
+    });
+  }
+
+//TODO this FE calculate Subtotal
+  USD get subtotalPrice {
+    if (info != null) {
+      final earlyBirdPrice =
+          info?.earlyBirdProduct?.earlyBirdProductDiscountUSDSmallestUnit ?? 0;
+
+      return USD.smallestUnit(
+          // info.planPriceUSDSmallestUnit +
+          //     info.extraTestsPriceUSDSmallestUnit +
+          //     info.extraProductsTotalPriceSmallestUnit +
+          //     // This is a workaround, as backend doesn't calculate prices correctly
+          //     earlyBirdPrice,
+          info.subTotalPriceUSDSmallestUnit);
+    }
+    return const USD(0);
+  }
+
+  String get selectedShippingOptionId =>
+      info.selectedShippingOption.shippingOptionId;
+
+  List<ShippingOption> get shippingOptions {
+    if (info == null) {
+      return const [];
+    }
+
+    final selectedTier = getShippingTier(info.shippingAddress);
+
+    return info.quittingPlan.shippingOptions
+        .where((shippingOption) => shippingOption.tier == selectedTier)
+        .map((shippingOption) => shippingOption.toEntity())
+        .toList(growable: false)
+      ..sort((so1, so2) => so1.price.smallestUnit - so2.price.smallestUnit);
+  }
+}
