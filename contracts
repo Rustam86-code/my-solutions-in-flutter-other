@@ -1,0 +1,5403 @@
+//@dart=2.9
+//ignore_for_file:unused_element
+//ignore_for_file:unused_import
+//ignore_for_file:non_constant_identifier_names
+//ignore_for_file: prefer_interpolation_to_compose_strings
+//ignore_for_file: sort_constructors_first
+//ignore_for_file: use_function_type_syntax_for_parameters
+import 'package:json_annotation/json_annotation.dart';
+import 'package:cqrs/contracts.dart';
+import 'package:cqrs/cqrs.dart';
+part 'contracts.g.dart';
+
+List<T> _listFromJson<T>(
+    Iterable<dynamic> decodedJson, T itemFromJson(Map<String, dynamic> map)) {
+  return decodedJson
+      ?.map((dynamic e) => itemFromJson(e as Map<String, dynamic>))
+      ?.toList()
+      ?.cast<T>();
+}
+
+DateTime _dateTimeFromJson(String value) {
+  return DateTime.parse('${value.substring(0, 19)} Z');
+}
+
+DateTime _nullableDateTimeFromJson(String value) {
+  return value == null ? null : _dateTimeFromJson(value);
+}
+
+double _doubleFromJson(dynamic value) {
+  if (value is double) {
+    return value;
+  } else if (value is String) {
+    return double.parse(value);
+  } else if (value is int) {
+    return value.toDouble();
+  } else {
+    throw Exception('Invalid argument type ${value.runtimeType}');
+  }
+}
+
+double _nullableDoubleFromJson(dynamic value) {
+  return value == null ? null : _doubleFromJson(value);
+}
+
+@JsonSerializable()
+class AcknowledgeFailure implements IRemoteCommand {
+  AcknowledgeFailure();
+
+  factory AcknowledgeFailure.fromJson(Map<String, dynamic> json) =>
+      _$AcknowledgeFailureFromJson(json);
+
+  @JsonKey(name: 'UserPlanId')
+  String userPlanId;
+  @JsonKey(name: 'TestDayId')
+  String testDayId;
+
+  @override
+  String getFullName() =>
+      'Quittercheck.Core.Contracts.Client.UserPlans.AcknowledgeFailure';
+
+  @override
+  Map<String, dynamic> toJson() => _$AcknowledgeFailureToJson(this);
+}
+
+@JsonSerializable()
+class AcknowledgeFailureErrorCodes {
+  AcknowledgeFailureErrorCodes();
+
+  factory AcknowledgeFailureErrorCodes.fromJson(Map<String, dynamic> json) =>
+      _$AcknowledgeFailureErrorCodesFromJson(json);
+
+  static const testDayDoesNotMatchUserPlan = 1;
+
+  Map<String, dynamic> toJson() => _$AcknowledgeFailureErrorCodesToJson(this);
+}
+
+@JsonSerializable()
+class AddressDTO {
+  AddressDTO();
+
+  factory AddressDTO.fromJson(Map<String, dynamic> json) =>
+      _$AddressDTOFromJson(json);
+
+  @JsonKey(name: 'FullName')
+  String fullName;
+  @JsonKey(name: 'CountryCode')
+  String countryCode;
+  @JsonKey(name: 'ZipCode')
+  String zipCode;
+  @JsonKey(name: 'City')
+  String city;
+  @JsonKey(name: 'State', nullable: true)
+  StateDTO state;
+  @JsonKey(name: 'Street')
+  String street;
+  @JsonKey(name: 'Apartment', nullable: true)
+  String apartment;
+
+  Map<String, dynamic> toJson() => _$AddressDTOToJson(this);
+}
+
+enum AddressError {
+  @JsonValue(5)
+  countryCodeRequired,
+  @JsonValue(6)
+  countryCodeInvalid,
+  @JsonValue(7)
+  countryCodeTooLong,
+  @JsonValue(8)
+  zipCodeRequired,
+  @JsonValue(9)
+  zipCodeTooLong,
+  @JsonValue(10)
+  cityRequired,
+  @JsonValue(11)
+  cityTooLong,
+  @JsonValue(12)
+  stateInvalid,
+  @JsonValue(13)
+  stateRequired,
+  @JsonValue(14)
+  streetRequired,
+  @JsonValue(15)
+  streetTooLong,
+  @JsonValue(16)
+  apartmentTooLong,
+  @JsonValue(17)
+  fullNameRequired,
+  @JsonValue(18)
+  fullNameTooLong,
+  @JsonValue(19)
+  addressNotFoundInTaxJar,
+}
+
+enum AddressErrorV2 {
+  @JsonValue(5)
+  countryCodeRequired,
+  @JsonValue(6)
+  countryCodeInvalid,
+  @JsonValue(7)
+  countryCodeTooLong,
+  @JsonValue(8)
+  zipCodeRequired,
+  @JsonValue(9)
+  zipCodeTooLong,
+  @JsonValue(10)
+  cityRequired,
+  @JsonValue(11)
+  cityTooLong,
+  @JsonValue(12)
+  stateInvalid,
+  @JsonValue(13)
+  stateRequired,
+  @JsonValue(14)
+  streetRequired,
+  @JsonValue(15)
+  streetTooLong,
+  @JsonValue(16)
+  apartmentTooLong,
+  @JsonValue(17)
+  fullNameRequired,
+  @JsonValue(18)
+  fullNameTooLong,
+  @JsonValue(19)
+  addressNotFoundInTaxJar,
+  @JsonValue(20)
+  phoneNumberRequired,
+  @JsonValue(21)
+  phoneNumberCountryCodeRequired,
+  @JsonValue(22)
+  phoneNumberCountryCodeTooLong,
+  @JsonValue(23)
+  phoneNumberNumberRequired,
+  @JsonValue(24)
+  phoneNumberNumberTooLong,
+}
+
+@JsonSerializable()
+class AddressErrorValidationResultDTO {
+  AddressErrorValidationResultDTO();
+
+  factory AddressErrorValidationResultDTO.fromJson(Map<String, dynamic> json) =>
+      _$AddressErrorValidationResultDTOFromJson(json);
+
+  @JsonKey(name: 'Errors')
+  List<AddressError> errors;
+
+  Map<String, dynamic> toJson() =>
+      _$AddressErrorValidationResultDTOToJson(this);
+}
+
+@JsonSerializable()
+class AddressErrorValidationResultV2DTO {
+  AddressErrorValidationResultV2DTO();
+
+  factory AddressErrorValidationResultV2DTO.fromJson(
+          Map<String, dynamic> json) =>
+      _$AddressErrorValidationResultV2DTOFromJson(json);
+
+  @JsonKey(name: 'Errors')
+  List<AddressErrorV2> errors;
+
+  Map<String, dynamic> toJson() =>
+      _$AddressErrorValidationResultV2DTOToJson(this);
+}
+
+@JsonSerializable()
+class AddressesItemDTO {
+  AddressesItemDTO();
+
+  factory AddressesItemDTO.fromJson(Map<String, dynamic> json) =>
+      _$AddressesItemDTOFromJson(json);
+
+  @JsonKey(name: 'Id')
+  String id;
+  @JsonKey(name: 'Address')
+  AddressV2DTO address;
+
+  Map<String, dynamic> toJson() => _$AddressesItemDTOToJson(this);
+}
+
+@JsonSerializable()
+class AddressV2DTO {
+  AddressV2DTO();
+
+  factory AddressV2DTO.fromJson(Map<String, dynamic> json) =>
+      _$AddressV2DTOFromJson(json);
+
+  @JsonKey(name: 'FullName')
+  String fullName;
+  @JsonKey(name: 'CountryCode')
+  String countryCode;
+  @JsonKey(name: 'ZipCode')
+  String zipCode;
+  @JsonKey(name: 'City')
+  String city;
+  @JsonKey(name: 'State', nullable: true)
+  StateDTO state;
+  @JsonKey(name: 'Street')
+  String street;
+  @JsonKey(name: 'Apartment', nullable: true)
+  String apartment;
+  @JsonKey(name: 'PhoneNumber')
+  PhoneNumberDTO phoneNumber;
+
+  Map<String, dynamic> toJson() => _$AddressV2DTOToJson(this);
+}
+
+@JsonSerializable()
+class AllAntiCharities implements IRemoteQuery<List<AntiCharityDTO>> {
+  AllAntiCharities();
+
+  factory AllAntiCharities.fromJson(Map<String, dynamic> json) =>
+      _$AllAntiCharitiesFromJson(json);
+
+  @override
+  String getFullName() =>
+      'Quittercheck.Core.Contracts.Client.AntiCharities.AllAntiCharities';
+
+  @override
+  List<AntiCharityDTO> resultFactory(dynamic decodedJson) =>
+      _listFromJson(decodedJson as Iterable<dynamic>, _$AntiCharityDTOFromJson);
+
+  @override
+  Map<String, dynamic> toJson() => _$AllAntiCharitiesToJson(this);
+}
+
+@JsonSerializable()
+class AllProductCategories implements IRemoteQuery<List<ProductCategoryDTO>> {
+  AllProductCategories();
+
+  factory AllProductCategories.fromJson(Map<String, dynamic> json) =>
+      _$AllProductCategoriesFromJson(json);
+
+  @override
+  String getFullName() =>
+      'Quittercheck.Core.Contracts.Client.Products.AllProductCategories';
+
+  @override
+  List<ProductCategoryDTO> resultFactory(dynamic decodedJson) => _listFromJson(
+      decodedJson as Iterable<dynamic>, _$ProductCategoryDTOFromJson);
+
+  @override
+  Map<String, dynamic> toJson() => _$AllProductCategoriesToJson(this);
+}
+
+@JsonSerializable()
+class AllProductGeneralizations
+    implements IRemoteQuery<AllProductGeneralizationsResult> {
+  AllProductGeneralizations();
+
+  factory AllProductGeneralizations.fromJson(Map<String, dynamic> json) =>
+      _$AllProductGeneralizationsFromJson(json);
+
+  @override
+  String getFullName() =>
+      'Quittercheck.Core.Contracts.Client.Products.AllProductGeneralizations';
+
+  @override
+  AllProductGeneralizationsResult resultFactory(dynamic decodedJson) =>
+      _$AllProductGeneralizationsResultFromJson(
+          decodedJson as Map<String, dynamic>);
+
+  @override
+  Map<String, dynamic> toJson() => _$AllProductGeneralizationsToJson(this);
+}
+
+@JsonSerializable()
+class AllProductGeneralizationsResult {
+  AllProductGeneralizationsResult();
+
+  factory AllProductGeneralizationsResult.fromJson(Map<String, dynamic> json) =>
+      _$AllProductGeneralizationsResultFromJson(json);
+
+  @JsonKey(name: 'GeneralizedProducts')
+  List<ProductGeneralizationDTO> generalizedProducts;
+  @JsonKey(name: 'NonGeneralizedProducts')
+  List<ProductDTO> nonGeneralizedProducts;
+
+  Map<String, dynamic> toJson() =>
+      _$AllProductGeneralizationsResultToJson(this);
+}
+
+@JsonSerializable()
+class AllProductGeneralizationsV2
+    implements IRemoteQuery<AllProductGeneralizationsV2Result> {
+  AllProductGeneralizationsV2();
+
+  factory AllProductGeneralizationsV2.fromJson(Map<String, dynamic> json) =>
+      _$AllProductGeneralizationsV2FromJson(json);
+
+  @override
+  String getFullName() =>
+      'Quittercheck.Core.Contracts.Client.Products.AllProductGeneralizationsV2';
+
+  @override
+  AllProductGeneralizationsV2Result resultFactory(dynamic decodedJson) =>
+      _$AllProductGeneralizationsV2ResultFromJson(
+          decodedJson as Map<String, dynamic>);
+
+  @override
+  Map<String, dynamic> toJson() => _$AllProductGeneralizationsV2ToJson(this);
+}
+
+@JsonSerializable()
+class AllProductGeneralizationsV2Result {
+  AllProductGeneralizationsV2Result();
+
+  factory AllProductGeneralizationsV2Result.fromJson(
+          Map<String, dynamic> json) =>
+      _$AllProductGeneralizationsV2ResultFromJson(json);
+
+  @JsonKey(name: 'Bundles')
+  List<BundleDTO> bundles;
+  @JsonKey(name: 'GeneralizedProducts')
+  List<ProductGeneralizationV2DTO> generalizedProducts;
+  @JsonKey(name: 'NonGeneralizedProducts')
+  List<ProductV2DTO> nonGeneralizedProducts;
+
+  Map<String, dynamic> toJson() =>
+      _$AllProductGeneralizationsV2ResultToJson(this);
+}
+
+@JsonSerializable()
+class AllProducts implements IRemoteQuery<List<ProductDTO>> {
+  AllProducts();
+
+  factory AllProducts.fromJson(Map<String, dynamic> json) =>
+      _$AllProductsFromJson(json);
+
+  @override
+  String getFullName() =>
+      'Quittercheck.Core.Contracts.Client.Products.AllProducts';
+
+  @override
+  List<ProductDTO> resultFactory(dynamic decodedJson) =>
+      _listFromJson(decodedJson as Iterable<dynamic>, _$ProductDTOFromJson);
+
+  @override
+  Map<String, dynamic> toJson() => _$AllProductsToJson(this);
+}
+
+@JsonSerializable()
+class AllProductsV2 implements IRemoteQuery<List<ProductV2DTO>> {
+  AllProductsV2();
+
+  factory AllProductsV2.fromJson(Map<String, dynamic> json) =>
+      _$AllProductsV2FromJson(json);
+
+  @override
+  String getFullName() =>
+      'Quittercheck.Core.Contracts.Client.Products.AllProductsV2';
+
+  @override
+  List<ProductV2DTO> resultFactory(dynamic decodedJson) =>
+      _listFromJson(decodedJson as Iterable<dynamic>, _$ProductV2DTOFromJson);
+
+  @override
+  Map<String, dynamic> toJson() => _$AllProductsV2ToJson(this);
+}
+
+@JsonSerializable()
+class AmountGiftCodeDTO {
+  AmountGiftCodeDTO();
+
+  factory AmountGiftCodeDTO.fromJson(Map<String, dynamic> json) =>
+      _$AmountGiftCodeDTOFromJson(json);
+
+  @JsonKey(name: 'Code')
+  String code;
+  @JsonKey(name: 'GiftValueUSDAmountSmallestUnit')
+  int giftValueUSDAmountSmallestUnit;
+
+  Map<String, dynamic> toJson() => _$AmountGiftCodeDTOToJson(this);
+}
+
+@JsonSerializable()
+class AmountGiftCodeOrderById implements IRemoteQuery<AmountGiftCodeOrderDTO> {
+  AmountGiftCodeOrderById();
+
+  factory AmountGiftCodeOrderById.fromJson(Map<String, dynamic> json) =>
+      _$AmountGiftCodeOrderByIdFromJson(json);
+
+  @JsonKey(name: 'GiftCodeId')
+  String giftCodeId;
+
+  @override
+  String getFullName() =>
+      'Quittercheck.Core.Contracts.Client.GiftCodes.AmountGiftCodeOrderById';
+
+  @override
+  AmountGiftCodeOrderDTO resultFactory(dynamic decodedJson) =>
+      _$AmountGiftCodeOrderDTOFromJson(decodedJson as Map<String, dynamic>);
+
+  @override
+  Map<String, dynamic> toJson() => _$AmountGiftCodeOrderByIdToJson(this);
+}
+
+@JsonSerializable()
+class AmountGiftCodeOrderDTO {
+  AmountGiftCodeOrderDTO();
+
+  factory AmountGiftCodeOrderDTO.fromJson(Map<String, dynamic> json) =>
+      _$AmountGiftCodeOrderDTOFromJson(json);
+
+  @JsonKey(name: 'GiftCodeId')
+  String giftCodeId;
+  @JsonKey(name: 'AmountUSDSmallestUnit')
+  int amountUSDSmallestUnit;
+  @JsonKey(name: 'StripePaymentInfo')
+  StripePaymentInfoDTO stripePaymentInfo;
+  @JsonKey(name: 'SharingInfo', nullable: true)
+  AmountGiftCodeSharingInfoDTO sharingInfo;
+
+  Map<String, dynamic> toJson() => _$AmountGiftCodeOrderDTOToJson(this);
+}
+
+@JsonSerializable()
+class AmountGiftCodeSharingInfoDTO {
+  AmountGiftCodeSharingInfoDTO();
+
+  factory AmountGiftCodeSharingInfoDTO.fromJson(Map<String, dynamic> json) =>
+      _$AmountGiftCodeSharingInfoDTOFromJson(json);
+
+  @JsonKey(name: 'SenderName')
+  String senderName;
+  @JsonKey(name: 'SenderEmail')
+  String senderEmail;
+  @JsonKey(name: 'RecipientName', nullable: true)
+  String recipientName;
+  @JsonKey(name: 'RecipientEmail', nullable: true)
+  String recipientEmail;
+  @JsonKey(name: 'Message', nullable: true)
+  String message;
+
+  Map<String, dynamic> toJson() => _$AmountGiftCodeSharingInfoDTOToJson(this);
+}
+
+@JsonSerializable()
+class AntiCharityDTO {
+  AntiCharityDTO();
+
+  factory AntiCharityDTO.fromJson(Map<String, dynamic> json) =>
+      _$AntiCharityDTOFromJson(json);
+
+  @JsonKey(name: 'AntiCharityId')
+  String antiCharityId;
+  @JsonKey(name: 'Title')
+  String title;
+  @JsonKey(name: 'Description')
+  String description;
+
+  Map<String, dynamic> toJson() => _$AntiCharityDTOToJson(this);
+}
+
+@JsonSerializable()
+class AppConfiguration implements IRemoteQuery<AppConfigurationDTO> {
+  AppConfiguration();
+
+  factory AppConfiguration.fromJson(Map<String, dynamic> json) =>
+      _$AppConfigurationFromJson(json);
+
+  @override
+  String getFullName() =>
+      'Quittercheck.Core.Contracts.Client.Settings.AppConfiguration';
+
+  @override
+  AppConfigurationDTO resultFactory(dynamic decodedJson) =>
+      _$AppConfigurationDTOFromJson(decodedJson as Map<String, dynamic>);
+
+  @override
+  Map<String, dynamic> toJson() => _$AppConfigurationToJson(this);
+}
+
+@JsonSerializable()
+class AppConfigurationDTO {
+  AppConfigurationDTO();
+
+  factory AppConfigurationDTO.fromJson(Map<String, dynamic> json) =>
+      _$AppConfigurationDTOFromJson(json);
+
+  @JsonKey(name: 'MinimalRequiredVersion')
+  int minimalRequiredVersion;
+  @JsonKey(name: 'PrivacyPolicyLink')
+  String privacyPolicyLink;
+  @JsonKey(name: 'TermsOfUseLink')
+  String termsOfUseLink;
+  @JsonKey(name: 'ClosedTestKitImageLink')
+  String closedTestKitImageLink;
+  @JsonKey(name: 'OpenedTestKitImageLink')
+  String openedTestKitImageLink;
+  @JsonKey(name: 'DisplayPreorderCodeScreenFeatureFlag')
+  bool displayPreorderCodeScreenFeatureFlag;
+  @JsonKey(name: 'ExtraTestPriceUSDSmallestUnit')
+  int extraTestPriceUSDSmallestUnit;
+  @JsonKey(name: 'ProductOrderShippingPriceUSDSmallestUnit')
+  int productOrderShippingPriceUSDSmallestUnit;
+  @JsonKey(name: 'DisableUserPlanSetup')
+  bool disableUserPlanSetup;
+
+  Map<String, dynamic> toJson() => _$AppConfigurationDTOToJson(this);
+}
+
+@JsonSerializable()
+class AvailableFixedAmountGiftCodeDTO {
+  AvailableFixedAmountGiftCodeDTO();
+
+  factory AvailableFixedAmountGiftCodeDTO.fromJson(Map<String, dynamic> json) =>
+      _$AvailableFixedAmountGiftCodeDTOFromJson(json);
+
+  @JsonKey(name: 'FixedAmountGiftCodeId')
+  String fixedAmountGiftCodeId;
+  @JsonKey(name: 'ValueUSDSmallestUnit')
+  int valueUSDSmallestUnit;
+
+  Map<String, dynamic> toJson() =>
+      _$AvailableFixedAmountGiftCodeDTOToJson(this);
+}
+
+@JsonSerializable()
+class AvailableFixedAmountGiftCodes
+    implements IRemoteQuery<List<AvailableFixedAmountGiftCodeDTO>> {
+  AvailableFixedAmountGiftCodes();
+
+  factory AvailableFixedAmountGiftCodes.fromJson(Map<String, dynamic> json) =>
+      _$AvailableFixedAmountGiftCodesFromJson(json);
+
+  @override
+  String getFullName() =>
+      'Quittercheck.Core.Contracts.Client.GiftCodes.AvailableFixedAmountGiftCodes';
+
+  @override
+  List<AvailableFixedAmountGiftCodeDTO> resultFactory(dynamic decodedJson) =>
+      _listFromJson(decodedJson as Iterable<dynamic>,
+          _$AvailableFixedAmountGiftCodeDTOFromJson);
+
+  @override
+  Map<String, dynamic> toJson() => _$AvailableFixedAmountGiftCodesToJson(this);
+}
+
+@JsonSerializable()
+class AvailableProductOrderShippingOptions
+    implements IRemoteQuery<List<ProductShippingOptionDTO>> {
+  AvailableProductOrderShippingOptions();
+
+  factory AvailableProductOrderShippingOptions.fromJson(
+          Map<String, dynamic> json) =>
+      _$AvailableProductOrderShippingOptionsFromJson(json);
+
+  @JsonKey(name: 'ShippingAddress')
+  AddressV2DTO shippingAddress;
+  @JsonKey(name: 'Bundles')
+  List<OrderBundleDTO> bundles;
+  @JsonKey(name: 'Products')
+  List<OrderProductV2DTO> products;
+
+  @override
+  String getFullName() =>
+      'Quittercheck.Core.Contracts.Client.Products.AvailableProductOrderShippingOptions';
+
+  @override
+  List<ProductShippingOptionDTO> resultFactory(dynamic decodedJson) =>
+      _listFromJson(
+          decodedJson as Iterable<dynamic>, _$ProductShippingOptionDTOFromJson);
+
+  @override
+  Map<String, dynamic> toJson() =>
+      _$AvailableProductOrderShippingOptionsToJson(this);
+}
+
+@JsonSerializable()
+class AvailableQuittingPlans implements IRemoteQuery<List<QuittingPlanDTO>> {
+  AvailableQuittingPlans();
+
+  factory AvailableQuittingPlans.fromJson(Map<String, dynamic> json) =>
+      _$AvailableQuittingPlansFromJson(json);
+
+  @override
+  String getFullName() =>
+      'Quittercheck.Core.Contracts.Client.QuittingPlans.AvailableQuittingPlans';
+
+  @override
+  List<QuittingPlanDTO> resultFactory(dynamic decodedJson) => _listFromJson(
+      decodedJson as Iterable<dynamic>, _$QuittingPlanDTOFromJson);
+
+  @override
+  Map<String, dynamic> toJson() => _$AvailableQuittingPlansToJson(this);
+}
+
+@JsonSerializable()
+class AvailableUserPlanStartDays implements IRemoteQuery<List<DaysRangeDTO>> {
+  AvailableUserPlanStartDays();
+
+  factory AvailableUserPlanStartDays.fromJson(Map<String, dynamic> json) =>
+      _$AvailableUserPlanStartDaysFromJson(json);
+
+  @JsonKey(name: 'UserPlanId')
+  String userPlanId;
+  @JsonKey(name: 'QuitDate')
+  DateTime quitDate;
+
+  @override
+  String getFullName() =>
+      'Quittercheck.Core.Contracts.Client.UserPlans.AvailableUserPlanStartDays';
+
+  @override
+  List<DaysRangeDTO> resultFactory(dynamic decodedJson) =>
+      _listFromJson(decodedJson as Iterable<dynamic>, _$DaysRangeDTOFromJson);
+
+  @override
+  Map<String, dynamic> toJson() => _$AvailableUserPlanStartDaysToJson(this);
+}
+
+@JsonSerializable()
+class BundleDTO extends ProductV2DTO {
+  BundleDTO();
+
+  factory BundleDTO.fromJson(Map<String, dynamic> json) =>
+      _$BundleDTOFromJson(json);
+
+  @JsonKey(name: 'BundledGeneralizedProducts')
+  List<ProductGeneralizationV2DTO> bundledGeneralizedProducts;
+  @JsonKey(name: 'BundledNonGeneralizedProducts')
+  List<ProductV2DTO> bundledNonGeneralizedProducts;
+
+  @override
+  Map<String, dynamic> toJson() => _$BundleDTOToJson(this);
+}
+
+@JsonSerializable()
+class CancelOrder implements IRemoteCommand {
+  CancelOrder();
+
+  factory CancelOrder.fromJson(Map<String, dynamic> json) =>
+      _$CancelOrderFromJson(json);
+
+  @JsonKey(name: 'UserPlanOrderId')
+  String userPlanOrderId;
+
+  @override
+  String getFullName() =>
+      'Quittercheck.Core.Contracts.Client.UserPlanOrders.CancelOrder';
+
+  @override
+  Map<String, dynamic> toJson() => _$CancelOrderToJson(this);
+}
+
+@JsonSerializable()
+class CancelOrderErrorCodes {
+  CancelOrderErrorCodes();
+
+  factory CancelOrderErrorCodes.fromJson(Map<String, dynamic> json) =>
+      _$CancelOrderErrorCodesFromJson(json);
+
+  static const userPlanOrderDoesNotExist = 1;
+  static const userPlanOrderCannotBeCanceled = 2;
+
+  Map<String, dynamic> toJson() => _$CancelOrderErrorCodesToJson(this);
+}
+
+@JsonSerializable()
+class CardDetailsDTO {
+  CardDetailsDTO();
+
+  factory CardDetailsDTO.fromJson(Map<String, dynamic> json) =>
+      _$CardDetailsDTOFromJson(json);
+
+  @JsonKey(name: 'PaymentMethodId')
+  String paymentMethodId;
+  @JsonKey(name: 'Last4')
+  String last4;
+  @JsonKey(name: 'Brand')
+  String brand;
+  @JsonKey(name: 'Founding')
+  String founding;
+  @JsonKey(name: 'ExpirationYear')
+  int expirationYear;
+  @JsonKey(name: 'ExpirationMonth')
+  int expirationMonth;
+
+  Map<String, dynamic> toJson() => _$CardDetailsDTOToJson(this);
+}
+
+@JsonSerializable()
+class ConfiguredBundleDTO extends BundleDTO {
+  ConfiguredBundleDTO();
+
+  factory ConfiguredBundleDTO.fromJson(Map<String, dynamic> json) =>
+      _$ConfiguredBundleDTOFromJson(json);
+
+  @JsonKey(name: 'Items')
+  List<ProductV2DTO> items;
+
+  @override
+  Map<String, dynamic> toJson() => _$ConfiguredBundleDTOToJson(this);
+}
+
+@JsonSerializable()
+class ConfirmEmail implements IRemoteCommand {
+  ConfirmEmail();
+
+  factory ConfirmEmail.fromJson(Map<String, dynamic> json) =>
+      _$ConfirmEmailFromJson(json);
+
+  @JsonKey(name: 'UserId')
+  String userId;
+  @JsonKey(name: 'Token')
+  String token;
+
+  @override
+  String getFullName() =>
+      'Quittercheck.Core.Contracts.Client.Users.ConfirmEmail';
+
+  @override
+  Map<String, dynamic> toJson() => _$ConfirmEmailToJson(this);
+}
+
+@JsonSerializable()
+class ConfirmEmailErrorCodes {
+  ConfirmEmailErrorCodes();
+
+  factory ConfirmEmailErrorCodes.fromJson(Map<String, dynamic> json) =>
+      _$ConfirmEmailErrorCodesFromJson(json);
+
+  static const alreadyConfirmed = 1;
+  static const invalidToken = 2;
+
+  Map<String, dynamic> toJson() => _$ConfirmEmailErrorCodesToJson(this);
+}
+
+@JsonSerializable()
+class ConfirmOrder implements IRemoteCommand {
+  ConfirmOrder();
+
+  factory ConfirmOrder.fromJson(Map<String, dynamic> json) =>
+      _$ConfirmOrderFromJson(json);
+
+  @JsonKey(name: 'UserPlanOrderId')
+  String userPlanOrderId;
+
+  @override
+  String getFullName() =>
+      'Quittercheck.Core.Contracts.Client.UserPlanOrders.ConfirmOrder';
+
+  @override
+  Map<String, dynamic> toJson() => _$ConfirmOrderToJson(this);
+}
+
+@JsonSerializable()
+class ConfirmOrderErrorCodes {
+  ConfirmOrderErrorCodes();
+
+  factory ConfirmOrderErrorCodes.fromJson(Map<String, dynamic> json) =>
+      _$ConfirmOrderErrorCodesFromJson(json);
+
+  static const userPlanOrderDoesNotExist = 1;
+  static const userPlanOrderCannotBeConfirmed = 2;
+
+  Map<String, dynamic> toJson() => _$ConfirmOrderErrorCodesToJson(this);
+}
+
+@JsonSerializable()
+class ConfirmTestDayRecordingUploadV2 implements IRemoteCommand {
+  ConfirmTestDayRecordingUploadV2();
+
+  factory ConfirmTestDayRecordingUploadV2.fromJson(Map<String, dynamic> json) =>
+      _$ConfirmTestDayRecordingUploadV2FromJson(json);
+
+  @JsonKey(name: 'UserPlanId')
+  String userPlanId;
+  @JsonKey(name: 'TestDayId')
+  String testDayId;
+  @JsonKey(name: 'Extension')
+  String extension;
+
+  @override
+  String getFullName() =>
+      'Quittercheck.Core.Contracts.Client.TestDays.ConfirmTestDayRecordingUploadV2';
+
+  @override
+  Map<String, dynamic> toJson() =>
+      _$ConfirmTestDayRecordingUploadV2ToJson(this);
+}
+
+@JsonSerializable()
+class ConfirmTestDayRecordingUploadV2ErrorCodes {
+  ConfirmTestDayRecordingUploadV2ErrorCodes();
+
+  factory ConfirmTestDayRecordingUploadV2ErrorCodes.fromJson(
+          Map<String, dynamic> json) =>
+      _$ConfirmTestDayRecordingUploadV2ErrorCodesFromJson(json);
+
+  static const userPlanDoesNotExist = 1;
+  static const testDayRecordingDoesNotExist = 2;
+  static const testDayRecordingAlreadyUploaded = 3;
+  static const extensionRequired = 4;
+  static const notTestDay = 5;
+  static const extensionTooLong = 6;
+  static const hasMaximumTestRecordingsPerTestDay = 7;
+
+  Map<String, dynamic> toJson() =>
+      _$ConfirmTestDayRecordingUploadV2ErrorCodesToJson(this);
+}
+
+@JsonSerializable()
+class CreateAddress implements IRemoteCommand {
+  CreateAddress();
+
+  factory CreateAddress.fromJson(Map<String, dynamic> json) =>
+      _$CreateAddressFromJson(json);
+
+  @JsonKey(name: 'Id')
+  String id;
+  @JsonKey(name: 'Address')
+  AddressDTO address;
+
+  @override
+  String getFullName() =>
+      'Quittercheck.Core.Contracts.Client.Users.CreateAddress';
+
+  @override
+  Map<String, dynamic> toJson() => _$CreateAddressToJson(this);
+}
+
+@JsonSerializable()
+class CreateAddressErrorCodes {
+  CreateAddressErrorCodes();
+
+  factory CreateAddressErrorCodes.fromJson(Map<String, dynamic> json) =>
+      _$CreateAddressErrorCodesFromJson(json);
+
+  static const addressAlreadyExists = 1;
+  static const addressRequired = 2;
+  static const addressCountryCodeRequired = 105;
+  static const addressCountryCodeInvalid = 106;
+  static const addressCountryCodeTooLong = 107;
+  static const addressZipCodeRequired = 108;
+  static const addressZipCodeTooLong = 109;
+  static const addressCityRequired = 110;
+  static const addressCityTooLong = 111;
+  static const addressStateInvalid = 112;
+  static const addressStateRequired = 113;
+  static const addressStreetRequired = 114;
+  static const addressStreetTooLong = 115;
+  static const addressApartmentTooLong = 116;
+  static const addressFullNameRequired = 117;
+  static const addressFullNameTooLong = 118;
+  static const addressNotFoundInTaxJar = 119;
+
+  Map<String, dynamic> toJson() => _$CreateAddressErrorCodesToJson(this);
+}
+
+@JsonSerializable()
+class CreateAddresses implements IRemoteCommand {
+  CreateAddresses();
+
+  factory CreateAddresses.fromJson(Map<String, dynamic> json) =>
+      _$CreateAddressesFromJson(json);
+
+  @JsonKey(name: 'Addresses')
+  List<AddressesItemDTO> addresses;
+
+  @override
+  String getFullName() =>
+      'Quittercheck.Core.Contracts.Client.Users.CreateAddresses';
+
+  @override
+  Map<String, dynamic> toJson() => _$CreateAddressesToJson(this);
+}
+
+@JsonSerializable()
+class CreateAddressesErrorCodes {
+  CreateAddressesErrorCodes();
+
+  factory CreateAddressesErrorCodes.fromJson(Map<String, dynamic> json) =>
+      _$CreateAddressesErrorCodesFromJson(json);
+
+  static const addressesRequired = 1;
+  static const addressesItemRequired = 105;
+  static const duplicateAddressId = 106;
+  static const addressRequired = 205;
+  static const addressAlreadyExists = 206;
+  static const addressCountryCodeRequired = 305;
+  static const addressCountryCodeInvalid = 306;
+  static const addressCountryCodeTooLong = 307;
+  static const addressZipCodeRequired = 308;
+  static const addressZipCodeTooLong = 309;
+  static const addressCityRequired = 310;
+  static const addressCityTooLong = 311;
+  static const addressStateInvalid = 312;
+  static const addressStateRequired = 313;
+  static const addressStreetRequired = 314;
+  static const addressStreetTooLong = 315;
+  static const addressApartmentTooLong = 316;
+  static const addressFullNameRequired = 317;
+  static const addressFullNameTooLong = 318;
+  static const addressNotFoundInTaxJar = 319;
+  static const addressPhoneNumberRequired = 320;
+  static const addressPhoneNumberCountryCodeRequired = 321;
+  static const addressPhoneNumberCountryCodeTooLong = 322;
+  static const addressPhoneNumberNumberRequired = 323;
+  static const addressPhoneNumberNumberTooLong = 324;
+
+  Map<String, dynamic> toJson() => _$CreateAddressesErrorCodesToJson(this);
+}
+
+@JsonSerializable()
+class CreateAddressV2 implements IRemoteCommand {
+  CreateAddressV2();
+
+  factory CreateAddressV2.fromJson(Map<String, dynamic> json) =>
+      _$CreateAddressV2FromJson(json);
+
+  @JsonKey(name: 'Id')
+  String id;
+  @JsonKey(name: 'Address')
+  AddressV2DTO address;
+
+  @override
+  String getFullName() =>
+      'Quittercheck.Core.Contracts.Client.Users.CreateAddressV2';
+
+  @override
+  Map<String, dynamic> toJson() => _$CreateAddressV2ToJson(this);
+}
+
+@JsonSerializable()
+class CreateAddressV2ErrorCodes {
+  CreateAddressV2ErrorCodes();
+
+  factory CreateAddressV2ErrorCodes.fromJson(Map<String, dynamic> json) =>
+      _$CreateAddressV2ErrorCodesFromJson(json);
+
+  static const addressAlreadyExists = 1;
+  static const addressRequired = 2;
+  static const addressCountryCodeRequired = 105;
+  static const addressCountryCodeInvalid = 106;
+  static const addressCountryCodeTooLong = 107;
+  static const addressZipCodeRequired = 108;
+  static const addressZipCodeTooLong = 109;
+  static const addressCityRequired = 110;
+  static const addressCityTooLong = 111;
+  static const addressStateInvalid = 112;
+  static const addressStateRequired = 113;
+  static const addressStreetRequired = 114;
+  static const addressStreetTooLong = 115;
+  static const addressApartmentTooLong = 116;
+  static const addressFullNameRequired = 117;
+  static const addressFullNameTooLong = 118;
+  static const addressNotFoundInTaxJar = 119;
+  static const addressPhoneNumberRequired = 120;
+  static const addressPhoneNumberCountryCodeRequired = 121;
+  static const addressPhoneNumberCountryCodeTooLong = 122;
+  static const addressPhoneNumberNumberRequired = 123;
+  static const addressPhoneNumberNumberTooLong = 124;
+
+  Map<String, dynamic> toJson() => _$CreateAddressV2ErrorCodesToJson(this);
+}
+
+@JsonSerializable()
+class CreateAmountGiftCodeOrder implements IRemoteCommand {
+  CreateAmountGiftCodeOrder();
+
+  factory CreateAmountGiftCodeOrder.fromJson(Map<String, dynamic> json) =>
+      _$CreateAmountGiftCodeOrderFromJson(json);
+
+  @JsonKey(name: 'GiftCodeId')
+  String giftCodeId;
+  @JsonKey(name: 'AmountUSDSmallestUnit')
+  int amountUSDSmallestUnit;
+  @JsonKey(name: 'SharingInfo', nullable: true)
+  AmountGiftCodeSharingInfoDTO sharingInfo;
+
+  @override
+  String getFullName() =>
+      'Quittercheck.Core.Contracts.Client.GiftCodes.CreateAmountGiftCodeOrder';
+
+  @override
+  Map<String, dynamic> toJson() => _$CreateAmountGiftCodeOrderToJson(this);
+}
+
+@JsonSerializable()
+class CreateAmountGiftCodeOrderErrorCodes {
+  CreateAmountGiftCodeOrderErrorCodes();
+
+  factory CreateAmountGiftCodeOrderErrorCodes.fromJson(
+          Map<String, dynamic> json) =>
+      _$CreateAmountGiftCodeOrderErrorCodesFromJson(json);
+
+  static const giftCodeAlreadyExists = 1;
+  static const amountMustBePositive = 2;
+  static const amountCannotExceed1000USD = 3;
+  static const senderNameRequired = 101;
+  static const senderNameTooLong = 102;
+  static const senderEmailRequired = 103;
+  static const senderEmailTooLong = 104;
+  static const senderEmailInvalid = 105;
+  static const recipientNameTooLong = 107;
+  static const recipientEmailTooLong = 109;
+  static const recipientEmailInvalid = 110;
+  static const messageTooLong = 112;
+
+  Map<String, dynamic> toJson() =>
+      _$CreateAmountGiftCodeOrderErrorCodesToJson(this);
+}
+
+@JsonSerializable()
+class CreateAmountGiftCodeOrderV2 implements IRemoteCommand {
+  CreateAmountGiftCodeOrderV2();
+
+  factory CreateAmountGiftCodeOrderV2.fromJson(Map<String, dynamic> json) =>
+      _$CreateAmountGiftCodeOrderV2FromJson(json);
+
+  @JsonKey(name: 'GiftCodeId')
+  String giftCodeId;
+  @JsonKey(name: 'AmountUSDSmallestUnit')
+  int amountUSDSmallestUnit;
+  @JsonKey(name: 'SharingInfo', nullable: true)
+  AmountGiftCodeSharingInfoDTO sharingInfo;
+
+  @override
+  String getFullName() =>
+      'Quittercheck.Core.Contracts.Client.GiftCodes.CreateAmountGiftCodeOrderV2';
+
+  @override
+  Map<String, dynamic> toJson() => _$CreateAmountGiftCodeOrderV2ToJson(this);
+}
+
+@JsonSerializable()
+class CreateAmountGiftCodeOrderV2ErrorCodes {
+  CreateAmountGiftCodeOrderV2ErrorCodes();
+
+  factory CreateAmountGiftCodeOrderV2ErrorCodes.fromJson(
+          Map<String, dynamic> json) =>
+      _$CreateAmountGiftCodeOrderV2ErrorCodesFromJson(json);
+
+  static const giftCodeAlreadyExists = 1;
+  static const amountIsInvalid = 2;
+  static const senderNameRequired = 101;
+  static const senderNameTooLong = 102;
+  static const senderEmailRequired = 103;
+  static const senderEmailTooLong = 104;
+  static const senderEmailInvalid = 105;
+  static const recipientNameTooLong = 107;
+  static const recipientEmailTooLong = 109;
+  static const recipientEmailInvalid = 110;
+  static const messageTooLong = 112;
+
+  Map<String, dynamic> toJson() =>
+      _$CreateAmountGiftCodeOrderV2ErrorCodesToJson(this);
+}
+
+@JsonSerializable()
+class CreateAppleUser implements IRemoteCommand {
+  CreateAppleUser();
+
+  factory CreateAppleUser.fromJson(Map<String, dynamic> json) =>
+      _$CreateAppleUserFromJson(json);
+
+  @JsonKey(name: 'Token')
+  String token;
+  @JsonKey(name: 'TimeZone')
+  String timeZone;
+
+  @override
+  String getFullName() =>
+      'Quittercheck.Core.Contracts.Client.Users.CreateAppleUser';
+
+  @override
+  Map<String, dynamic> toJson() => _$CreateAppleUserToJson(this);
+}
+
+@JsonSerializable()
+class CreateAppleUserErrorCodes {
+  CreateAppleUserErrorCodes();
+
+  factory CreateAppleUserErrorCodes.fromJson(Map<String, dynamic> json) =>
+      _$CreateAppleUserErrorCodesFromJson(json);
+
+  static const invalidToken = 1;
+  static const userAlreadyExists = 2;
+  static const unknownTimezone = 3;
+
+  Map<String, dynamic> toJson() => _$CreateAppleUserErrorCodesToJson(this);
+}
+
+@JsonSerializable()
+class CreateFacebookUser implements IRemoteCommand {
+  CreateFacebookUser();
+
+  factory CreateFacebookUser.fromJson(Map<String, dynamic> json) =>
+      _$CreateFacebookUserFromJson(json);
+
+  @JsonKey(name: 'Token')
+  String token;
+  @JsonKey(name: 'TimeZone')
+  String timeZone;
+
+  @override
+  String getFullName() =>
+      'Quittercheck.Core.Contracts.Client.Users.CreateFacebookUser';
+
+  @override
+  Map<String, dynamic> toJson() => _$CreateFacebookUserToJson(this);
+}
+
+@JsonSerializable()
+class CreateFacebookUserErrorCodes {
+  CreateFacebookUserErrorCodes();
+
+  factory CreateFacebookUserErrorCodes.fromJson(Map<String, dynamic> json) =>
+      _$CreateFacebookUserErrorCodesFromJson(json);
+
+  static const invalidToken = 1;
+  static const userAlreadyExists = 2;
+  static const unknownTimezone = 3;
+
+  Map<String, dynamic> toJson() => _$CreateFacebookUserErrorCodesToJson(this);
+}
+
+@JsonSerializable()
+class CreateGoogleUser implements IRemoteCommand {
+  CreateGoogleUser();
+
+  factory CreateGoogleUser.fromJson(Map<String, dynamic> json) =>
+      _$CreateGoogleUserFromJson(json);
+
+  @JsonKey(name: 'Token')
+  String token;
+  @JsonKey(name: 'TimeZone')
+  String timeZone;
+
+  @override
+  String getFullName() =>
+      'Quittercheck.Core.Contracts.Client.Users.CreateGoogleUser';
+
+  @override
+  Map<String, dynamic> toJson() => _$CreateGoogleUserToJson(this);
+}
+
+@JsonSerializable()
+class CreateGoogleUserErrorCodes {
+  CreateGoogleUserErrorCodes();
+
+  factory CreateGoogleUserErrorCodes.fromJson(Map<String, dynamic> json) =>
+      _$CreateGoogleUserErrorCodesFromJson(json);
+
+  static const invalidToken = 1;
+  static const userAlreadyExists = 2;
+  static const unknownTimezone = 3;
+
+  Map<String, dynamic> toJson() => _$CreateGoogleUserErrorCodesToJson(this);
+}
+
+@JsonSerializable()
+class CreateIncreasePledgeDepositPayment implements IRemoteCommand {
+  CreateIncreasePledgeDepositPayment();
+
+  factory CreateIncreasePledgeDepositPayment.fromJson(
+          Map<String, dynamic> json) =>
+      _$CreateIncreasePledgeDepositPaymentFromJson(json);
+
+  @JsonKey(name: 'UserPlanId')
+  String userPlanId;
+  @JsonKey(name: 'DepositIncreaseAmountSmallestUnitUSD')
+  int depositIncreaseAmountSmallestUnitUSD;
+
+  @override
+  String getFullName() =>
+      'Quittercheck.Core.Contracts.Client.UserPlans.CreateIncreasePledgeDepositPayment';
+
+  @override
+  Map<String, dynamic> toJson() =>
+      _$CreateIncreasePledgeDepositPaymentToJson(this);
+}
+
+@JsonSerializable()
+class CreateIncreasePledgeDepositPaymentErrorCodes {
+  CreateIncreasePledgeDepositPaymentErrorCodes();
+
+  factory CreateIncreasePledgeDepositPaymentErrorCodes.fromJson(
+          Map<String, dynamic> json) =>
+      _$CreateIncreasePledgeDepositPaymentErrorCodesFromJson(json);
+
+  static const userPlanPledgeDoesNotExist = 1;
+  static const userPlanPledgeIsNotPayAhead = 2;
+  static const depositCannotExceed1000USD = 3;
+
+  Map<String, dynamic> toJson() =>
+      _$CreateIncreasePledgeDepositPaymentErrorCodesToJson(this);
+}
+
+@JsonSerializable()
+class CreateProductOrder implements IRemoteCommand {
+  CreateProductOrder();
+
+  factory CreateProductOrder.fromJson(Map<String, dynamic> json) =>
+      _$CreateProductOrderFromJson(json);
+
+  @JsonKey(name: 'ProductOrderId')
+  String productOrderId;
+  @JsonKey(name: 'ShippingAddress')
+  AddressDTO shippingAddress;
+  @JsonKey(name: 'BillingAddress')
+  AddressDTO billingAddress;
+  @JsonKey(name: 'PhoneNumber')
+  PhoneNumberDTO phoneNumber;
+  @JsonKey(name: 'Products')
+  List<OrderProductDTO> products;
+
+  @override
+  String getFullName() =>
+      'Quittercheck.Core.Contracts.Client.Products.CreateProductOrder';
+
+  @override
+  Map<String, dynamic> toJson() => _$CreateProductOrderToJson(this);
+}
+
+@JsonSerializable()
+class CreateProductOrderErrorCodes {
+  CreateProductOrderErrorCodes();
+
+  factory CreateProductOrderErrorCodes.fromJson(Map<String, dynamic> json) =>
+      _$CreateProductOrderErrorCodesFromJson(json);
+
+  static const productOrderAlreadyExists = 1;
+  static const userAccountNotConfirmed = 2;
+  static const someProductsAreDuplicated = 3;
+  static const invalidProductQuantity = 4;
+  static const productDoesNotExist = 5;
+  static const productsRequired = 6;
+  static const shippingAddressCountryCodeRequired = 105;
+  static const shippingAddressCountryCodeInvalid = 106;
+  static const shippingAddressCountryCodeTooLong = 107;
+  static const shippingAddressZipCodeRequired = 108;
+  static const shippingAddressZipCodeTooLong = 109;
+  static const shippingAddressCityRequired = 110;
+  static const shippingAddressCityTooLong = 111;
+  static const shippingAddressStateInvalid = 112;
+  static const shippingAddressStateRequired = 113;
+  static const shippingAddressStreetRequired = 114;
+  static const shippingAddressStreetTooLong = 115;
+  static const shippingAddressApartmentTooLong = 116;
+  static const shippingAddressFullNameRequired = 117;
+  static const shippingAddressFullNameTooLong = 118;
+  static const shippingAddressNotFoundInTaxJar = 119;
+  static const billingAddressCountryCodeRequired = 205;
+  static const billingAddressCountryCodeInvalid = 206;
+  static const billingAddressCountryCodeTooLong = 207;
+  static const billingAddressZipCodeRequired = 208;
+  static const billingAddressZipCodeTooLong = 209;
+  static const billingAddressCityRequired = 210;
+  static const billingAddressCityTooLong = 211;
+  static const billingAddressStateInvalid = 212;
+  static const billingAddressStateRequired = 213;
+  static const billingAddressStreetRequired = 214;
+  static const billingAddressStreetTooLong = 215;
+  static const billingAddressApartmentTooLong = 216;
+  static const billingAddressFullNameRequired = 217;
+  static const billingAddressFullNameTooLong = 218;
+  static const billingAddressNotFoundInTaxJar = 219;
+  static const phoneNumberCountryCodeRequired = 301;
+  static const phoneNumberCountryCodeTooLong = 302;
+  static const phoneNumberNumberRequired = 303;
+  static const phoneNumberNumberTooLong = 304;
+
+  Map<String, dynamic> toJson() => _$CreateProductOrderErrorCodesToJson(this);
+}
+
+@JsonSerializable()
+class CreateProductOrderV2 implements IRemoteCommand {
+  CreateProductOrderV2();
+
+  factory CreateProductOrderV2.fromJson(Map<String, dynamic> json) =>
+      _$CreateProductOrderV2FromJson(json);
+
+  @JsonKey(name: 'ProductOrderId')
+  String productOrderId;
+  @JsonKey(name: 'ShippingOptionId', nullable: true)
+  String shippingOptionId;
+  @JsonKey(name: 'ShippingAddress')
+  AddressV2DTO shippingAddress;
+  @JsonKey(name: 'BillingAddress')
+  AddressV2DTO billingAddress;
+  @JsonKey(name: 'Products')
+  List<OrderProductDTO> products;
+
+  @override
+  String getFullName() =>
+      'Quittercheck.Core.Contracts.Client.Products.CreateProductOrderV2';
+
+  @override
+  Map<String, dynamic> toJson() => _$CreateProductOrderV2ToJson(this);
+}
+
+@JsonSerializable()
+class CreateProductOrderV2ErrorCodes {
+  CreateProductOrderV2ErrorCodes();
+
+  factory CreateProductOrderV2ErrorCodes.fromJson(Map<String, dynamic> json) =>
+      _$CreateProductOrderV2ErrorCodesFromJson(json);
+
+  static const productOrderAlreadyExists = 1;
+  static const userAccountNotConfirmed = 2;
+  static const someProductsAreDuplicated = 3;
+  static const invalidProductQuantity = 4;
+  static const productDoesNotExist = 5;
+  static const productsRequired = 6;
+  static const bundleProductsDoNotMatchBundleDefinitions = 7;
+  static const shippingAddressRequired = 104;
+  static const shippingAddressCountryCodeRequired = 105;
+  static const shippingAddressCountryCodeInvalid = 106;
+  static const shippingAddressCountryCodeTooLong = 107;
+  static const shippingAddressZipCodeRequired = 108;
+  static const shippingAddressZipCodeTooLong = 109;
+  static const shippingAddressCityRequired = 110;
+  static const shippingAddressCityTooLong = 111;
+  static const shippingAddressStateInvalid = 112;
+  static const shippingAddressStateRequired = 113;
+  static const shippingAddressStreetRequired = 114;
+  static const shippingAddressStreetTooLong = 115;
+  static const shippingAddressApartmentTooLong = 116;
+  static const shippingAddressFullNameRequired = 117;
+  static const shippingAddressFullNameTooLong = 118;
+  static const shippingAddressNotFoundInTaxJar = 119;
+  static const shippingAddressPhoneNumberRequired = 120;
+  static const shippingAddressPhoneNumberCountryCodeRequired = 121;
+  static const shippingAddressPhoneNumberCountryCodeTooLong = 122;
+  static const shippingAddressPhoneNumberNumberRequired = 123;
+  static const shippingAddressPhoneNumberNumberTooLong = 124;
+  static const billingAddressRequired = 204;
+  static const billingAddressCountryCodeRequired = 205;
+  static const billingAddressCountryCodeInvalid = 206;
+  static const billingAddressCountryCodeTooLong = 207;
+  static const billingAddressZipCodeRequired = 208;
+  static const billingAddressZipCodeTooLong = 209;
+  static const billingAddressCityRequired = 210;
+  static const billingAddressCityTooLong = 211;
+  static const billingAddressStateInvalid = 212;
+  static const billingAddressStateRequired = 213;
+  static const billingAddressStreetRequired = 214;
+  static const billingAddressStreetTooLong = 215;
+  static const billingAddressApartmentTooLong = 216;
+  static const billingAddressFullNameRequired = 217;
+  static const billingAddressFullNameTooLong = 218;
+  static const billingAddressNotFoundInTaxJar = 219;
+  static const billingAddressPhoneNumberRequired = 220;
+  static const billingAddressPhoneNumberCountryCodeRequired = 221;
+  static const billingAddressPhoneNumberCountryCodeTooLong = 222;
+  static const billingAddressPhoneNumberNumberRequired = 223;
+  static const billingAddressPhoneNumberNumberTooLong = 224;
+
+  Map<String, dynamic> toJson() => _$CreateProductOrderV2ErrorCodesToJson(this);
+}
+
+@JsonSerializable()
+class CreateProductOrderV3 implements IRemoteCommand {
+  CreateProductOrderV3();
+
+  factory CreateProductOrderV3.fromJson(Map<String, dynamic> json) =>
+      _$CreateProductOrderV3FromJson(json);
+
+  @JsonKey(name: 'ProductOrderId')
+  String productOrderId;
+  @JsonKey(name: 'ShippingOptionId')
+  String shippingOptionId;
+  @JsonKey(name: 'ShippingAddress')
+  AddressV2DTO shippingAddress;
+  @JsonKey(name: 'BillingAddress')
+  AddressV2DTO billingAddress;
+  @JsonKey(name: 'Bundles', nullable: true)
+  List<OrderBundleDTO> bundles;
+  @JsonKey(name: 'Products')
+  List<OrderProductV2DTO> products;
+
+  @override
+  String getFullName() =>
+      'Quittercheck.Core.Contracts.Client.Products.CreateProductOrderV3';
+
+  @override
+  Map<String, dynamic> toJson() => _$CreateProductOrderV3ToJson(this);
+}
+
+@JsonSerializable()
+class CreateProductOrderV3ErrorCodes {
+  CreateProductOrderV3ErrorCodes();
+
+  factory CreateProductOrderV3ErrorCodes.fromJson(Map<String, dynamic> json) =>
+      _$CreateProductOrderV3ErrorCodesFromJson(json);
+
+  static const productOrderAlreadyExists = 1;
+  static const userAccountNotConfirmed = 2;
+  static const someProductsAreDuplicated = 3;
+  static const invalidProductQuantity = 4;
+  static const productDoesNotExist = 5;
+  static const productsRequired = 6;
+  static const bundleProductsDoNotMatchBundleDefinitions = 7;
+  static const shippingOptionDoesNotExist = 8;
+  static const shippingOptionInvalidForProductOrder = 9;
+  static const shippingAddressRequired = 104;
+  static const shippingAddressCountryCodeRequired = 105;
+  static const shippingAddressCountryCodeInvalid = 106;
+  static const shippingAddressCountryCodeTooLong = 107;
+  static const shippingAddressZipCodeRequired = 108;
+  static const shippingAddressZipCodeTooLong = 109;
+  static const shippingAddressCityRequired = 110;
+  static const shippingAddressCityTooLong = 111;
+  static const shippingAddressStateInvalid = 112;
+  static const shippingAddressStateRequired = 113;
+  static const shippingAddressStreetRequired = 114;
+  static const shippingAddressStreetTooLong = 115;
+  static const shippingAddressApartmentTooLong = 116;
+  static const shippingAddressFullNameRequired = 117;
+  static const shippingAddressFullNameTooLong = 118;
+  static const shippingAddressNotFoundInTaxJar = 119;
+  static const shippingAddressPhoneNumberRequired = 120;
+  static const shippingAddressPhoneNumberCountryCodeRequired = 121;
+  static const shippingAddressPhoneNumberCountryCodeTooLong = 122;
+  static const shippingAddressPhoneNumberNumberRequired = 123;
+  static const shippingAddressPhoneNumberNumberTooLong = 124;
+  static const billingAddressRequired = 204;
+  static const billingAddressCountryCodeRequired = 205;
+  static const billingAddressCountryCodeInvalid = 206;
+  static const billingAddressCountryCodeTooLong = 207;
+  static const billingAddressZipCodeRequired = 208;
+  static const billingAddressZipCodeTooLong = 209;
+  static const billingAddressCityRequired = 210;
+  static const billingAddressCityTooLong = 211;
+  static const billingAddressStateInvalid = 212;
+  static const billingAddressStateRequired = 213;
+  static const billingAddressStreetRequired = 214;
+  static const billingAddressStreetTooLong = 215;
+  static const billingAddressApartmentTooLong = 216;
+  static const billingAddressFullNameRequired = 217;
+  static const billingAddressFullNameTooLong = 218;
+  static const billingAddressNotFoundInTaxJar = 219;
+  static const billingAddressPhoneNumberRequired = 220;
+  static const billingAddressPhoneNumberCountryCodeRequired = 221;
+  static const billingAddressPhoneNumberCountryCodeTooLong = 222;
+  static const billingAddressPhoneNumberNumberRequired = 223;
+  static const billingAddressPhoneNumberNumberTooLong = 224;
+
+  Map<String, dynamic> toJson() => _$CreateProductOrderV3ErrorCodesToJson(this);
+}
+
+@JsonSerializable()
+class CreateUser implements IRemoteCommand {
+  CreateUser();
+
+  factory CreateUser.fromJson(Map<String, dynamic> json) =>
+      _$CreateUserFromJson(json);
+
+  @JsonKey(name: 'Email')
+  String email;
+  @JsonKey(name: 'Password')
+  String password;
+  @JsonKey(name: 'TimeZone')
+  String timeZone;
+
+  @override
+  String getFullName() => 'Quittercheck.Core.Contracts.Client.Users.CreateUser';
+
+  @override
+  Map<String, dynamic> toJson() => _$CreateUserToJson(this);
+}
+
+@JsonSerializable()
+class CreateUserErrorCodes {
+  CreateUserErrorCodes();
+
+  factory CreateUserErrorCodes.fromJson(Map<String, dynamic> json) =>
+      _$CreateUserErrorCodesFromJson(json);
+
+  static const invalidEmail = 1;
+  static const passwordTooShort = 2;
+  static const passwordTooWeek = 3;
+  static const accountAlreadyExists = 4;
+  static const emailTooLong = 5;
+  static const unknownTimezone = 6;
+
+  Map<String, dynamic> toJson() => _$CreateUserErrorCodesToJson(this);
+}
+
+@JsonSerializable()
+class CreateUserPlanOrderV3 implements IRemoteCommand {
+  CreateUserPlanOrderV3();
+
+  factory CreateUserPlanOrderV3.fromJson(Map<String, dynamic> json) =>
+      _$CreateUserPlanOrderV3FromJson(json);
+
+  @JsonKey(name: 'UserPlanId')
+  String userPlanId;
+  @JsonKey(name: 'QuittingPlanId')
+  String quittingPlanId;
+  @JsonKey(name: 'ShippingOptionId')
+  String shippingOptionId;
+  @JsonKey(name: 'TestingFrequencyBundleId', nullable: true)
+  String testingFrequencyBundleId;
+  @JsonKey(name: 'ShippingAddress')
+  AddressDTO shippingAddress;
+  @JsonKey(name: 'BillingAddress')
+  AddressDTO billingAddress;
+  @JsonKey(name: 'PhoneNumber')
+  PhoneNumberDTO phoneNumber;
+  @JsonKey(name: 'EmailUpdates')
+  bool emailUpdates;
+  @JsonKey(name: 'PhoneUpdates')
+  bool phoneUpdates;
+  @JsonKey(name: 'HabitToBreak')
+  HabitToBreakDTO habitToBreak;
+  @JsonKey(name: 'PaymentType')
+  QuittingPlanPaymentTypeDTO paymentType;
+  @JsonKey(name: 'ExtraProducts', nullable: true)
+  List<OrderProductDTO> extraProducts;
+  @JsonKey(name: 'GiftCodeId', nullable: true)
+  String giftCodeId;
+
+  @override
+  String getFullName() =>
+      'Quittercheck.Core.Contracts.Client.UserPlanOrders.CreateUserPlanOrderV3';
+
+  @override
+  Map<String, dynamic> toJson() => _$CreateUserPlanOrderV3ToJson(this);
+}
+
+@JsonSerializable()
+class CreateUserPlanOrderV3ErrorCodes {
+  CreateUserPlanOrderV3ErrorCodes();
+
+  factory CreateUserPlanOrderV3ErrorCodes.fromJson(Map<String, dynamic> json) =>
+      _$CreateUserPlanOrderV3ErrorCodesFromJson(json);
+
+  static const userPlanOrderAlreadyExists = 1;
+  static const shippingOptionDoesNotExist = 2;
+  static const shippingOptionInvalidForQuittingPlan = 3;
+  static const shippingOptionTierInvalid = 4;
+  static const userAccountNotConfirmed = 5;
+  static const quittingPlanDoesNotExist = 6;
+  static const testingFrequencyBundleDoesNotExist = 8;
+  static const someProductsAreDuplicated = 9;
+  static const productNotAvaliableDuringUserPlanPurchase = 10;
+  static const invalidProductQuantity = 11;
+  static const productDoesNotExist = 12;
+  static const giftCodeIdInvalid = 13;
+  static const bundleProductsDoNotMatchBundleDefinitions = 14;
+  static const shippingAddressCountryCodeRequired = 105;
+  static const shippingAddressCountryCodeInvalid = 106;
+  static const shippingAddressCountryCodeTooLong = 107;
+  static const shippingAddressZipCodeRequired = 108;
+  static const shippingAddressZipCodeTooLong = 109;
+  static const shippingAddressCityRequired = 110;
+  static const shippingAddressCityTooLong = 111;
+  static const shippingAddressStateInvalid = 112;
+  static const shippingAddressStateRequired = 113;
+  static const shippingAddressStreetRequired = 114;
+  static const shippingAddressStreetTooLong = 115;
+  static const shippingAddressApartmentTooLong = 116;
+  static const shippingAddressFullNameRequired = 117;
+  static const shippingAddressFullNameTooLong = 118;
+  static const shippingAddressNotFoundInTaxJar = 119;
+  static const billingAddressCountryCodeRequired = 205;
+  static const billingAddressCountryCodeInvalid = 206;
+  static const billingAddressCountryCodeTooLong = 207;
+  static const billingAddressZipCodeRequired = 208;
+  static const billingAddressZipCodeTooLong = 209;
+  static const billingAddressCityRequired = 210;
+  static const billingAddressCityTooLong = 211;
+  static const billingAddressStateInvalid = 212;
+  static const billingAddressStateRequired = 213;
+  static const billingAddressStreetRequired = 214;
+  static const billingAddressStreetTooLong = 215;
+  static const billingAddressApartmentTooLong = 216;
+  static const billingAddressFullNameRequired = 217;
+  static const billingAddressFullNameTooLong = 218;
+  static const billingAddressNotFoundInTaxJar = 219;
+  static const phoneNumberCountryCodeRequired = 301;
+  static const phoneNumberCountryCodeTooLong = 302;
+  static const phoneNumberNumberRequired = 303;
+  static const phoneNumberNumberTooLong = 304;
+
+  Map<String, dynamic> toJson() =>
+      _$CreateUserPlanOrderV3ErrorCodesToJson(this);
+}
+
+@JsonSerializable()
+class CreateUserPlanOrderV4 implements IRemoteCommand {
+  CreateUserPlanOrderV4();
+
+  factory CreateUserPlanOrderV4.fromJson(Map<String, dynamic> json) =>
+      _$CreateUserPlanOrderV4FromJson(json);
+
+  @JsonKey(name: 'UserPlanId')
+  String userPlanId;
+  @JsonKey(name: 'QuittingPlanId')
+  String quittingPlanId;
+  @JsonKey(name: 'ShippingOptionId')
+  String shippingOptionId;
+  @JsonKey(name: 'TestingFrequencyBundleId', nullable: true)
+  String testingFrequencyBundleId;
+  @JsonKey(name: 'ShippingAddress')
+  AddressV2DTO shippingAddress;
+  @JsonKey(name: 'BillingAddress')
+  AddressV2DTO billingAddress;
+  @JsonKey(name: 'EmailUpdates')
+  bool emailUpdates;
+  @JsonKey(name: 'PhoneUpdates')
+  bool phoneUpdates;
+  @JsonKey(name: 'HabitToBreak')
+  HabitToBreakDTO habitToBreak;
+  @JsonKey(name: 'PaymentType')
+  QuittingPlanPaymentTypeDTO paymentType;
+  @JsonKey(name: 'ExtraProducts', nullable: true)
+  List<OrderProductDTO> extraProducts;
+  @JsonKey(name: 'GiftCodeId', nullable: true)
+  String giftCodeId;
+
+  @override
+  String getFullName() =>
+      'Quittercheck.Core.Contracts.Client.UserPlanOrders.CreateUserPlanOrderV4';
+
+  @override
+  Map<String, dynamic> toJson() => _$CreateUserPlanOrderV4ToJson(this);
+}
+
+@JsonSerializable()
+class CreateUserPlanOrderV4ErrorCodes {
+  CreateUserPlanOrderV4ErrorCodes();
+
+  factory CreateUserPlanOrderV4ErrorCodes.fromJson(Map<String, dynamic> json) =>
+      _$CreateUserPlanOrderV4ErrorCodesFromJson(json);
+
+  static const userPlanOrderAlreadyExists = 1;
+  static const shippingOptionDoesNotExist = 2;
+  static const shippingOptionInvalidForQuittingPlan = 3;
+  static const shippingOptionTierInvalid = 4;
+  static const userAccountNotConfirmed = 5;
+  static const quittingPlanDoesNotExist = 6;
+  static const testingFrequencyBundleDoesNotExist = 8;
+  static const someProductsAreDuplicated = 9;
+  static const productNotAvaliableDuringUserPlanPurchase = 10;
+  static const invalidProductQuantity = 11;
+  static const productDoesNotExist = 12;
+  static const giftCodeIdInvalid = 13;
+  static const bundleProductsDoNotMatchBundleDefinitions = 14;
+  static const shippingAddressRequired = 104;
+  static const shippingAddressCountryCodeRequired = 105;
+  static const shippingAddressCountryCodeInvalid = 106;
+  static const shippingAddressCountryCodeTooLong = 107;
+  static const shippingAddressZipCodeRequired = 108;
+  static const shippingAddressZipCodeTooLong = 109;
+  static const shippingAddressCityRequired = 110;
+  static const shippingAddressCityTooLong = 111;
+  static const shippingAddressStateInvalid = 112;
+  static const shippingAddressStateRequired = 113;
+  static const shippingAddressStreetRequired = 114;
+  static const shippingAddressStreetTooLong = 115;
+  static const shippingAddressApartmentTooLong = 116;
+  static const shippingAddressFullNameRequired = 117;
+  static const shippingAddressFullNameTooLong = 118;
+  static const shippingAddressNotFoundInTaxJar = 119;
+  static const shippingAddressPhoneNumberRequired = 120;
+  static const shippingAddressPhoneNumberCountryCodeRequired = 121;
+  static const shippingAddressPhoneNumberCountryCodeTooLong = 122;
+  static const shippingAddressPhoneNumberNumberRequired = 123;
+  static const shippingAddressPhoneNumberNumberTooLong = 124;
+  static const billingAddressRequired = 204;
+  static const billingAddressCountryCodeRequired = 205;
+  static const billingAddressCountryCodeInvalid = 206;
+  static const billingAddressCountryCodeTooLong = 207;
+  static const billingAddressZipCodeRequired = 208;
+  static const billingAddressZipCodeTooLong = 209;
+  static const billingAddressCityRequired = 210;
+  static const billingAddressCityTooLong = 211;
+  static const billingAddressStateInvalid = 212;
+  static const billingAddressStateRequired = 213;
+  static const billingAddressStreetRequired = 214;
+  static const billingAddressStreetTooLong = 215;
+  static const billingAddressApartmentTooLong = 216;
+  static const billingAddressFullNameRequired = 217;
+  static const billingAddressFullNameTooLong = 218;
+  static const billingAddressNotFoundInTaxJar = 219;
+  static const billingAddressPhoneNumberRequired = 220;
+  static const billingAddressPhoneNumberCountryCodeRequired = 221;
+  static const billingAddressPhoneNumberCountryCodeTooLong = 222;
+  static const billingAddressPhoneNumberNumberRequired = 223;
+  static const billingAddressPhoneNumberNumberTooLong = 224;
+
+  Map<String, dynamic> toJson() =>
+      _$CreateUserPlanOrderV4ErrorCodesToJson(this);
+}
+
+@JsonSerializable()
+class CreateUserPlanOrderV5 implements IRemoteCommand {
+  CreateUserPlanOrderV5();
+
+  factory CreateUserPlanOrderV5.fromJson(Map<String, dynamic> json) =>
+      _$CreateUserPlanOrderV5FromJson(json);
+
+  @JsonKey(name: 'UserPlanId')
+  String userPlanId;
+  @JsonKey(name: 'QuittingPlanId')
+  String quittingPlanId;
+  @JsonKey(name: 'ShippingOptionId')
+  String shippingOptionId;
+  @JsonKey(name: 'TestingFrequencyBundleId', nullable: true)
+  String testingFrequencyBundleId;
+  @JsonKey(name: 'ShippingAddress')
+  AddressV2DTO shippingAddress;
+  @JsonKey(name: 'BillingAddress')
+  AddressV2DTO billingAddress;
+  @JsonKey(name: 'EmailUpdates')
+  bool emailUpdates;
+  @JsonKey(name: 'PhoneUpdates')
+  bool phoneUpdates;
+  @JsonKey(name: 'HabitToBreak')
+  HabitToBreakDTO habitToBreak;
+  @JsonKey(name: 'PaymentType')
+  QuittingPlanPaymentTypeDTO paymentType;
+  @JsonKey(name: 'ExtraBundles', nullable: true)
+  List<OrderBundleDTO> extraBundles;
+  @JsonKey(name: 'ExtraProducts', nullable: true)
+  List<OrderProductV2DTO> extraProducts;
+  @JsonKey(name: 'GiftCodeId', nullable: true)
+  String giftCodeId;
+
+  @override
+  String getFullName() =>
+      'Quittercheck.Core.Contracts.Client.UserPlanOrders.CreateUserPlanOrderV5';
+
+  @override
+  Map<String, dynamic> toJson() => _$CreateUserPlanOrderV5ToJson(this);
+}
+
+@JsonSerializable()
+class CreateUserPlanOrderV5ErrorCodes {
+  CreateUserPlanOrderV5ErrorCodes();
+
+  factory CreateUserPlanOrderV5ErrorCodes.fromJson(Map<String, dynamic> json) =>
+      _$CreateUserPlanOrderV5ErrorCodesFromJson(json);
+
+  static const userPlanOrderAlreadyExists = 1;
+  static const shippingOptionDoesNotExist = 2;
+  static const shippingOptionInvalidForQuittingPlan = 3;
+  static const shippingOptionTierInvalid = 4;
+  static const userAccountNotConfirmed = 5;
+  static const quittingPlanDoesNotExist = 6;
+  static const testingFrequencyBundleDoesNotExist = 8;
+  static const someProductsAreDuplicated = 9;
+  static const productNotAvailableDuringUserPlanPurchase = 10;
+  static const productNotAvaliableDuringUserPlanPurchase = 10;
+  static const invalidProductQuantity = 11;
+  static const productDoesNotExist = 12;
+  static const giftCodeIdInvalid = 13;
+  static const bundleProductsDoNotMatchBundleDefinitions = 14;
+  static const shippingAddressRequired = 104;
+  static const shippingAddressCountryCodeRequired = 105;
+  static const shippingAddressCountryCodeInvalid = 106;
+  static const shippingAddressCountryCodeTooLong = 107;
+  static const shippingAddressZipCodeRequired = 108;
+  static const shippingAddressZipCodeTooLong = 109;
+  static const shippingAddressCityRequired = 110;
+  static const shippingAddressCityTooLong = 111;
+  static const shippingAddressStateInvalid = 112;
+  static const shippingAddressStateRequired = 113;
+  static const shippingAddressStreetRequired = 114;
+  static const shippingAddressStreetTooLong = 115;
+  static const shippingAddressApartmentTooLong = 116;
+  static const shippingAddressFullNameRequired = 117;
+  static const shippingAddressFullNameTooLong = 118;
+  static const shippingAddressNotFoundInTaxJar = 119;
+  static const shippingAddressPhoneNumberRequired = 120;
+  static const shippingAddressPhoneNumberCountryCodeRequired = 121;
+  static const shippingAddressPhoneNumberCountryCodeTooLong = 122;
+  static const shippingAddressPhoneNumberNumberRequired = 123;
+  static const shippingAddressPhoneNumberNumberTooLong = 124;
+  static const billingAddressRequired = 204;
+  static const billingAddressCountryCodeRequired = 205;
+  static const billingAddressCountryCodeInvalid = 206;
+  static const billingAddressCountryCodeTooLong = 207;
+  static const billingAddressZipCodeRequired = 208;
+  static const billingAddressZipCodeTooLong = 209;
+  static const billingAddressCityRequired = 210;
+  static const billingAddressCityTooLong = 211;
+  static const billingAddressStateInvalid = 212;
+  static const billingAddressStateRequired = 213;
+  static const billingAddressStreetRequired = 214;
+  static const billingAddressStreetTooLong = 215;
+  static const billingAddressApartmentTooLong = 216;
+  static const billingAddressFullNameRequired = 217;
+  static const billingAddressFullNameTooLong = 218;
+  static const billingAddressNotFoundInTaxJar = 219;
+  static const billingAddressPhoneNumberRequired = 220;
+  static const billingAddressPhoneNumberCountryCodeRequired = 221;
+  static const billingAddressPhoneNumberCountryCodeTooLong = 222;
+  static const billingAddressPhoneNumberNumberRequired = 223;
+  static const billingAddressPhoneNumberNumberTooLong = 224;
+
+  Map<String, dynamic> toJson() =>
+      _$CreateUserPlanOrderV5ErrorCodesToJson(this);
+}
+
+@JsonSerializable()
+class CreateUserPlanOrderWithPreorderCode implements IRemoteCommand {
+  CreateUserPlanOrderWithPreorderCode();
+
+  factory CreateUserPlanOrderWithPreorderCode.fromJson(
+          Map<String, dynamic> json) =>
+      _$CreateUserPlanOrderWithPreorderCodeFromJson(json);
+
+  @JsonKey(name: 'UserPlanId')
+  String userPlanId;
+  @JsonKey(name: 'HabitToBreak')
+  HabitToBreakDTO habitToBreak;
+  @JsonKey(name: 'PreorderCode')
+  String preorderCode;
+
+  @override
+  String getFullName() =>
+      'Quittercheck.Core.Contracts.Client.UserPlanOrders.CreateUserPlanOrderWithPreorderCode';
+
+  @override
+  Map<String, dynamic> toJson() =>
+      _$CreateUserPlanOrderWithPreorderCodeToJson(this);
+}
+
+@JsonSerializable()
+class CreateUserPlanOrderWithPreorderCodeErrorCodes {
+  CreateUserPlanOrderWithPreorderCodeErrorCodes();
+
+  factory CreateUserPlanOrderWithPreorderCodeErrorCodes.fromJson(
+          Map<String, dynamic> json) =>
+      _$CreateUserPlanOrderWithPreorderCodeErrorCodesFromJson(json);
+
+  static const userPlanAlreadyExists = 1;
+  static const userAccountNotConfirmed = 2;
+  static const preorderCodeRequired = 3;
+  static const preorderCodeDoesNotExistOrInvalid = 6;
+
+  Map<String, dynamic> toJson() =>
+      _$CreateUserPlanOrderWithPreorderCodeErrorCodesToJson(this);
+}
+
+@JsonSerializable()
+class CreateUserPlanPledge implements IRemoteCommand {
+  CreateUserPlanPledge();
+
+  factory CreateUserPlanPledge.fromJson(Map<String, dynamic> json) =>
+      _$CreateUserPlanPledgeFromJson(json);
+
+  @JsonKey(name: 'UserPlanOrderId')
+  String userPlanOrderId;
+  @JsonKey(name: 'PledgeConfiguration')
+  PledgeConfigurationDTO pledgeConfiguration;
+
+  @override
+  String getFullName() =>
+      'Quittercheck.Core.Contracts.Client.UserPlans.CreateUserPlanPledge';
+
+  @override
+  Map<String, dynamic> toJson() => _$CreateUserPlanPledgeToJson(this);
+}
+
+@JsonSerializable()
+class CreateUserPlanPledgeErrorCodes {
+  CreateUserPlanPledgeErrorCodes();
+
+  factory CreateUserPlanPledgeErrorCodes.fromJson(Map<String, dynamic> json) =>
+      _$CreateUserPlanPledgeErrorCodesFromJson(json);
+
+  static const userPlanOrderDoesNotExist = 1;
+  static const userPlanOrderNotCompleted = 2;
+  static const pledgeConfigurationRequired = 3;
+  static const pledgeIsDisabledForSelectedUserPlan = 4;
+  static const depositInvalidForAfterFailure = 5;
+  static const depositAmountSmallestUnitUSDRequired = 6;
+  static const depositAmountMustBePositive = 7;
+  static const userPlanPledgeAlreadyConfirmed = 8;
+  static const failAmountMustBePositive = 9;
+  static const depositAmountMustNotExceed1000USD = 10;
+
+  Map<String, dynamic> toJson() => _$CreateUserPlanPledgeErrorCodesToJson(this);
+}
+
+@JsonSerializable()
+class CurrentPledgeDTO {
+  CurrentPledgeDTO();
+
+  factory CurrentPledgeDTO.fromJson(Map<String, dynamic> json) =>
+      _$CurrentPledgeDTOFromJson(json);
+
+  @JsonKey(name: 'Type')
+  PledgeTypeDTO type;
+  @JsonKey(name: 'FailPenaltyUSDSmallestUnit')
+  int failPenaltyUSDSmallestUnit;
+  @JsonKey(name: 'CurrentPledgeDepositAmountUSDSmallestUnit', nullable: true)
+  int currentPledgeDepositAmountUSDSmallestUnit;
+  @JsonKey(name: 'TotalPledgeDepositAmountUSDSmallestUnit', nullable: true)
+  int totalPledgeDepositAmountUSDSmallestUnit;
+
+  Map<String, dynamic> toJson() => _$CurrentPledgeDTOToJson(this);
+}
+
+@JsonSerializable()
+class CurrentTestDayDTO {
+  CurrentTestDayDTO();
+
+  factory CurrentTestDayDTO.fromJson(Map<String, dynamic> json) =>
+      _$CurrentTestDayDTOFromJson(json);
+
+  @JsonKey(name: 'Id')
+  String id;
+  @JsonKey(name: 'DayEnd', fromJson: _dateTimeFromJson)
+  DateTime dayEnd;
+  @JsonKey(name: 'IsRetest')
+  bool isRetest;
+  @JsonKey(name: 'TotalVideoUploadAttempts')
+  int totalVideoUploadAttempts;
+  @JsonKey(name: 'VideoUploadAttemptsUsed')
+  int videoUploadAttemptsUsed;
+
+  Map<String, dynamic> toJson() => _$CurrentTestDayDTOToJson(this);
+}
+
+@JsonSerializable()
+class CurrentUserPlan implements IRemoteQuery<UserPlanDTO> {
+  CurrentUserPlan();
+
+  factory CurrentUserPlan.fromJson(Map<String, dynamic> json) =>
+      _$CurrentUserPlanFromJson(json);
+
+  @override
+  String getFullName() =>
+      'Quittercheck.Core.Contracts.Client.UserPlans.CurrentUserPlan';
+
+  @override
+  UserPlanDTO resultFactory(dynamic decodedJson) =>
+      _$UserPlanDTOFromJson(decodedJson as Map<String, dynamic>);
+
+  @override
+  Map<String, dynamic> toJson() => _$CurrentUserPlanToJson(this);
+}
+
+@JsonSerializable()
+class DaysRangeDTO {
+  DaysRangeDTO();
+
+  factory DaysRangeDTO.fromJson(Map<String, dynamic> json) =>
+      _$DaysRangeDTOFromJson(json);
+
+  @JsonKey(name: 'StartDate')
+  DateTime startDate;
+  @JsonKey(name: 'EndDate')
+  DateTime endDate;
+
+  Map<String, dynamic> toJson() => _$DaysRangeDTOToJson(this);
+}
+
+@JsonSerializable()
+class DescriptionTickDTO {
+  DescriptionTickDTO();
+
+  factory DescriptionTickDTO.fromJson(Map<String, dynamic> json) =>
+      _$DescriptionTickDTOFromJson(json);
+
+  @JsonKey(name: 'Description')
+  String description;
+
+  Map<String, dynamic> toJson() => _$DescriptionTickDTOToJson(this);
+}
+
+@JsonSerializable()
+class EarlyBirdProductDTO {
+  EarlyBirdProductDTO();
+
+  factory EarlyBirdProductDTO.fromJson(Map<String, dynamic> json) =>
+      _$EarlyBirdProductDTOFromJson(json);
+
+  @JsonKey(name: 'ProductId')
+  String productId;
+  @JsonKey(name: 'EarlyBirdProductDiscountUSDSmallestUnit')
+  int earlyBirdProductDiscountUSDSmallestUnit;
+  @JsonKey(name: 'EarlyBirdDescription')
+  String earlyBirdDescription;
+
+  Map<String, dynamic> toJson() => _$EarlyBirdProductDTOToJson(this);
+}
+
+@JsonSerializable()
+class EditAddress implements IRemoteCommand {
+  EditAddress();
+
+  factory EditAddress.fromJson(Map<String, dynamic> json) =>
+      _$EditAddressFromJson(json);
+
+  @JsonKey(name: 'Id')
+  String id;
+  @JsonKey(name: 'Address')
+  AddressDTO address;
+
+  @override
+  String getFullName() =>
+      'Quittercheck.Core.Contracts.Client.Users.EditAddress';
+
+  @override
+  Map<String, dynamic> toJson() => _$EditAddressToJson(this);
+}
+
+@JsonSerializable()
+class EditAddressErrorCodes {
+  EditAddressErrorCodes();
+
+  factory EditAddressErrorCodes.fromJson(Map<String, dynamic> json) =>
+      _$EditAddressErrorCodesFromJson(json);
+
+  static const addressDoesNotExist = 1;
+  static const addressRequired = 2;
+  static const addressCountryCodeRequired = 105;
+  static const addressCountryCodeInvalid = 106;
+  static const addressCountryCodeTooLong = 107;
+  static const addressZipCodeRequired = 108;
+  static const addressZipCodeTooLong = 109;
+  static const addressCityRequired = 110;
+  static const addressCityTooLong = 111;
+  static const addressStateInvalid = 112;
+  static const addressStateRequired = 113;
+  static const addressStreetRequired = 114;
+  static const addressStreetTooLong = 115;
+  static const addressApartmentTooLong = 116;
+  static const addressFullNameRequired = 117;
+  static const addressFullNameTooLong = 118;
+  static const addressNotFoundInTaxJar = 119;
+
+  Map<String, dynamic> toJson() => _$EditAddressErrorCodesToJson(this);
+}
+
+@JsonSerializable()
+class EditAddressV2 implements IRemoteCommand {
+  EditAddressV2();
+
+  factory EditAddressV2.fromJson(Map<String, dynamic> json) =>
+      _$EditAddressV2FromJson(json);
+
+  @JsonKey(name: 'Id')
+  String id;
+  @JsonKey(name: 'Address')
+  AddressV2DTO address;
+
+  @override
+  String getFullName() =>
+      'Quittercheck.Core.Contracts.Client.Users.EditAddressV2';
+
+  @override
+  Map<String, dynamic> toJson() => _$EditAddressV2ToJson(this);
+}
+
+@JsonSerializable()
+class EditAddressV2ErrorCodes {
+  EditAddressV2ErrorCodes();
+
+  factory EditAddressV2ErrorCodes.fromJson(Map<String, dynamic> json) =>
+      _$EditAddressV2ErrorCodesFromJson(json);
+
+  static const addressDoesNotExist = 1;
+  static const addressRequired = 2;
+  static const addressCountryCodeRequired = 105;
+  static const addressCountryCodeInvalid = 106;
+  static const addressCountryCodeTooLong = 107;
+  static const addressZipCodeRequired = 108;
+  static const addressZipCodeTooLong = 109;
+  static const addressCityRequired = 110;
+  static const addressCityTooLong = 111;
+  static const addressStateInvalid = 112;
+  static const addressStateRequired = 113;
+  static const addressStreetRequired = 114;
+  static const addressStreetTooLong = 115;
+  static const addressApartmentTooLong = 116;
+  static const addressFullNameRequired = 117;
+  static const addressFullNameTooLong = 118;
+  static const addressNotFoundInTaxJar = 119;
+  static const addressPhoneNumberRequired = 120;
+  static const addressPhoneNumberCountryCodeRequired = 121;
+  static const addressPhoneNumberCountryCodeTooLong = 122;
+  static const addressPhoneNumberNumberRequired = 123;
+  static const addressPhoneNumberNumberTooLong = 124;
+
+  Map<String, dynamic> toJson() => _$EditAddressV2ErrorCodesToJson(this);
+}
+
+@JsonSerializable()
+class EditUsername implements IRemoteCommand {
+  EditUsername();
+
+  factory EditUsername.fromJson(Map<String, dynamic> json) =>
+      _$EditUsernameFromJson(json);
+
+  @JsonKey(name: 'Username')
+  String username;
+
+  @override
+  String getFullName() =>
+      'Quittercheck.Core.Contracts.Client.Users.EditUsername';
+
+  @override
+  Map<String, dynamic> toJson() => _$EditUsernameToJson(this);
+}
+
+@JsonSerializable()
+class EditUsernameErrorCodes {
+  EditUsernameErrorCodes();
+
+  factory EditUsernameErrorCodes.fromJson(Map<String, dynamic> json) =>
+      _$EditUsernameErrorCodesFromJson(json);
+
+  static const usernameRequired = 1;
+  static const usernameTooLong = 2;
+
+  Map<String, dynamic> toJson() => _$EditUsernameErrorCodesToJson(this);
+}
+
+@JsonSerializable()
+class EditUserOrderShippingOptionV2 implements IRemoteCommand {
+  EditUserOrderShippingOptionV2();
+
+  factory EditUserOrderShippingOptionV2.fromJson(Map<String, dynamic> json) =>
+      _$EditUserOrderShippingOptionV2FromJson(json);
+
+  @JsonKey(name: 'UserPlanOrderId')
+  String userPlanOrderId;
+  @JsonKey(name: 'ShippingOptionId')
+  String shippingOptionId;
+
+  @override
+  String getFullName() =>
+      'Quittercheck.Core.Contracts.Client.UserPlanOrders.EditUserOrderShippingOptionV2';
+
+  @override
+  Map<String, dynamic> toJson() => _$EditUserOrderShippingOptionV2ToJson(this);
+}
+
+@JsonSerializable()
+class EditUserOrderShippingOptionV2ErrorCodes {
+  EditUserOrderShippingOptionV2ErrorCodes();
+
+  factory EditUserOrderShippingOptionV2ErrorCodes.fromJson(
+          Map<String, dynamic> json) =>
+      _$EditUserOrderShippingOptionV2ErrorCodesFromJson(json);
+
+  static const userPlanOrderDoesNotExist = 1;
+  static const shippingOptionDoesNotExist = 2;
+  static const shippingOptionInvalidForQuittingPlan = 3;
+  static const shippingOptionTierInvalid = 4;
+
+  Map<String, dynamic> toJson() =>
+      _$EditUserOrderShippingOptionV2ErrorCodesToJson(this);
+}
+
+@JsonSerializable()
+class EditUserPlanOrderExtraProductsV2 implements IRemoteCommand {
+  EditUserPlanOrderExtraProductsV2();
+
+  factory EditUserPlanOrderExtraProductsV2.fromJson(
+          Map<String, dynamic> json) =>
+      _$EditUserPlanOrderExtraProductsV2FromJson(json);
+
+  @JsonKey(name: 'UserPlanOrderId')
+  String userPlanOrderId;
+  @JsonKey(name: 'ExtraProducts', nullable: true)
+  List<OrderProductDTO> extraProducts;
+
+  @override
+  String getFullName() =>
+      'Quittercheck.Core.Contracts.Client.UserPlanOrders.EditUserPlanOrderExtraProductsV2';
+
+  @override
+  Map<String, dynamic> toJson() =>
+      _$EditUserPlanOrderExtraProductsV2ToJson(this);
+}
+
+@JsonSerializable()
+class EditUserPlanOrderExtraProductsV2ErrorCodes {
+  EditUserPlanOrderExtraProductsV2ErrorCodes();
+
+  factory EditUserPlanOrderExtraProductsV2ErrorCodes.fromJson(
+          Map<String, dynamic> json) =>
+      _$EditUserPlanOrderExtraProductsV2ErrorCodesFromJson(json);
+
+  static const userPlanOrderDoesNotExist = 1;
+  static const someProductsAreDuplicated = 2;
+  static const productNotAvaliableDuringUserPlanPurchase = 3;
+  static const invalidProductQuantity = 4;
+  static const productDoesNotExist = 5;
+  static const bundleProductsDoNotMatchBundleDefinitions = 6;
+
+  Map<String, dynamic> toJson() =>
+      _$EditUserPlanOrderExtraProductsV2ErrorCodesToJson(this);
+}
+
+@JsonSerializable()
+class EditUserPlanOrderExtraProductsV3 implements IRemoteCommand {
+  EditUserPlanOrderExtraProductsV3();
+
+  factory EditUserPlanOrderExtraProductsV3.fromJson(
+          Map<String, dynamic> json) =>
+      _$EditUserPlanOrderExtraProductsV3FromJson(json);
+
+  @JsonKey(name: 'UserPlanOrderId')
+  String userPlanOrderId;
+  @JsonKey(name: 'ExtraBundles', nullable: true)
+  List<OrderBundleDTO> extraBundles;
+  @JsonKey(name: 'ExtraProducts', nullable: true)
+  List<OrderProductV2DTO> extraProducts;
+
+  @override
+  String getFullName() =>
+      'Quittercheck.Core.Contracts.Client.UserPlanOrders.EditUserPlanOrderExtraProductsV3';
+
+  @override
+  Map<String, dynamic> toJson() =>
+      _$EditUserPlanOrderExtraProductsV3ToJson(this);
+}
+
+@JsonSerializable()
+class EditUserPlanOrderExtraProductsV3ErrorCodes {
+  EditUserPlanOrderExtraProductsV3ErrorCodes();
+
+  factory EditUserPlanOrderExtraProductsV3ErrorCodes.fromJson(
+          Map<String, dynamic> json) =>
+      _$EditUserPlanOrderExtraProductsV3ErrorCodesFromJson(json);
+
+  static const userPlanOrderDoesNotExist = 1;
+  static const someProductsAreDuplicated = 2;
+  static const productNotAvailableDuringUserPlanPurchase = 3;
+  static const productNotAvaliableDuringUserPlanPurchase = 3;
+  static const invalidProductQuantity = 4;
+  static const productDoesNotExist = 5;
+  static const bundleProductsDoNotMatchBundleDefinitions = 6;
+
+  Map<String, dynamic> toJson() =>
+      _$EditUserPlanOrderExtraProductsV3ErrorCodesToJson(this);
+}
+
+@JsonSerializable()
+class EditUserPlanOrderGiftCode implements IRemoteCommand {
+  EditUserPlanOrderGiftCode();
+
+  factory EditUserPlanOrderGiftCode.fromJson(Map<String, dynamic> json) =>
+      _$EditUserPlanOrderGiftCodeFromJson(json);
+
+  @JsonKey(name: 'UserPlanOrderId')
+  String userPlanOrderId;
+  @JsonKey(name: 'GiftCode', nullable: true)
+  String giftCode;
+
+  @override
+  String getFullName() =>
+      'Quittercheck.Core.Contracts.Client.UserPlanOrders.EditUserPlanOrderGiftCode';
+
+  @override
+  Map<String, dynamic> toJson() => _$EditUserPlanOrderGiftCodeToJson(this);
+}
+
+@JsonSerializable()
+class EditUserPlanOrderGiftCodeErrorCodes {
+  EditUserPlanOrderGiftCodeErrorCodes();
+
+  factory EditUserPlanOrderGiftCodeErrorCodes.fromJson(
+          Map<String, dynamic> json) =>
+      _$EditUserPlanOrderGiftCodeErrorCodesFromJson(json);
+
+  static const userPlanOrderDoesNotExist = 1;
+  static const giftCodeDoesNotExist = 2;
+  static const giftCodeAlreadyUsed = 3;
+  static const invalidGiftCodeType = 4;
+
+  Map<String, dynamic> toJson() =>
+      _$EditUserPlanOrderGiftCodeErrorCodesToJson(this);
+}
+
+@JsonSerializable()
+class EveningNotificationDTO extends TestDayPushNotificationDTO {
+  EveningNotificationDTO();
+
+  factory EveningNotificationDTO.fromJson(Map<String, dynamic> json) =>
+      _$EveningNotificationDTOFromJson(json);
+
+  @override
+  Map<String, dynamic> toJson() => _$EveningNotificationDTOToJson(this);
+}
+
+@JsonSerializable()
+class EveningOneDayBeforeNotificationDTO extends TestDayPushNotificationDTO {
+  EveningOneDayBeforeNotificationDTO();
+
+  factory EveningOneDayBeforeNotificationDTO.fromJson(
+          Map<String, dynamic> json) =>
+      _$EveningOneDayBeforeNotificationDTOFromJson(json);
+
+  @override
+  Map<String, dynamic> toJson() =>
+      _$EveningOneDayBeforeNotificationDTOToJson(this);
+}
+
+@JsonSerializable()
+class FailureFineDetailsDTO {
+  FailureFineDetailsDTO();
+
+  factory FailureFineDetailsDTO.fromJson(Map<String, dynamic> json) =>
+      _$FailureFineDetailsDTOFromJson(json);
+
+  @JsonKey(name: 'TestDayId')
+  String testDayId;
+  @JsonKey(
+      name: 'RecordingUploadDate',
+      nullable: true,
+      fromJson: _nullableDateTimeFromJson)
+  DateTime recordingUploadDate;
+  @JsonKey(name: 'TestDate', fromJson: _dateTimeFromJson)
+  DateTime testDate;
+  @JsonKey(name: 'DateCreated', fromJson: _dateTimeFromJson)
+  DateTime dateCreated;
+  @JsonKey(name: 'FailureFineStatus')
+  FailureFineStatusDTO failureFineStatus;
+  @JsonKey(name: 'FailureFineAmountUSDSmallestUnit')
+  int failureFineAmountUSDSmallestUnit;
+  @JsonKey(name: 'StripePaymentInfo', nullable: true)
+  StripePaymentInfoDTO stripePaymentInfo;
+  @JsonKey(name: 'PaymentMethod', nullable: true)
+  PaymentMethodDTO paymentMethod;
+
+  Map<String, dynamic> toJson() => _$FailureFineDetailsDTOToJson(this);
+}
+
+@JsonSerializable()
+class FailureFineDTO {
+  FailureFineDTO();
+
+  factory FailureFineDTO.fromJson(Map<String, dynamic> json) =>
+      _$FailureFineDTOFromJson(json);
+
+  @JsonKey(name: 'TestDayId')
+  String testDayId;
+  @JsonKey(name: 'FailureFineAmountUSDSmallestUnit')
+  int failureFineAmountUSDSmallestUnit;
+
+  Map<String, dynamic> toJson() => _$FailureFineDTOToJson(this);
+}
+
+@JsonSerializable()
+class FailureFinePaidAheadDTO extends TestDayPushNotificationDTO {
+  FailureFinePaidAheadDTO();
+
+  factory FailureFinePaidAheadDTO.fromJson(Map<String, dynamic> json) =>
+      _$FailureFinePaidAheadDTOFromJson(json);
+
+  @override
+  Map<String, dynamic> toJson() => _$FailureFinePaidAheadDTOToJson(this);
+}
+
+@JsonSerializable()
+class FailureFinePaymentById implements IRemoteQuery<FailureFinePaymentDTO> {
+  FailureFinePaymentById();
+
+  factory FailureFinePaymentById.fromJson(Map<String, dynamic> json) =>
+      _$FailureFinePaymentByIdFromJson(json);
+
+  @JsonKey(name: 'UserPlanId')
+  String userPlanId;
+  @JsonKey(name: 'TestDayId')
+  String testDayId;
+
+  @override
+  String getFullName() =>
+      'Quittercheck.Core.Contracts.Client.UserPlans.FailureFinePaymentById';
+
+  @override
+  FailureFinePaymentDTO resultFactory(dynamic decodedJson) =>
+      _$FailureFinePaymentDTOFromJson(decodedJson as Map<String, dynamic>);
+
+  @override
+  Map<String, dynamic> toJson() => _$FailureFinePaymentByIdToJson(this);
+}
+
+@JsonSerializable()
+class FailureFinePaymentDTO {
+  FailureFinePaymentDTO();
+
+  factory FailureFinePaymentDTO.fromJson(Map<String, dynamic> json) =>
+      _$FailureFinePaymentDTOFromJson(json);
+
+  @JsonKey(name: 'UserPlanId')
+  String userPlanId;
+  @JsonKey(name: 'TestDayId')
+  String testDayId;
+  @JsonKey(name: 'TestDate')
+  DateTime testDate;
+  @JsonKey(name: 'StripePaymentInfo', nullable: true)
+  StripePaymentInfoDTO stripePaymentInfo;
+  @JsonKey(name: 'FailureFineAmountUSDSmallestUnit')
+  int failureFineAmountUSDSmallestUnit;
+  @JsonKey(name: 'PaymentStatus')
+  PaymentStatusDTO paymentStatus;
+
+  Map<String, dynamic> toJson() => _$FailureFinePaymentDTOToJson(this);
+}
+
+@JsonSerializable()
+class FailureFinePaymentSucceededDTO extends TestDayPushNotificationDTO {
+  FailureFinePaymentSucceededDTO();
+
+  factory FailureFinePaymentSucceededDTO.fromJson(Map<String, dynamic> json) =>
+      _$FailureFinePaymentSucceededDTOFromJson(json);
+
+  @override
+  Map<String, dynamic> toJson() => _$FailureFinePaymentSucceededDTOToJson(this);
+}
+
+@JsonSerializable()
+class FailureFineRequiresUserActionDTO extends TestDayPushNotificationDTO {
+  FailureFineRequiresUserActionDTO();
+
+  factory FailureFineRequiresUserActionDTO.fromJson(
+          Map<String, dynamic> json) =>
+      _$FailureFineRequiresUserActionDTOFromJson(json);
+
+  @override
+  Map<String, dynamic> toJson() =>
+      _$FailureFineRequiresUserActionDTOToJson(this);
+}
+
+enum FailureFineStatusDTO {
+  @JsonValue(0)
+  new_,
+  @JsonValue(1)
+  paidAhead,
+  @JsonValue(2)
+  paymentIntentInitialized,
+  @JsonValue(3)
+  paymentIntentSucceeded,
+  @JsonValue(4)
+  paymentIntentRequiresAction,
+}
+
+@JsonSerializable()
+class FailureReasonsDTO {
+  FailureReasonsDTO();
+
+  factory FailureReasonsDTO.fromJson(Map<String, dynamic> json) =>
+      _$FailureReasonsDTOFromJson(json);
+
+  @JsonKey(name: 'NicotineDetected')
+  bool nicotineDetected;
+  @JsonKey(name: 'TestOrUserLeftCamera')
+  bool testOrUserLeftCamera;
+  @JsonKey(name: 'TestTubeNotClearBeforeTesting')
+  bool testTubeNotClearBeforeTesting;
+  @JsonKey(name: 'SwabTooShort')
+  bool swabTooShort;
+  @JsonKey(name: 'TestPackagingNotClearBeforeTest')
+  bool testPackagingNotClearBeforeTest;
+  @JsonKey(name: 'EmptyMouthNotProperlyShown')
+  bool emptyMouthNotProperlyShown;
+  @JsonKey(name: 'VideoNotUploaded')
+  bool videoNotUploaded;
+
+  Map<String, dynamic> toJson() => _$FailureReasonsDTOToJson(this);
+}
+
+@JsonSerializable()
+class FirebaseToken implements IRemoteQuery<String> {
+  FirebaseToken();
+
+  factory FirebaseToken.fromJson(Map<String, dynamic> json) =>
+      _$FirebaseTokenFromJson(json);
+
+  @override
+  String getFullName() =>
+      'Quittercheck.Core.Contracts.Client.Users.FirebaseToken';
+
+  @override
+  String resultFactory(dynamic decodedJson) => decodedJson as String;
+
+  @override
+  Map<String, dynamic> toJson() => _$FirebaseTokenToJson(this);
+}
+
+@JsonSerializable()
+class GiftCodeByCode implements IRemoteQuery<GiftCodeDTO> {
+  GiftCodeByCode();
+
+  factory GiftCodeByCode.fromJson(Map<String, dynamic> json) =>
+      _$GiftCodeByCodeFromJson(json);
+
+  @JsonKey(name: 'Code')
+  String code;
+
+  @override
+  String getFullName() =>
+      'Quittercheck.Core.Contracts.Client.GiftCodes.GiftCodeByCode';
+
+  @override
+  GiftCodeDTO resultFactory(dynamic decodedJson) =>
+      _$GiftCodeDTOFromJson(decodedJson as Map<String, dynamic>);
+
+  @override
+  Map<String, dynamic> toJson() => _$GiftCodeByCodeToJson(this);
+}
+
+@JsonSerializable()
+class GiftCodeDTO {
+  GiftCodeDTO();
+
+  factory GiftCodeDTO.fromJson(Map<String, dynamic> json) =>
+      _$GiftCodeDTOFromJson(json);
+
+  @JsonKey(name: 'GiftCodeId')
+  String giftCodeId;
+  @JsonKey(name: 'Code')
+  String code;
+  @JsonKey(name: 'Type')
+  GiftCodeTypeDTO type;
+  @JsonKey(name: 'Amount', nullable: true)
+  AmountGiftCodeDTO amount;
+  @JsonKey(name: 'Preorder', nullable: true)
+  PreorderCodeDTO preorder;
+
+  Map<String, dynamic> toJson() => _$GiftCodeDTOToJson(this);
+}
+
+enum GiftCodeTypeDTO {
+  @JsonValue(0)
+  amount,
+  @JsonValue(1)
+  preorder,
+}
+
+@JsonSerializable()
+class GrantedRewardDTO {
+  GrantedRewardDTO();
+
+  factory GrantedRewardDTO.fromJson(Map<String, dynamic> json) =>
+      _$GrantedRewardDTOFromJson(json);
+
+  @JsonKey(name: 'GrantedRewardId')
+  String grantedRewardId;
+  @JsonKey(name: 'DateCreated', fromJson: _dateTimeFromJson)
+  DateTime dateCreated;
+  @JsonKey(name: 'RewardUSDSmallestUnit')
+  int rewardUSDSmallestUnit;
+  @JsonKey(name: 'Notes', nullable: true)
+  String notes;
+
+  Map<String, dynamic> toJson() => _$GrantedRewardDTOToJson(this);
+}
+
+enum HabitToBreakDTO {
+  @JsonValue(0)
+  cigarette,
+  @JsonValue(1)
+  vape,
+  @JsonValue(2)
+  chewingGum,
+}
+
+@JsonSerializable()
+class HowTestingWorksLink implements IRemoteQuery<String> {
+  HowTestingWorksLink();
+
+  factory HowTestingWorksLink.fromJson(Map<String, dynamic> json) =>
+      _$HowTestingWorksLinkFromJson(json);
+
+  @override
+  String getFullName() =>
+      'Quittercheck.Core.Contracts.Client.QuittingPlans.HowTestingWorksLink';
+
+  @override
+  String resultFactory(dynamic decodedJson) => decodedJson as String;
+
+  @override
+  Map<String, dynamic> toJson() => _$HowTestingWorksLinkToJson(this);
+}
+
+@JsonSerializable()
+class IGiftCodeRelated {
+  IGiftCodeRelated();
+
+  factory IGiftCodeRelated.fromJson(Map<String, dynamic> json) =>
+      _$IGiftCodeRelatedFromJson(json);
+
+  @JsonKey(name: 'GiftCodeId')
+  String giftCodeId;
+
+  Map<String, dynamic> toJson() => _$IGiftCodeRelatedToJson(this);
+}
+
+@JsonSerializable()
+class IProductOrderRelated {
+  IProductOrderRelated();
+
+  factory IProductOrderRelated.fromJson(Map<String, dynamic> json) =>
+      _$IProductOrderRelatedFromJson(json);
+
+  @JsonKey(name: 'ProductOrderId')
+  String productOrderId;
+
+  Map<String, dynamic> toJson() => _$IProductOrderRelatedToJson(this);
+}
+
+@JsonSerializable()
+class IUserPlanOrderRelated {
+  IUserPlanOrderRelated();
+
+  factory IUserPlanOrderRelated.fromJson(Map<String, dynamic> json) =>
+      _$IUserPlanOrderRelatedFromJson(json);
+
+  @JsonKey(name: 'UserPlanOrderId')
+  String userPlanOrderId;
+
+  Map<String, dynamic> toJson() => _$IUserPlanOrderRelatedToJson(this);
+}
+
+@JsonSerializable()
+class IUserPlanPledgeRelated {
+  IUserPlanPledgeRelated();
+
+  factory IUserPlanPledgeRelated.fromJson(Map<String, dynamic> json) =>
+      _$IUserPlanPledgeRelatedFromJson(json);
+
+  @JsonKey(name: 'UserPlanId')
+  String userPlanId;
+
+  Map<String, dynamic> toJson() => _$IUserPlanPledgeRelatedToJson(this);
+}
+
+@JsonSerializable()
+class IUserPlanRelated {
+  IUserPlanRelated();
+
+  factory IUserPlanRelated.fromJson(Map<String, dynamic> json) =>
+      _$IUserPlanRelatedFromJson(json);
+
+  @JsonKey(name: 'UserPlanId')
+  String userPlanId;
+
+  Map<String, dynamic> toJson() => _$IUserPlanRelatedToJson(this);
+}
+
+@JsonSerializable()
+class MaximalPledgeValuesConfiguration
+    implements IRemoteQuery<MaximalPledgeValuesConfigurationDTO> {
+  MaximalPledgeValuesConfiguration();
+
+  factory MaximalPledgeValuesConfiguration.fromJson(
+          Map<String, dynamic> json) =>
+      _$MaximalPledgeValuesConfigurationFromJson(json);
+
+  @override
+  String getFullName() =>
+      'Quittercheck.Core.Contracts.Client.UserPlans.MaximalPledgeValuesConfiguration';
+
+  @override
+  MaximalPledgeValuesConfigurationDTO resultFactory(dynamic decodedJson) =>
+      _$MaximalPledgeValuesConfigurationDTOFromJson(
+          decodedJson as Map<String, dynamic>);
+
+  @override
+  Map<String, dynamic> toJson() =>
+      _$MaximalPledgeValuesConfigurationToJson(this);
+}
+
+@JsonSerializable()
+class MaximalPledgeValuesConfigurationDTO {
+  MaximalPledgeValuesConfigurationDTO();
+
+  factory MaximalPledgeValuesConfigurationDTO.fromJson(
+          Map<String, dynamic> json) =>
+      _$MaximalPledgeValuesConfigurationDTOFromJson(json);
+
+  @JsonKey(name: 'MaximalFailPenaltyUSDSmallestUnit')
+  int maximalFailPenaltyUSDSmallestUnit;
+  @JsonKey(name: 'MaximalPledgeDepositUSDSmallestUnit')
+  int maximalPledgeDepositUSDSmallestUnit;
+
+  Map<String, dynamic> toJson() =>
+      _$MaximalPledgeValuesConfigurationDTOToJson(this);
+}
+
+@JsonSerializable()
+class Me implements IRemoteQuery<MeDTO> {
+  Me();
+
+  factory Me.fromJson(Map<String, dynamic> json) => _$MeFromJson(json);
+
+  @override
+  String getFullName() => 'Quittercheck.Core.Contracts.Client.Users.Me';
+
+  @override
+  MeDTO resultFactory(dynamic decodedJson) =>
+      _$MeDTOFromJson(decodedJson as Map<String, dynamic>);
+
+  @override
+  Map<String, dynamic> toJson() => _$MeToJson(this);
+}
+
+@JsonSerializable()
+class MeDTO {
+  MeDTO();
+
+  factory MeDTO.fromJson(Map<String, dynamic> json) => _$MeDTOFromJson(json);
+
+  @JsonKey(name: 'Username', nullable: true)
+  String username;
+  @JsonKey(name: 'Email', nullable: true)
+  String email;
+  @JsonKey(name: 'OnboardingStatus')
+  UserOnboardingStatusDTO onboardingStatus;
+  @JsonKey(name: 'UsernameStatus')
+  UsernameStatusDTO usernameStatus;
+  @JsonKey(name: 'IsPendingDeactivation')
+  bool isPendingDeactivation;
+  @JsonKey(name: 'IsPendingDeletion')
+  bool isPendingDeletion;
+
+  Map<String, dynamic> toJson() => _$MeDTOToJson(this);
+}
+
+@JsonSerializable()
+class MidnightNotificationDTO extends TestDayPushNotificationDTO {
+  MidnightNotificationDTO();
+
+  factory MidnightNotificationDTO.fromJson(Map<String, dynamic> json) =>
+      _$MidnightNotificationDTOFromJson(json);
+
+  @override
+  Map<String, dynamic> toJson() => _$MidnightNotificationDTOToJson(this);
+}
+
+@JsonSerializable()
+class MorningNotificationDTO extends TestDayPushNotificationDTO {
+  MorningNotificationDTO();
+
+  factory MorningNotificationDTO.fromJson(Map<String, dynamic> json) =>
+      _$MorningNotificationDTOFromJson(json);
+
+  @override
+  Map<String, dynamic> toJson() => _$MorningNotificationDTOToJson(this);
+}
+
+@JsonSerializable()
+class MyAddresses implements IRemoteQuery<List<UserAddressDTO>> {
+  MyAddresses();
+
+  factory MyAddresses.fromJson(Map<String, dynamic> json) =>
+      _$MyAddressesFromJson(json);
+
+  @override
+  String getFullName() =>
+      'Quittercheck.Core.Contracts.Client.Users.MyAddresses';
+
+  @override
+  List<UserAddressDTO> resultFactory(dynamic decodedJson) =>
+      _listFromJson(decodedJson as Iterable<dynamic>, _$UserAddressDTOFromJson);
+
+  @override
+  Map<String, dynamic> toJson() => _$MyAddressesToJson(this);
+}
+
+@JsonSerializable()
+class MyPaymentMethods implements IRemoteQuery<List<PaymentMethodDTO>> {
+  MyPaymentMethods();
+
+  factory MyPaymentMethods.fromJson(Map<String, dynamic> json) =>
+      _$MyPaymentMethodsFromJson(json);
+
+  @override
+  String getFullName() =>
+      'Quittercheck.Core.Contracts.Client.Users.MyPaymentMethods';
+
+  @override
+  List<PaymentMethodDTO> resultFactory(dynamic decodedJson) => _listFromJson(
+      decodedJson as Iterable<dynamic>, _$PaymentMethodDTOFromJson);
+
+  @override
+  Map<String, dynamic> toJson() => _$MyPaymentMethodsToJson(this);
+}
+
+@JsonSerializable()
+class MyUserPlans implements IRemoteQuery<MyUserPlansDTO> {
+  MyUserPlans();
+
+  factory MyUserPlans.fromJson(Map<String, dynamic> json) =>
+      _$MyUserPlansFromJson(json);
+
+  @override
+  String getFullName() =>
+      'Quittercheck.Core.Contracts.Client.UserPlans.MyUserPlans';
+
+  @override
+  MyUserPlansDTO resultFactory(dynamic decodedJson) =>
+      _$MyUserPlansDTOFromJson(decodedJson as Map<String, dynamic>);
+
+  @override
+  Map<String, dynamic> toJson() => _$MyUserPlansToJson(this);
+}
+
+@JsonSerializable()
+class MyUserPlansDTO {
+  MyUserPlansDTO();
+
+  factory MyUserPlansDTO.fromJson(Map<String, dynamic> json) =>
+      _$MyUserPlansDTOFromJson(json);
+
+  @JsonKey(name: 'PastPlans')
+  List<UserPlanDTO> pastPlans;
+  @JsonKey(name: 'FuturePlans')
+  List<UserPlanDTO> futurePlans;
+
+  Map<String, dynamic> toJson() => _$MyUserPlansDTOToJson(this);
+}
+
+@JsonSerializable()
+class OrderBundleDetailsDTO {
+  OrderBundleDetailsDTO();
+
+  factory OrderBundleDetailsDTO.fromJson(Map<String, dynamic> json) =>
+      _$OrderBundleDetailsDTOFromJson(json);
+
+  @JsonKey(name: 'Bundle')
+  ConfiguredBundleDTO bundle;
+  @JsonKey(name: 'Quantity')
+  int quantity;
+  @JsonKey(name: 'TotalPriceUSDSmallestUnit')
+  int totalPriceUSDSmallestUnit;
+
+  Map<String, dynamic> toJson() => _$OrderBundleDetailsDTOToJson(this);
+}
+
+@JsonSerializable()
+class OrderBundleDTO {
+  OrderBundleDTO();
+
+  factory OrderBundleDTO.fromJson(Map<String, dynamic> json) =>
+      _$OrderBundleDTOFromJson(json);
+
+  @JsonKey(name: 'BundleId')
+  String bundleId;
+  @JsonKey(name: 'ProductIds')
+  List<String> productIds;
+
+  Map<String, dynamic> toJson() => _$OrderBundleDTOToJson(this);
+}
+
+@JsonSerializable()
+class OrderExtraBundleDTO {
+  OrderExtraBundleDTO();
+
+  factory OrderExtraBundleDTO.fromJson(Map<String, dynamic> json) =>
+      _$OrderExtraBundleDTOFromJson(json);
+
+  @JsonKey(name: 'Bundle')
+  ConfiguredBundleDTO bundle;
+  @JsonKey(name: 'Quantity')
+  int quantity;
+  @JsonKey(name: 'TotalPriceUSDSmallestUnit')
+  int totalPriceUSDSmallestUnit;
+
+  Map<String, dynamic> toJson() => _$OrderExtraBundleDTOToJson(this);
+}
+
+@JsonSerializable()
+class OrderProductDetailsDTO extends ProductDTO {
+  OrderProductDetailsDTO();
+
+  factory OrderProductDetailsDTO.fromJson(Map<String, dynamic> json) =>
+      _$OrderProductDetailsDTOFromJson(json);
+
+  @JsonKey(name: 'ProductBundleId', nullable: true)
+  String productBundleId;
+  @JsonKey(name: 'Quantity')
+  int quantity;
+  @JsonKey(name: 'TotalPriceUSDSmallestUnit')
+  int totalPriceUSDSmallestUnit;
+  @JsonKey(name: 'BundledProducts')
+  List<OrderProductDetailsDTO> bundledProducts;
+
+  @override
+  Map<String, dynamic> toJson() => _$OrderProductDetailsDTOToJson(this);
+}
+
+@JsonSerializable()
+class OrderProductDetailsV2DTO extends ProductV2DTO {
+  OrderProductDetailsV2DTO();
+
+  factory OrderProductDetailsV2DTO.fromJson(Map<String, dynamic> json) =>
+      _$OrderProductDetailsV2DTOFromJson(json);
+
+  @JsonKey(name: 'Quantity')
+  int quantity;
+  @JsonKey(name: 'TotalPriceUSDSmallestUnit')
+  int totalPriceUSDSmallestUnit;
+
+  @override
+  Map<String, dynamic> toJson() => _$OrderProductDetailsV2DTOToJson(this);
+}
+
+@JsonSerializable()
+class OrderProductDTO {
+  OrderProductDTO();
+
+  factory OrderProductDTO.fromJson(Map<String, dynamic> json) =>
+      _$OrderProductDTOFromJson(json);
+
+  @JsonKey(name: 'ProductId')
+  String productId;
+  @JsonKey(name: 'Quantity')
+  int quantity;
+  @JsonKey(name: 'BundledProducts', nullable: true)
+  List<OrderProductDTO> bundledProducts;
+
+  Map<String, dynamic> toJson() => _$OrderProductDTOToJson(this);
+}
+
+@JsonSerializable()
+class OrderProductV2DTO {
+  OrderProductV2DTO();
+
+  factory OrderProductV2DTO.fromJson(Map<String, dynamic> json) =>
+      _$OrderProductV2DTOFromJson(json);
+
+  @JsonKey(name: 'ProductId')
+  String productId;
+  @JsonKey(name: 'Quantity')
+  int quantity;
+
+  Map<String, dynamic> toJson() => _$OrderProductV2DTOToJson(this);
+}
+
+enum OrderShipmentStatus {
+  @JsonValue(0)
+  waitingForShipment,
+  @JsonValue(1)
+  shipped,
+}
+
+@JsonSerializable()
+class OrderShippingDetailsDTO {
+  OrderShippingDetailsDTO();
+
+  factory OrderShippingDetailsDTO.fromJson(Map<String, dynamic> json) =>
+      _$OrderShippingDetailsDTOFromJson(json);
+
+  @JsonKey(name: 'IsShipped')
+  bool isShipped;
+  @JsonKey(name: 'IsDelivered')
+  bool isDelivered;
+  @JsonKey(name: 'Status', nullable: true)
+  OrderShippingStatusDTO status;
+  @JsonKey(name: 'DateShipped', nullable: true)
+  DateTime dateShipped;
+  @JsonKey(name: 'DateDelivered', nullable: true)
+  DateTime dateDelivered;
+  @JsonKey(
+      name: 'DateStatusUpdated',
+      nullable: true,
+      fromJson: _nullableDateTimeFromJson)
+  DateTime dateStatusUpdated;
+  @JsonKey(name: 'Courier', nullable: true)
+  String courier;
+  @JsonKey(name: 'TrackingNumber', nullable: true)
+  String trackingNumber;
+  @JsonKey(name: 'TrackingLink', nullable: true)
+  String trackingLink;
+
+  Map<String, dynamic> toJson() => _$OrderShippingDetailsDTOToJson(this);
+}
+
+enum OrderShippingStatusDTO {
+  @JsonValue(0)
+  infoReceived,
+  @JsonValue(1)
+  inTransit,
+  @JsonValue(2)
+  outForDelivery,
+  @JsonValue(3)
+  attemptFail,
+  @JsonValue(4)
+  delivered,
+  @JsonValue(5)
+  availableForPickup,
+  @JsonValue(6)
+  exception,
+  @JsonValue(7)
+  expired,
+  @JsonValue(8)
+  pending,
+}
+
+@JsonSerializable()
+class OwnsGiftCode {
+  OwnsGiftCode();
+
+  factory OwnsGiftCode.fromJson(Map<String, dynamic> json) =>
+      _$OwnsGiftCodeFromJson(json);
+
+  Map<String, dynamic> toJson() => _$OwnsGiftCodeToJson(this);
+}
+
+@JsonSerializable()
+class OwnsProductOrder {
+  OwnsProductOrder();
+
+  factory OwnsProductOrder.fromJson(Map<String, dynamic> json) =>
+      _$OwnsProductOrderFromJson(json);
+
+  Map<String, dynamic> toJson() => _$OwnsProductOrderToJson(this);
+}
+
+@JsonSerializable()
+class OwnsUserPlan {
+  OwnsUserPlan();
+
+  factory OwnsUserPlan.fromJson(Map<String, dynamic> json) =>
+      _$OwnsUserPlanFromJson(json);
+
+  Map<String, dynamic> toJson() => _$OwnsUserPlanToJson(this);
+}
+
+@JsonSerializable()
+class OwnsUserPlanOrder {
+  OwnsUserPlanOrder();
+
+  factory OwnsUserPlanOrder.fromJson(Map<String, dynamic> json) =>
+      _$OwnsUserPlanOrderFromJson(json);
+
+  Map<String, dynamic> toJson() => _$OwnsUserPlanOrderToJson(this);
+}
+
+@JsonSerializable()
+class OwnsUserPlanPledge {
+  OwnsUserPlanPledge();
+
+  factory OwnsUserPlanPledge.fromJson(Map<String, dynamic> json) =>
+      _$OwnsUserPlanPledgeFromJson(json);
+
+  Map<String, dynamic> toJson() => _$OwnsUserPlanPledgeToJson(this);
+}
+
+@JsonSerializable()
+class PastTestDayDTO {
+  PastTestDayDTO();
+
+  factory PastTestDayDTO.fromJson(Map<String, dynamic> json) =>
+      _$PastTestDayDTOFromJson(json);
+
+  @JsonKey(name: 'TestDayId')
+  String testDayId;
+  @JsonKey(name: 'TestDate')
+  DateTime testDate;
+  @JsonKey(name: 'IsRetest')
+  bool isRetest;
+  @JsonKey(name: 'RecordingLink', nullable: true)
+  String recordingLink;
+  @JsonKey(name: 'RecordingLinks')
+  List<String> recordingLinks;
+  @JsonKey(name: 'MainTestRecordingId', nullable: true)
+  String mainTestRecordingId;
+  @JsonKey(name: 'TestRecordings')
+  List<TestRecordingDTO> testRecordings;
+  @JsonKey(
+      name: 'RecordingUploadDate',
+      nullable: true,
+      fromJson: _nullableDateTimeFromJson)
+  DateTime recordingUploadDate;
+  @JsonKey(name: 'TestStatus')
+  TestStatusDTO testStatus;
+  @JsonKey(name: 'FailureReasons')
+  FailureReasonsDTO failureReasons;
+  @JsonKey(name: 'HasPendingRetest')
+  bool hasPendingRetest;
+  @JsonKey(name: 'VideoCanBeUploaded')
+  bool videoCanBeUploaded;
+  @JsonKey(name: 'RetestTestDayId', nullable: true)
+  String retestTestDayId;
+  @JsonKey(name: 'AdditionalNote', nullable: true)
+  String additionalNote;
+  @JsonKey(name: 'StartTime', fromJson: _dateTimeFromJson)
+  DateTime startTime;
+  @JsonKey(name: 'TotalVideoUploadAttempts')
+  int totalVideoUploadAttempts;
+
+  Map<String, dynamic> toJson() => _$PastTestDayDTOToJson(this);
+}
+
+@JsonSerializable()
+class PastTestDaysByUserPlanId implements IRemoteQuery<List<PastTestDayDTO>> {
+  PastTestDaysByUserPlanId();
+
+  factory PastTestDaysByUserPlanId.fromJson(Map<String, dynamic> json) =>
+      _$PastTestDaysByUserPlanIdFromJson(json);
+
+  @JsonKey(name: 'UserPlanId')
+  String userPlanId;
+
+  @override
+  String getFullName() =>
+      'Quittercheck.Core.Contracts.Client.UserPlans.PastTestDaysByUserPlanId';
+
+  @override
+  List<PastTestDayDTO> resultFactory(dynamic decodedJson) =>
+      _listFromJson(decodedJson as Iterable<dynamic>, _$PastTestDayDTOFromJson);
+
+  @override
+  Map<String, dynamic> toJson() => _$PastTestDaysByUserPlanIdToJson(this);
+}
+
+@JsonSerializable()
+class PaymentMethodDTO {
+  PaymentMethodDTO();
+
+  factory PaymentMethodDTO.fromJson(Map<String, dynamic> json) =>
+      _$PaymentMethodDTOFromJson(json);
+
+  @JsonKey(name: 'IsDefault')
+  bool isDefault;
+  @JsonKey(name: 'PaymentMethodId')
+  String paymentMethodId;
+  @JsonKey(name: 'CardDetails', nullable: true)
+  CardDetailsDTO cardDetails;
+
+  Map<String, dynamic> toJson() => _$PaymentMethodDTOToJson(this);
+}
+
+@JsonSerializable()
+class PaymentStatusById implements IRemoteQuery<PaymentStatusByIdResultDTO> {
+  PaymentStatusById();
+
+  factory PaymentStatusById.fromJson(Map<String, dynamic> json) =>
+      _$PaymentStatusByIdFromJson(json);
+
+  @JsonKey(name: 'Type')
+  PaymentTypeDTO type;
+  @JsonKey(name: 'ProductOrderId', nullable: true)
+  String productOrderId;
+  @JsonKey(name: 'UserPlanId', nullable: true)
+  String userPlanId;
+  @JsonKey(name: 'TestDayId', nullable: true)
+  String testDayId;
+  @JsonKey(name: 'PledgeDepositIncreaseId', nullable: true)
+  String pledgeDepositIncreaseId;
+  @JsonKey(name: 'GiftCodeId', nullable: true)
+  String giftCodeId;
+
+  @override
+  String getFullName() =>
+      'Quittercheck.Core.Contracts.Client.PaymentStatusById';
+
+  @override
+  PaymentStatusByIdResultDTO resultFactory(dynamic decodedJson) =>
+      _$PaymentStatusByIdResultDTOFromJson(decodedJson as Map<String, dynamic>);
+
+  @override
+  Map<String, dynamic> toJson() => _$PaymentStatusByIdToJson(this);
+}
+
+@JsonSerializable()
+class PaymentStatusByIdResultDTO {
+  PaymentStatusByIdResultDTO();
+
+  factory PaymentStatusByIdResultDTO.fromJson(Map<String, dynamic> json) =>
+      _$PaymentStatusByIdResultDTOFromJson(json);
+
+  @JsonKey(name: 'Status', nullable: true)
+  PaymentStatusDTO status;
+
+  Map<String, dynamic> toJson() => _$PaymentStatusByIdResultDTOToJson(this);
+}
+
+enum PaymentStatusDTO {
+  @JsonValue(0)
+  new_,
+  @JsonValue(1)
+  waitingForPayment,
+  @JsonValue(2)
+  succeeded,
+  @JsonValue(3)
+  canceled,
+}
+
+enum PaymentTypeDTO {
+  @JsonValue(0)
+  userPlanOrder,
+  @JsonValue(1)
+  pledgeIncrease,
+  @JsonValue(2)
+  failureFine,
+  @JsonValue(3)
+  productOrder,
+  @JsonValue(4)
+  uSDAmountGiftCodeOrder,
+}
+
+@JsonSerializable()
+class PhoneNumberDTO {
+  PhoneNumberDTO();
+
+  factory PhoneNumberDTO.fromJson(Map<String, dynamic> json) =>
+      _$PhoneNumberDTOFromJson(json);
+
+  @JsonKey(name: 'CountryCode')
+  String countryCode;
+  @JsonKey(name: 'Number')
+  String number;
+
+  Map<String, dynamic> toJson() => _$PhoneNumberDTOToJson(this);
+}
+
+enum PhoneNumberError {
+  @JsonValue(1)
+  countryCodeRequired,
+  @JsonValue(2)
+  countryCodeTooLong,
+  @JsonValue(3)
+  numberRequired,
+  @JsonValue(4)
+  numberTooLong,
+}
+
+@JsonSerializable()
+class PhoneNumberErrorValidationResultDTO {
+  PhoneNumberErrorValidationResultDTO();
+
+  factory PhoneNumberErrorValidationResultDTO.fromJson(
+          Map<String, dynamic> json) =>
+      _$PhoneNumberErrorValidationResultDTOFromJson(json);
+
+  @JsonKey(name: 'Errors')
+  List<PhoneNumberError> errors;
+
+  Map<String, dynamic> toJson() =>
+      _$PhoneNumberErrorValidationResultDTOToJson(this);
+}
+
+@JsonSerializable()
+class PlanDatesDTO {
+  PlanDatesDTO();
+
+  factory PlanDatesDTO.fromJson(Map<String, dynamic> json) =>
+      _$PlanDatesDTOFromJson(json);
+
+  @JsonKey(name: 'QuitDate')
+  DateTime quitDate;
+  @JsonKey(name: 'StartDate')
+  DateTime startDate;
+
+  Map<String, dynamic> toJson() => _$PlanDatesDTOToJson(this);
+}
+
+enum PlanDatesError {
+  @JsonValue(1)
+  startDateMustBeAtLeast7DaysAfterQuitDate,
+  @JsonValue(2)
+  startDateMustBeTodayOrFuture,
+  @JsonValue(3)
+  startDateMustNotExceed3MonthsInTheFuture,
+  @JsonValue(4)
+  quitDateMustNotExceed3MonthsInTheFuture,
+}
+
+@JsonSerializable()
+class PlanDatesErrorValidationResultDTO {
+  PlanDatesErrorValidationResultDTO();
+
+  factory PlanDatesErrorValidationResultDTO.fromJson(
+          Map<String, dynamic> json) =>
+      _$PlanDatesErrorValidationResultDTOFromJson(json);
+
+  @JsonKey(name: 'Errors')
+  List<PlanDatesError> errors;
+
+  Map<String, dynamic> toJson() =>
+      _$PlanDatesErrorValidationResultDTOToJson(this);
+}
+
+@JsonSerializable()
+class PledgeConfigurationDTO {
+  PledgeConfigurationDTO();
+
+  factory PledgeConfigurationDTO.fromJson(Map<String, dynamic> json) =>
+      _$PledgeConfigurationDTOFromJson(json);
+
+  @JsonKey(name: 'PledgeType')
+  PledgeTypeDTO pledgeType;
+  @JsonKey(name: 'FailAmountSmallestUnitUSD')
+  int failAmountSmallestUnitUSD;
+  @JsonKey(name: 'DepositAmountSmallestUnitUSD', nullable: true)
+  int depositAmountSmallestUnitUSD;
+  @JsonKey(name: 'AntiCharityId', nullable: true)
+  String antiCharityId;
+
+  Map<String, dynamic> toJson() => _$PledgeConfigurationDTOToJson(this);
+}
+
+@JsonSerializable()
+class PledgeDepositIncreasePaymentById
+    implements IRemoteQuery<PledgeDepositIncreasePaymentDTO> {
+  PledgeDepositIncreasePaymentById();
+
+  factory PledgeDepositIncreasePaymentById.fromJson(
+          Map<String, dynamic> json) =>
+      _$PledgeDepositIncreasePaymentByIdFromJson(json);
+
+  @JsonKey(name: 'UserPlanId')
+  String userPlanId;
+
+  @override
+  String getFullName() =>
+      'Quittercheck.Core.Contracts.Client.UserPlanOrders.PledgeDepositIncreasePaymentById';
+
+  @override
+  PledgeDepositIncreasePaymentDTO resultFactory(dynamic decodedJson) =>
+      _$PledgeDepositIncreasePaymentDTOFromJson(
+          decodedJson as Map<String, dynamic>);
+
+  @override
+  Map<String, dynamic> toJson() =>
+      _$PledgeDepositIncreasePaymentByIdToJson(this);
+}
+
+@JsonSerializable()
+class PledgeDepositIncreasePaymentDTO {
+  PledgeDepositIncreasePaymentDTO();
+
+  factory PledgeDepositIncreasePaymentDTO.fromJson(Map<String, dynamic> json) =>
+      _$PledgeDepositIncreasePaymentDTOFromJson(json);
+
+  @JsonKey(name: 'PledgeDepositIncreasePaymentId')
+  String pledgeDepositIncreasePaymentId;
+  @JsonKey(name: 'StripePaymentInfo')
+  StripePaymentInfoDTO stripePaymentInfo;
+  @JsonKey(name: 'TotalPledgeDepositIncreasePaymentAmountUSDSmallestUnit')
+  int totalPledgeDepositIncreasePaymentAmountUSDSmallestUnit;
+  @JsonKey(name: 'PaymentStatus')
+  PaymentStatusDTO paymentStatus;
+
+  Map<String, dynamic> toJson() =>
+      _$PledgeDepositIncreasePaymentDTOToJson(this);
+}
+
+@JsonSerializable()
+class PledgeHistoryByUserPlanId
+    implements IRemoteQuery<List<FailureFineDetailsDTO>> {
+  PledgeHistoryByUserPlanId();
+
+  factory PledgeHistoryByUserPlanId.fromJson(Map<String, dynamic> json) =>
+      _$PledgeHistoryByUserPlanIdFromJson(json);
+
+  @JsonKey(name: 'UserPlanOrderId')
+  String userPlanOrderId;
+
+  @override
+  String getFullName() =>
+      'Quittercheck.Core.Contracts.Client.UserPlans.PledgeHistoryByUserPlanId';
+
+  @override
+  List<FailureFineDetailsDTO> resultFactory(dynamic decodedJson) =>
+      _listFromJson(
+          decodedJson as Iterable<dynamic>, _$FailureFineDetailsDTOFromJson);
+
+  @override
+  Map<String, dynamic> toJson() => _$PledgeHistoryByUserPlanIdToJson(this);
+}
+
+@JsonSerializable()
+class PledgeInfoByUserPlanOrderId implements IRemoteQuery<PledgeInfoDTO> {
+  PledgeInfoByUserPlanOrderId();
+
+  factory PledgeInfoByUserPlanOrderId.fromJson(Map<String, dynamic> json) =>
+      _$PledgeInfoByUserPlanOrderIdFromJson(json);
+
+  @JsonKey(name: 'UserPlanOrderId')
+  String userPlanOrderId;
+
+  @override
+  String getFullName() =>
+      'Quittercheck.Core.Contracts.Client.UserPlanOrders.PledgeInfoByUserPlanOrderId';
+
+  @override
+  PledgeInfoDTO resultFactory(dynamic decodedJson) =>
+      _$PledgeInfoDTOFromJson(decodedJson as Map<String, dynamic>);
+
+  @override
+  Map<String, dynamic> toJson() => _$PledgeInfoByUserPlanOrderIdToJson(this);
+}
+
+@JsonSerializable()
+class PledgeInfoDTO {
+  PledgeInfoDTO();
+
+  factory PledgeInfoDTO.fromJson(Map<String, dynamic> json) =>
+      _$PledgeInfoDTOFromJson(json);
+
+  @JsonKey(name: 'TestDaysCount')
+  int testDaysCount;
+  @JsonKey(name: 'CustomerId', nullable: true)
+  String customerId;
+  @JsonKey(name: 'DefaultPaymentMethodId', nullable: true)
+  String defaultPaymentMethodId;
+  @JsonKey(name: 'CardDetails', nullable: true)
+  CardDetailsDTO cardDetails;
+  @JsonKey(name: 'Pledge', nullable: true)
+  CurrentPledgeDTO pledge;
+  @JsonKey(name: 'UnpaidPledgeDepositAmountUSDSmallestUnit', nullable: true)
+  int unpaidPledgeDepositAmountUSDSmallestUnit;
+
+  Map<String, dynamic> toJson() => _$PledgeInfoDTOToJson(this);
+}
+
+enum PledgeTypeDTO {
+  @JsonValue(0)
+  payAhead,
+  @JsonValue(1)
+  afterFailure,
+}
+
+@JsonSerializable()
+class PreorderCodeDTO {
+  PreorderCodeDTO();
+
+  factory PreorderCodeDTO.fromJson(Map<String, dynamic> json) =>
+      _$PreorderCodeDTOFromJson(json);
+
+  @JsonKey(name: 'Code')
+  String code;
+  @JsonKey(name: 'QuittingPlan')
+  QuittingPlanDTO quittingPlan;
+  @JsonKey(name: 'IsGift')
+  bool isGift;
+  @JsonKey(name: 'ExtraTestsCount')
+  int extraTestsCount;
+  @JsonKey(name: 'DateCreated', fromJson: _dateTimeFromJson)
+  DateTime dateCreated;
+  @JsonKey(name: 'GiftCodeId')
+  String giftCodeId;
+
+  Map<String, dynamic> toJson() => _$PreorderCodeDTOToJson(this);
+}
+
+@JsonSerializable()
+class ProductCategoryDTO {
+  ProductCategoryDTO();
+
+  factory ProductCategoryDTO.fromJson(Map<String, dynamic> json) =>
+      _$ProductCategoryDTOFromJson(json);
+
+  @JsonKey(name: 'ProductCategoryId')
+  String productCategoryId;
+  @JsonKey(name: 'Name')
+  String name;
+  @JsonKey(name: 'Description', nullable: true)
+  String description;
+  @JsonKey(name: 'Color', nullable: true)
+  String color;
+  @JsonKey(name: 'BadgeText', nullable: true)
+  String badgeText;
+
+  Map<String, dynamic> toJson() => _$ProductCategoryDTOToJson(this);
+}
+
+@JsonSerializable()
+class ProductDTO {
+  ProductDTO();
+
+  factory ProductDTO.fromJson(Map<String, dynamic> json) =>
+      _$ProductDTOFromJson(json);
+
+  @JsonKey(name: 'ProductId')
+  String productId;
+  @JsonKey(name: 'ProductGeneralizationId', nullable: true)
+  String productGeneralizationId;
+  @JsonKey(name: 'ProductCategoryId')
+  String productCategoryId;
+  @JsonKey(name: 'Name')
+  String name;
+  @JsonKey(name: 'Description', nullable: true)
+  String description;
+  @JsonKey(name: 'ImageLink')
+  String imageLink;
+  @JsonKey(name: 'ImageLinks')
+  List<String> imageLinks;
+  @JsonKey(name: 'PriceUSDSmallestUnit')
+  int priceUSDSmallestUnit;
+  @JsonKey(name: 'IsRecommended')
+  bool isRecommended;
+  @JsonKey(name: 'IsAvailable')
+  bool isAvailable;
+  @JsonKey(name: 'IsAvailableDuringUserPlanPurchase')
+  bool isAvailableDuringUserPlanPurchase;
+  @JsonKey(name: 'IsAvailableForEarlyBird')
+  bool isAvailableForEarlyBird;
+  @JsonKey(name: 'PriceBeforeDiscountUSDSmallestUnit', nullable: true)
+  int priceBeforeDiscountUSDSmallestUnit;
+  @JsonKey(name: 'DiscountPercent', nullable: true)
+  int discountPercent;
+  @JsonKey(name: 'DescriptionTicks')
+  List<DescriptionTickDTO> descriptionTicks;
+  @JsonKey(name: 'Attributes')
+  List<ProductVariationAttributeDTO> attributes;
+  @JsonKey(name: 'BundledGeneralizedProducts')
+  List<ProductGeneralizationDTO> bundledGeneralizedProducts;
+  @JsonKey(name: 'BundledNonGeneralizedProducts')
+  List<ProductDTO> bundledNonGeneralizedProducts;
+
+  Map<String, dynamic> toJson() => _$ProductDTOToJson(this);
+}
+
+@JsonSerializable()
+class ProductGeneralizationAttributeDTO {
+  ProductGeneralizationAttributeDTO();
+
+  factory ProductGeneralizationAttributeDTO.fromJson(
+          Map<String, dynamic> json) =>
+      _$ProductGeneralizationAttributeDTOFromJson(json);
+
+  @JsonKey(name: 'ProductGeneralizationAttributeId')
+  String productGeneralizationAttributeId;
+  @JsonKey(name: 'ProductGeneralizationId')
+  String productGeneralizationId;
+  @JsonKey(name: 'Name')
+  String name;
+  @JsonKey(name: 'Values')
+  List<ProductGeneralizationAttributeValueDTO> values;
+
+  Map<String, dynamic> toJson() =>
+      _$ProductGeneralizationAttributeDTOToJson(this);
+}
+
+@JsonSerializable()
+class ProductGeneralizationAttributeValueDTO {
+  ProductGeneralizationAttributeValueDTO();
+
+  factory ProductGeneralizationAttributeValueDTO.fromJson(
+          Map<String, dynamic> json) =>
+      _$ProductGeneralizationAttributeValueDTOFromJson(json);
+
+  @JsonKey(name: 'ProductGeneralizationAttributeValueId')
+  String productGeneralizationAttributeValueId;
+  @JsonKey(name: 'ProductGeneralizationAttributeId')
+  String productGeneralizationAttributeId;
+  @JsonKey(name: 'Value')
+  String value;
+  @JsonKey(name: 'ImageLink')
+  String imageLink;
+
+  Map<String, dynamic> toJson() =>
+      _$ProductGeneralizationAttributeValueDTOToJson(this);
+}
+
+@JsonSerializable()
+class ProductGeneralizationDTO {
+  ProductGeneralizationDTO();
+
+  factory ProductGeneralizationDTO.fromJson(Map<String, dynamic> json) =>
+      _$ProductGeneralizationDTOFromJson(json);
+
+  @JsonKey(name: 'ProductGeneralizationId')
+  String productGeneralizationId;
+  @JsonKey(name: 'Name')
+  String name;
+  @JsonKey(name: 'Attributes')
+  List<ProductGeneralizationAttributeDTO> attributes;
+  @JsonKey(name: 'Products')
+  List<ProductDTO> products;
+
+  Map<String, dynamic> toJson() => _$ProductGeneralizationDTOToJson(this);
+}
+
+@JsonSerializable()
+class ProductGeneralizationV2DTO {
+  ProductGeneralizationV2DTO();
+
+  factory ProductGeneralizationV2DTO.fromJson(Map<String, dynamic> json) =>
+      _$ProductGeneralizationV2DTOFromJson(json);
+
+  @JsonKey(name: 'ProductGeneralizationId')
+  String productGeneralizationId;
+  @JsonKey(name: 'Name')
+  String name;
+  @JsonKey(name: 'Attributes')
+  List<ProductGeneralizationAttributeDTO> attributes;
+  @JsonKey(name: 'Products')
+  List<ProductV2DTO> products;
+
+  Map<String, dynamic> toJson() => _$ProductGeneralizationV2DTOToJson(this);
+}
+
+@JsonSerializable()
+class ProductOrderById implements IRemoteQuery<ProductOrderDetailsDTO> {
+  ProductOrderById();
+
+  factory ProductOrderById.fromJson(Map<String, dynamic> json) =>
+      _$ProductOrderByIdFromJson(json);
+
+  @JsonKey(name: 'ProductOrderId')
+  String productOrderId;
+
+  @override
+  String getFullName() =>
+      'Quittercheck.Core.Contracts.Client.Products.ProductOrderById';
+
+  @override
+  ProductOrderDetailsDTO resultFactory(dynamic decodedJson) =>
+      _$ProductOrderDetailsDTOFromJson(decodedJson as Map<String, dynamic>);
+
+  @override
+  Map<String, dynamic> toJson() => _$ProductOrderByIdToJson(this);
+}
+
+@JsonSerializable()
+class ProductOrderByIdV2 implements IRemoteQuery<ProductOrderDetailsV2DTO> {
+  ProductOrderByIdV2();
+
+  factory ProductOrderByIdV2.fromJson(Map<String, dynamic> json) =>
+      _$ProductOrderByIdV2FromJson(json);
+
+  @JsonKey(name: 'ProductOrderId')
+  String productOrderId;
+
+  @override
+  String getFullName() =>
+      'Quittercheck.Core.Contracts.Client.Products.ProductOrderByIdV2';
+
+  @override
+  ProductOrderDetailsV2DTO resultFactory(dynamic decodedJson) =>
+      _$ProductOrderDetailsV2DTOFromJson(decodedJson as Map<String, dynamic>);
+
+  @override
+  Map<String, dynamic> toJson() => _$ProductOrderByIdV2ToJson(this);
+}
+
+@JsonSerializable()
+class ProductOrderDetailsDTO {
+  ProductOrderDetailsDTO();
+
+  factory ProductOrderDetailsDTO.fromJson(Map<String, dynamic> json) =>
+      _$ProductOrderDetailsDTOFromJson(json);
+
+  @JsonKey(name: 'OrderId')
+  String orderId;
+  @JsonKey(name: 'StripePaymentInfo', nullable: true)
+  StripePaymentInfoDTO stripePaymentInfo;
+  @JsonKey(name: 'BillingAddress', nullable: true)
+  AddressV2DTO billingAddress;
+  @JsonKey(name: 'ShippingAddress', nullable: true)
+  AddressV2DTO shippingAddress;
+  @JsonKey(name: 'PhoneNumber', nullable: true)
+  PhoneNumberDTO phoneNumber;
+  @JsonKey(name: 'ReceiptEmail', nullable: true)
+  String receiptEmail;
+  @JsonKey(name: 'ShippingDetails')
+  OrderShippingDetailsDTO shippingDetails;
+  @JsonKey(name: 'ShippingUSDSmallestUnit')
+  int shippingUSDSmallestUnit;
+  @JsonKey(name: 'TaxUSDSmallestUnit')
+  int taxUSDSmallestUnit;
+  @JsonKey(name: 'TotalPriceUSDSmallestUnit')
+  int totalPriceUSDSmallestUnit;
+  @JsonKey(name: 'TotalProductsPriceUSDSmallestUnit')
+  int totalProductsPriceUSDSmallestUnit;
+  @JsonKey(name: 'Products')
+  List<OrderProductDetailsDTO> products;
+  @JsonKey(name: 'ShippingOption', nullable: true)
+  ProductShippingOptionDTO shippingOption;
+
+  Map<String, dynamic> toJson() => _$ProductOrderDetailsDTOToJson(this);
+}
+
+@JsonSerializable()
+class ProductOrderDetailsV2DTO {
+  ProductOrderDetailsV2DTO();
+
+  factory ProductOrderDetailsV2DTO.fromJson(Map<String, dynamic> json) =>
+      _$ProductOrderDetailsV2DTOFromJson(json);
+
+  @JsonKey(name: 'OrderId')
+  String orderId;
+  @JsonKey(name: 'StripePaymentInfo', nullable: true)
+  StripePaymentInfoDTO stripePaymentInfo;
+  @JsonKey(name: 'BillingAddress', nullable: true)
+  AddressV2DTO billingAddress;
+  @JsonKey(name: 'ShippingAddress', nullable: true)
+  AddressV2DTO shippingAddress;
+  @JsonKey(name: 'PhoneNumber', nullable: true)
+  PhoneNumberDTO phoneNumber;
+  @JsonKey(name: 'ReceiptEmail', nullable: true)
+  String receiptEmail;
+  @JsonKey(name: 'ShippingDetails')
+  OrderShippingDetailsDTO shippingDetails;
+  @JsonKey(name: 'ShippingUSDSmallestUnit')
+  int shippingUSDSmallestUnit;
+  @JsonKey(name: 'TaxUSDSmallestUnit')
+  int taxUSDSmallestUnit;
+  @JsonKey(name: 'TotalPriceUSDSmallestUnit')
+  int totalPriceUSDSmallestUnit;
+  @JsonKey(name: 'TotalProductsPriceUSDSmallestUnit')
+  int totalProductsPriceUSDSmallestUnit;
+  @JsonKey(name: 'Bundles')
+  List<OrderBundleDetailsDTO> bundles;
+  @JsonKey(name: 'Products')
+  List<OrderProductDetailsV2DTO> products;
+  @JsonKey(name: 'ShippingOption', nullable: true)
+  ProductShippingOptionDTO shippingOption;
+
+  Map<String, dynamic> toJson() => _$ProductOrderDetailsV2DTOToJson(this);
+}
+
+@JsonSerializable()
+class ProductShippingOptionDTO {
+  ProductShippingOptionDTO();
+
+  factory ProductShippingOptionDTO.fromJson(Map<String, dynamic> json) =>
+      _$ProductShippingOptionDTOFromJson(json);
+
+  @JsonKey(name: 'ShippingOptionId')
+  String shippingOptionId;
+  @JsonKey(name: 'Tier')
+  ShippingTierDTO tier;
+  @JsonKey(name: 'PriceUSDSmallestUnit')
+  int priceUSDSmallestUnit;
+  @JsonKey(name: 'Description')
+  String description;
+  @JsonKey(name: 'Type')
+  ShippingOptionTypeDTO type;
+
+  Map<String, dynamic> toJson() => _$ProductShippingOptionDTOToJson(this);
+}
+
+@JsonSerializable()
+class ProductV2DTO {
+  ProductV2DTO();
+
+  factory ProductV2DTO.fromJson(Map<String, dynamic> json) =>
+      _$ProductV2DTOFromJson(json);
+
+  @JsonKey(name: 'ProductId')
+  String productId;
+  @JsonKey(name: 'ProductGeneralizationId', nullable: true)
+  String productGeneralizationId;
+  @JsonKey(name: 'ProductCategoryId')
+  String productCategoryId;
+  @JsonKey(name: 'Name')
+  String name;
+  @JsonKey(name: 'Description', nullable: true)
+  String description;
+  @JsonKey(name: 'ImageLink')
+  String imageLink;
+  @JsonKey(name: 'ImageLinks')
+  List<String> imageLinks;
+  @JsonKey(name: 'PriceUSDSmallestUnit')
+  int priceUSDSmallestUnit;
+  @JsonKey(name: 'IsRecommended')
+  bool isRecommended;
+  @JsonKey(name: 'IsAvailable')
+  bool isAvailable;
+  @JsonKey(name: 'IsAvailableDuringUserPlanPurchase')
+  bool isAvailableDuringUserPlanPurchase;
+  @JsonKey(name: 'IsAvailableForEarlyBird')
+  bool isAvailableForEarlyBird;
+  @JsonKey(name: 'PriceBeforeDiscountUSDSmallestUnit', nullable: true)
+  int priceBeforeDiscountUSDSmallestUnit;
+  @JsonKey(name: 'DiscountPercent', nullable: true)
+  int discountPercent;
+  @JsonKey(name: 'DescriptionTicks')
+  List<DescriptionTickDTO> descriptionTicks;
+  @JsonKey(name: 'Attributes')
+  List<ProductVariationAttributeDTO> attributes;
+
+  Map<String, dynamic> toJson() => _$ProductV2DTOToJson(this);
+}
+
+@JsonSerializable()
+class ProductVariationAttributeDTO {
+  ProductVariationAttributeDTO();
+
+  factory ProductVariationAttributeDTO.fromJson(Map<String, dynamic> json) =>
+      _$ProductVariationAttributeDTOFromJson(json);
+
+  @JsonKey(name: 'ProductGeneralizationAttributeValueId')
+  String productGeneralizationAttributeValueId;
+  @JsonKey(name: 'ProductGeneralizationAttributeId')
+  String productGeneralizationAttributeId;
+  @JsonKey(name: 'Name')
+  String name;
+  @JsonKey(name: 'Value')
+  String value;
+  @JsonKey(name: 'ImageLink')
+  String imageLink;
+
+  Map<String, dynamic> toJson() => _$ProductVariationAttributeDTOToJson(this);
+}
+
+@JsonSerializable()
+class PushNotificationDTO {
+  PushNotificationDTO();
+
+  factory PushNotificationDTO.fromJson(Map<String, dynamic> json) =>
+      _$PushNotificationDTOFromJson(json);
+
+  @JsonKey(name: 'click_action')
+  String click_action;
+
+  Map<String, dynamic> toJson() => _$PushNotificationDTOToJson(this);
+}
+
+@JsonSerializable()
+class QuitDateRange implements IRemoteQuery<DaysRangeDTO> {
+  QuitDateRange();
+
+  factory QuitDateRange.fromJson(Map<String, dynamic> json) =>
+      _$QuitDateRangeFromJson(json);
+
+  @JsonKey(name: 'UserPlanId')
+  String userPlanId;
+
+  @override
+  String getFullName() =>
+      'Quittercheck.Core.Contracts.Client.UserPlans.QuitDateRange';
+
+  @override
+  DaysRangeDTO resultFactory(dynamic decodedJson) =>
+      _$DaysRangeDTOFromJson(decodedJson as Map<String, dynamic>);
+
+  @override
+  Map<String, dynamic> toJson() => _$QuitDateRangeToJson(this);
+}
+
+@JsonSerializable()
+class QuittingPlanDTO {
+  QuittingPlanDTO();
+
+  factory QuittingPlanDTO.fromJson(Map<String, dynamic> json) =>
+      _$QuittingPlanDTOFromJson(json);
+
+  @JsonKey(name: 'Id')
+  String id;
+  @JsonKey(name: 'DurationInWeeks')
+  int durationInWeeks;
+  @JsonKey(name: 'TotalPriceUSDSmallestUnit')
+  int totalPriceUSDSmallestUnit;
+  @JsonKey(name: 'DoubleCheckoutPriceUSDSmallestUnit', nullable: true)
+  int doubleCheckoutPriceUSDSmallestUnit;
+  @JsonKey(name: 'TestKits')
+  int testKits;
+  @JsonKey(name: 'ExtraTestKits')
+  int extraTestKits;
+  @JsonKey(name: 'Title')
+  String title;
+  @JsonKey(name: 'Description')
+  String description;
+  @JsonKey(name: 'ImageLink')
+  String imageLink;
+  @JsonKey(name: 'IsRecommended')
+  bool isRecommended;
+  @JsonKey(name: 'ShippingOptions')
+  List<ShippingOptionDTO> shippingOptions;
+  @JsonKey(name: 'TestingFrequencyBundles')
+  List<TestingFrequencyBundleDTO> testingFrequencyBundles;
+  @JsonKey(name: 'FullAccountabilityBundle')
+  TestingFrequencyBundleDTO fullAccountabilityBundle;
+  @JsonKey(name: 'WithPledge')
+  bool withPledge;
+  @JsonKey(name: 'MinimalTestingFrequency')
+  List<int> minimalTestingFrequency;
+  @JsonKey(name: 'MaximalTestingFrequency')
+  List<int> maximalTestingFrequency;
+  @JsonKey(name: 'RecommendedTestingFrequency')
+  List<int> recommendedTestingFrequency;
+
+  Map<String, dynamic> toJson() => _$QuittingPlanDTOToJson(this);
+}
+
+enum QuittingPlanPaymentTypeDTO {
+  @JsonValue(0)
+  oneTimePayment,
+}
+
+@JsonSerializable()
+class ReducedRewardDTO {
+  ReducedRewardDTO();
+
+  factory ReducedRewardDTO.fromJson(Map<String, dynamic> json) =>
+      _$ReducedRewardDTOFromJson(json);
+
+  @JsonKey(name: 'ReducedRewardId')
+  String reducedRewardId;
+  @JsonKey(name: 'DateCreated', fromJson: _dateTimeFromJson)
+  DateTime dateCreated;
+  @JsonKey(name: 'RewardReductionUSDSmallestUnit')
+  int rewardReductionUSDSmallestUnit;
+  @JsonKey(name: 'Type')
+  ReducedRewardType type;
+  @JsonKey(name: 'Notes', nullable: true)
+  String notes;
+
+  Map<String, dynamic> toJson() => _$ReducedRewardDTOToJson(this);
+}
+
+enum ReducedRewardType {
+  @JsonValue(0)
+  manual,
+  @JsonValue(1)
+  onTestDayFailed,
+}
+
+@JsonSerializable()
+class RemoveAddress implements IRemoteCommand {
+  RemoveAddress();
+
+  factory RemoveAddress.fromJson(Map<String, dynamic> json) =>
+      _$RemoveAddressFromJson(json);
+
+  @JsonKey(name: 'Id')
+  String id;
+
+  @override
+  String getFullName() =>
+      'Quittercheck.Core.Contracts.Client.Users.RemoveAddress';
+
+  @override
+  Map<String, dynamic> toJson() => _$RemoveAddressToJson(this);
+}
+
+@JsonSerializable()
+class RemoveAddressErrorCodes {
+  RemoveAddressErrorCodes();
+
+  factory RemoveAddressErrorCodes.fromJson(Map<String, dynamic> json) =>
+      _$RemoveAddressErrorCodesFromJson(json);
+
+  static const addressDoesNotExist = 1;
+
+  Map<String, dynamic> toJson() => _$RemoveAddressErrorCodesToJson(this);
+}
+
+@JsonSerializable()
+class RemoveNotificationToken implements IRemoteCommand {
+  RemoveNotificationToken();
+
+  factory RemoveNotificationToken.fromJson(Map<String, dynamic> json) =>
+      _$RemoveNotificationTokenFromJson(json);
+
+  @JsonKey(name: 'Token')
+  String token;
+
+  @override
+  String getFullName() =>
+      'Quittercheck.Core.Contracts.Client.Users.RemoveNotificationToken';
+
+  @override
+  Map<String, dynamic> toJson() => _$RemoveNotificationTokenToJson(this);
+}
+
+@JsonSerializable()
+class RemoveNotificationTokenErrorCodes {
+  RemoveNotificationTokenErrorCodes();
+
+  factory RemoveNotificationTokenErrorCodes.fromJson(
+          Map<String, dynamic> json) =>
+      _$RemoveNotificationTokenErrorCodesFromJson(json);
+
+  static const tokenNullOrEmpty = 1;
+
+  Map<String, dynamic> toJson() =>
+      _$RemoveNotificationTokenErrorCodesToJson(this);
+}
+
+@JsonSerializable()
+class RemovePaymentMethod implements IRemoteCommand {
+  RemovePaymentMethod();
+
+  factory RemovePaymentMethod.fromJson(Map<String, dynamic> json) =>
+      _$RemovePaymentMethodFromJson(json);
+
+  @JsonKey(name: 'PaymentMethodId')
+  String paymentMethodId;
+
+  @override
+  String getFullName() =>
+      'Quittercheck.Core.Contracts.Client.Users.RemovePaymentMethod';
+
+  @override
+  Map<String, dynamic> toJson() => _$RemovePaymentMethodToJson(this);
+}
+
+@JsonSerializable()
+class RemovePaymentMethodErrorCodes {
+  RemovePaymentMethodErrorCodes();
+
+  factory RemovePaymentMethodErrorCodes.fromJson(Map<String, dynamic> json) =>
+      _$RemovePaymentMethodErrorCodesFromJson(json);
+
+  static const paymentMethodIdNullOrEmpty = 1;
+  static const paymentMethodIdInvalid = 2;
+
+  Map<String, dynamic> toJson() => _$RemovePaymentMethodErrorCodesToJson(this);
+}
+
+@JsonSerializable()
+class RequestPasswordRecoveryEmail implements IRemoteCommand {
+  RequestPasswordRecoveryEmail();
+
+  factory RequestPasswordRecoveryEmail.fromJson(Map<String, dynamic> json) =>
+      _$RequestPasswordRecoveryEmailFromJson(json);
+
+  @JsonKey(name: 'Email')
+  String email;
+
+  @override
+  String getFullName() =>
+      'Quittercheck.Core.Contracts.Client.Users.RequestPasswordRecoveryEmail';
+
+  @override
+  Map<String, dynamic> toJson() => _$RequestPasswordRecoveryEmailToJson(this);
+}
+
+@JsonSerializable()
+class RequestPasswordRecoveryEmailErrorCodes {
+  RequestPasswordRecoveryEmailErrorCodes();
+
+  factory RequestPasswordRecoveryEmailErrorCodes.fromJson(
+          Map<String, dynamic> json) =>
+      _$RequestPasswordRecoveryEmailErrorCodesFromJson(json);
+
+  static const invalidEmailAddress = 1;
+
+  Map<String, dynamic> toJson() =>
+      _$RequestPasswordRecoveryEmailErrorCodesToJson(this);
+}
+
+@JsonSerializable()
+class RequestPlanSettlement implements IRemoteCommand {
+  RequestPlanSettlement();
+
+  factory RequestPlanSettlement.fromJson(Map<String, dynamic> json) =>
+      _$RequestPlanSettlementFromJson(json);
+
+  @JsonKey(name: 'UserPlanId')
+  String userPlanId;
+  @JsonKey(name: 'Email')
+  String email;
+
+  @override
+  String getFullName() =>
+      'Quittercheck.Core.Contracts.Client.UserPlans.RequestPlanSettlement';
+
+  @override
+  Map<String, dynamic> toJson() => _$RequestPlanSettlementToJson(this);
+}
+
+@JsonSerializable()
+class RequestPlanSettlementErrorCodes {
+  RequestPlanSettlementErrorCodes();
+
+  factory RequestPlanSettlementErrorCodes.fromJson(Map<String, dynamic> json) =>
+      _$RequestPlanSettlementErrorCodesFromJson(json);
+
+  static const userPlanPledgeSettlementDoesNotExist = 1;
+  static const settlementAlreadyRequested = 2;
+  static const emailRequired = 3;
+  static const emailTooLong = 4;
+  static const emailInvalid = 5;
+
+  Map<String, dynamic> toJson() =>
+      _$RequestPlanSettlementErrorCodesToJson(this);
+}
+
+@JsonSerializable()
+class ResendEmailConfirmationEmail implements IRemoteCommand {
+  ResendEmailConfirmationEmail();
+
+  factory ResendEmailConfirmationEmail.fromJson(Map<String, dynamic> json) =>
+      _$ResendEmailConfirmationEmailFromJson(json);
+
+  @override
+  String getFullName() =>
+      'Quittercheck.Core.Contracts.Client.Users.ResendEmailConfirmationEmail';
+
+  @override
+  Map<String, dynamic> toJson() => _$ResendEmailConfirmationEmailToJson(this);
+}
+
+@JsonSerializable()
+class ResendEmailConfirmationEmailErrorCodes {
+  ResendEmailConfirmationEmailErrorCodes();
+
+  factory ResendEmailConfirmationEmailErrorCodes.fromJson(
+          Map<String, dynamic> json) =>
+      _$ResendEmailConfirmationEmailErrorCodesFromJson(json);
+
+  static const emailAlreadyConfirmed = 1;
+
+  Map<String, dynamic> toJson() =>
+      _$ResendEmailConfirmationEmailErrorCodesToJson(this);
+}
+
+@JsonSerializable()
+class ResetPassword implements IRemoteCommand {
+  ResetPassword();
+
+  factory ResetPassword.fromJson(Map<String, dynamic> json) =>
+      _$ResetPasswordFromJson(json);
+
+  @JsonKey(name: 'UserId')
+  String userId;
+  @JsonKey(name: 'Token')
+  String token;
+  @JsonKey(name: 'NewPassword')
+  String newPassword;
+
+  @override
+  String getFullName() =>
+      'Quittercheck.Core.Contracts.Client.Users.ResetPassword';
+
+  @override
+  Map<String, dynamic> toJson() => _$ResetPasswordToJson(this);
+}
+
+@JsonSerializable()
+class ResetPasswordErrorCodes {
+  ResetPasswordErrorCodes();
+
+  factory ResetPasswordErrorCodes.fromJson(Map<String, dynamic> json) =>
+      _$ResetPasswordErrorCodesFromJson(json);
+
+  static const userDoesNotExist = 1;
+  static const invalidToken = 2;
+  static const passwordRequired = 3;
+  static const passwordTooShort = 4;
+  static const passwordRequirementsNotFullfilled = 5;
+
+  Map<String, dynamic> toJson() => _$ResetPasswordErrorCodesToJson(this);
+}
+
+@JsonSerializable()
+class RetestCreatedNotificationDTO extends TestDayPushNotificationDTO {
+  RetestCreatedNotificationDTO();
+
+  factory RetestCreatedNotificationDTO.fromJson(Map<String, dynamic> json) =>
+      _$RetestCreatedNotificationDTOFromJson(json);
+
+  @override
+  Map<String, dynamic> toJson() => _$RetestCreatedNotificationDTOToJson(this);
+}
+
+@JsonSerializable()
+class RewardsHistoryByUserPlanId implements IRemoteQuery<RewardsHistoryDTO> {
+  RewardsHistoryByUserPlanId();
+
+  factory RewardsHistoryByUserPlanId.fromJson(Map<String, dynamic> json) =>
+      _$RewardsHistoryByUserPlanIdFromJson(json);
+
+  @JsonKey(name: 'UserPlanOrderId')
+  String userPlanOrderId;
+
+  @override
+  String getFullName() =>
+      'Quittercheck.Core.Contracts.Client.UserPlans.RewardsHistoryByUserPlanId';
+
+  @override
+  RewardsHistoryDTO resultFactory(dynamic decodedJson) =>
+      _$RewardsHistoryDTOFromJson(decodedJson as Map<String, dynamic>);
+
+  @override
+  Map<String, dynamic> toJson() => _$RewardsHistoryByUserPlanIdToJson(this);
+}
+
+@JsonSerializable()
+class RewardsHistoryDTO {
+  RewardsHistoryDTO();
+
+  factory RewardsHistoryDTO.fromJson(Map<String, dynamic> json) =>
+      _$RewardsHistoryDTOFromJson(json);
+
+  @JsonKey(name: 'IsPastPlan')
+  bool isPastPlan;
+  @JsonKey(name: 'BalanceUSDSmallestUnit')
+  int balanceUSDSmallestUnit;
+  @JsonKey(name: 'GiftBalanceUSDSmallestUnit')
+  int giftBalanceUSDSmallestUnit;
+  @JsonKey(name: 'TotalBalanceUSDSmallestUnit')
+  int totalBalanceUSDSmallestUnit;
+  @JsonKey(name: 'Rewards')
+  List<GrantedRewardDTO> rewards;
+  @JsonKey(name: 'RewardReductions')
+  List<ReducedRewardDTO> rewardReductions;
+  @JsonKey(name: 'GiftRewards')
+  List<GrantedRewardDTO> giftRewards;
+  @JsonKey(name: 'GiftRewardReductions')
+  List<ReducedRewardDTO> giftRewardReductions;
+
+  Map<String, dynamic> toJson() => _$RewardsHistoryDTOToJson(this);
+}
+
+@JsonSerializable()
+class SendSupportEmail implements IRemoteCommand {
+  SendSupportEmail();
+
+  factory SendSupportEmail.fromJson(Map<String, dynamic> json) =>
+      _$SendSupportEmailFromJson(json);
+
+  @JsonKey(name: 'Reason')
+  String reason;
+  @JsonKey(name: 'Description')
+  String description;
+  @JsonKey(name: 'SenderEmail')
+  String senderEmail;
+
+  @override
+  String getFullName() =>
+      'Quittercheck.Core.Contracts.Client.Communications.SendSupportEmail';
+
+  @override
+  Map<String, dynamic> toJson() => _$SendSupportEmailToJson(this);
+}
+
+@JsonSerializable()
+class SendSupportEmailErrorCodes {
+  SendSupportEmailErrorCodes();
+
+  factory SendSupportEmailErrorCodes.fromJson(Map<String, dynamic> json) =>
+      _$SendSupportEmailErrorCodesFromJson(json);
+
+  static const reasonRequired = 1;
+  static const reasonTooLong = 2;
+  static const descriptionRequired = 3;
+  static const descriptionTooLong = 4;
+  static const senderEmailRequired = 5;
+  static const senderEmailTooLong = 6;
+  static const senderEmailInvalid = 7;
+
+  Map<String, dynamic> toJson() => _$SendSupportEmailErrorCodesToJson(this);
+}
+
+@JsonSerializable()
+class SetDefaultPaymentMethod implements IRemoteCommand {
+  SetDefaultPaymentMethod();
+
+  factory SetDefaultPaymentMethod.fromJson(Map<String, dynamic> json) =>
+      _$SetDefaultPaymentMethodFromJson(json);
+
+  @JsonKey(name: 'PaymentMethodId')
+  String paymentMethodId;
+
+  @override
+  String getFullName() =>
+      'Quittercheck.Core.Contracts.Client.Users.SetDefaultPaymentMethod';
+
+  @override
+  Map<String, dynamic> toJson() => _$SetDefaultPaymentMethodToJson(this);
+}
+
+@JsonSerializable()
+class SetDefaultPaymentMethodErrorCodes {
+  SetDefaultPaymentMethodErrorCodes();
+
+  factory SetDefaultPaymentMethodErrorCodes.fromJson(
+          Map<String, dynamic> json) =>
+      _$SetDefaultPaymentMethodErrorCodesFromJson(json);
+
+  static const paymentMethodIdNullOrEmpty = 1;
+  static const paymentMethodIdInvalid = 2;
+
+  Map<String, dynamic> toJson() =>
+      _$SetDefaultPaymentMethodErrorCodesToJson(this);
+}
+
+@JsonSerializable()
+class SetNotificationToken implements IRemoteCommand {
+  SetNotificationToken();
+
+  factory SetNotificationToken.fromJson(Map<String, dynamic> json) =>
+      _$SetNotificationTokenFromJson(json);
+
+  @JsonKey(name: 'Token')
+  String token;
+
+  @override
+  String getFullName() =>
+      'Quittercheck.Core.Contracts.Client.Users.SetNotificationToken';
+
+  @override
+  Map<String, dynamic> toJson() => _$SetNotificationTokenToJson(this);
+}
+
+@JsonSerializable()
+class SetNotificationTokenErrorCodes {
+  SetNotificationTokenErrorCodes();
+
+  factory SetNotificationTokenErrorCodes.fromJson(Map<String, dynamic> json) =>
+      _$SetNotificationTokenErrorCodesFromJson(json);
+
+  static const tokenNullOrEmpty = 1;
+  static const tokenTooLong = 2;
+
+  Map<String, dynamic> toJson() => _$SetNotificationTokenErrorCodesToJson(this);
+}
+
+@JsonSerializable()
+class SetupIntentDTO {
+  SetupIntentDTO();
+
+  factory SetupIntentDTO.fromJson(Map<String, dynamic> json) =>
+      _$SetupIntentDTOFromJson(json);
+
+  @JsonKey(name: 'PublishableKey')
+  String publishableKey;
+  @JsonKey(name: 'ClientSecret')
+  String clientSecret;
+
+  Map<String, dynamic> toJson() => _$SetupIntentDTOToJson(this);
+}
+
+@JsonSerializable()
+class SetupNewPaymentMethod implements IRemoteQuery<SetupIntentDTO> {
+  SetupNewPaymentMethod();
+
+  factory SetupNewPaymentMethod.fromJson(Map<String, dynamic> json) =>
+      _$SetupNewPaymentMethodFromJson(json);
+
+  @override
+  String getFullName() =>
+      'Quittercheck.Core.Contracts.Client.Users.SetupNewPaymentMethod';
+
+  @override
+  SetupIntentDTO resultFactory(dynamic decodedJson) =>
+      _$SetupIntentDTOFromJson(decodedJson as Map<String, dynamic>);
+
+  @override
+  Map<String, dynamic> toJson() => _$SetupNewPaymentMethodToJson(this);
+}
+
+@JsonSerializable()
+class ShippingOptionDTO {
+  ShippingOptionDTO();
+
+  factory ShippingOptionDTO.fromJson(Map<String, dynamic> json) =>
+      _$ShippingOptionDTOFromJson(json);
+
+  @JsonKey(name: 'ShippingOptionId')
+  String shippingOptionId;
+  @JsonKey(name: 'Tier')
+  ShippingTierDTO tier;
+  @JsonKey(name: 'PriceUSDSmallestUnit')
+  int priceUSDSmallestUnit;
+  @JsonKey(name: 'Description')
+  String description;
+
+  Map<String, dynamic> toJson() => _$ShippingOptionDTOToJson(this);
+}
+
+enum ShippingOptionTypeDTO {
+  @JsonValue(1)
+  normal,
+  @JsonValue(2)
+  express,
+}
+
+enum ShippingTierDTO {
+  @JsonValue(1)
+  tier1,
+  @JsonValue(2)
+  tier2,
+  @JsonValue(3)
+  tier3,
+}
+
+@JsonSerializable()
+class StartUserPlan implements IRemoteCommand {
+  StartUserPlan();
+
+  factory StartUserPlan.fromJson(Map<String, dynamic> json) =>
+      _$StartUserPlanFromJson(json);
+
+  @JsonKey(name: 'PlanDates')
+  PlanDatesDTO planDates;
+  @JsonKey(name: 'UserPlanOrderId')
+  String userPlanOrderId;
+
+  @override
+  String getFullName() =>
+      'Quittercheck.Core.Contracts.Client.UserPlans.StartUserPlan';
+
+  @override
+  Map<String, dynamic> toJson() => _$StartUserPlanToJson(this);
+}
+
+@JsonSerializable()
+class StartUserPlanErrorCodes {
+  StartUserPlanErrorCodes();
+
+  factory StartUserPlanErrorCodes.fromJson(Map<String, dynamic> json) =>
+      _$StartUserPlanErrorCodesFromJson(json);
+
+  static const userPlanAlreadyExists = 1;
+  static const userPlanOrderNotSucceeded = 2;
+  static const userPlanPledgeNotConfigured = 3;
+  static const startDateMustBeAtLeast7DaysAfterQuitDate = 4;
+  static const startDateMustBeTodayOrFuture = 5;
+  static const startDateMustNotExceed3MonthsInTheFuture = 6;
+  static const quitDateMustNotExceed3MonthsInTheFuture = 7;
+  static const userHasOverlappingPlanAtGivenPeriod = 8;
+
+  Map<String, dynamic> toJson() => _$StartUserPlanErrorCodesToJson(this);
+}
+
+enum StateDTO {
+  @JsonValue(1)
+  alabama,
+  @JsonValue(2)
+  alaska,
+  @JsonValue(3)
+  arizona,
+  @JsonValue(4)
+  arkansas,
+  @JsonValue(5)
+  california,
+  @JsonValue(6)
+  colorado,
+  @JsonValue(7)
+  connecticut,
+  @JsonValue(8)
+  delaware,
+  @JsonValue(9)
+  florida,
+  @JsonValue(10)
+  georgia,
+  @JsonValue(11)
+  hawaii,
+  @JsonValue(12)
+  idaho,
+  @JsonValue(13)
+  illinois,
+  @JsonValue(14)
+  indiana,
+  @JsonValue(15)
+  iowa,
+  @JsonValue(16)
+  kansas,
+  @JsonValue(17)
+  kentucky,
+  @JsonValue(18)
+  louisiana,
+  @JsonValue(19)
+  maine,
+  @JsonValue(20)
+  maryland,
+  @JsonValue(21)
+  massachusetts,
+  @JsonValue(22)
+  michigan,
+  @JsonValue(23)
+  minnesota,
+  @JsonValue(24)
+  mississippi,
+  @JsonValue(25)
+  missouri,
+  @JsonValue(26)
+  montana,
+  @JsonValue(27)
+  nebraska,
+  @JsonValue(28)
+  nevada,
+  @JsonValue(29)
+  newHampshire,
+  @JsonValue(30)
+  newJersey,
+  @JsonValue(31)
+  newMexico,
+  @JsonValue(32)
+  newYork,
+  @JsonValue(33)
+  northCarolina,
+  @JsonValue(34)
+  northDakota,
+  @JsonValue(35)
+  ohio,
+  @JsonValue(36)
+  oklahoma,
+  @JsonValue(37)
+  oregon,
+  @JsonValue(38)
+  pennsylvania,
+  @JsonValue(39)
+  rhodeIsland,
+  @JsonValue(40)
+  southCarolina,
+  @JsonValue(41)
+  southDakota,
+  @JsonValue(42)
+  tennessee,
+  @JsonValue(43)
+  texas,
+  @JsonValue(44)
+  utah,
+  @JsonValue(45)
+  vermont,
+  @JsonValue(46)
+  virginia,
+  @JsonValue(47)
+  washington,
+  @JsonValue(48)
+  westVirginia,
+  @JsonValue(49)
+  wisconsin,
+  @JsonValue(50)
+  wyoming,
+  @JsonValue(51)
+  districtOfColumbia,
+}
+
+@JsonSerializable()
+class StripePaymentInfoDTO {
+  StripePaymentInfoDTO();
+
+  factory StripePaymentInfoDTO.fromJson(Map<String, dynamic> json) =>
+      _$StripePaymentInfoDTOFromJson(json);
+
+  @JsonKey(name: 'PublishableKey')
+  String publishableKey;
+  @JsonKey(name: 'PaymentId')
+  String paymentId;
+  @JsonKey(name: 'CustomerSecret')
+  String customerSecret;
+
+  Map<String, dynamic> toJson() => _$StripePaymentInfoDTOToJson(this);
+}
+
+@JsonSerializable()
+class SupportReasons implements IRemoteQuery<List<String>> {
+  SupportReasons();
+
+  factory SupportReasons.fromJson(Map<String, dynamic> json) =>
+      _$SupportReasonsFromJson(json);
+
+  @override
+  String getFullName() =>
+      'Quittercheck.Core.Contracts.Client.Communications.SupportReasons';
+
+  @override
+  List<String> resultFactory(dynamic decodedJson) => decodedJson.cast<String>();
+
+  @override
+  Map<String, dynamic> toJson() => _$SupportReasonsToJson(this);
+}
+
+@JsonSerializable()
+class TestDayFailedDTO extends TestDayPushNotificationDTO {
+  TestDayFailedDTO();
+
+  factory TestDayFailedDTO.fromJson(Map<String, dynamic> json) =>
+      _$TestDayFailedDTOFromJson(json);
+
+  @override
+  Map<String, dynamic> toJson() => _$TestDayFailedDTOToJson(this);
+}
+
+@JsonSerializable()
+class TestDayPassedDTO extends TestDayPushNotificationDTO {
+  TestDayPassedDTO();
+
+  factory TestDayPassedDTO.fromJson(Map<String, dynamic> json) =>
+      _$TestDayPassedDTOFromJson(json);
+
+  @override
+  Map<String, dynamic> toJson() => _$TestDayPassedDTOToJson(this);
+}
+
+@JsonSerializable()
+class TestDayPushNotificationDTO extends PushNotificationDTO {
+  TestDayPushNotificationDTO();
+
+  factory TestDayPushNotificationDTO.fromJson(Map<String, dynamic> json) =>
+      _$TestDayPushNotificationDTOFromJson(json);
+
+  @JsonKey(name: 'TestDayId')
+  String testDayId;
+  @JsonKey(name: 'UserPlanId')
+  String userPlanId;
+
+  @override
+  Map<String, dynamic> toJson() => _$TestDayPushNotificationDTOToJson(this);
+}
+
+@JsonSerializable()
+class TestDayRecordingUploadLinkV2 implements IRemoteQuery<String> {
+  TestDayRecordingUploadLinkV2();
+
+  factory TestDayRecordingUploadLinkV2.fromJson(Map<String, dynamic> json) =>
+      _$TestDayRecordingUploadLinkV2FromJson(json);
+
+  @JsonKey(name: 'UserPlanId')
+  String userPlanId;
+  @JsonKey(name: 'TestDayId')
+  String testDayId;
+  @JsonKey(name: 'Extension')
+  String extension;
+
+  @override
+  String getFullName() =>
+      'Quittercheck.Core.Contracts.Client.TestDays.TestDayRecordingUploadLinkV2';
+
+  @override
+  String resultFactory(dynamic decodedJson) => decodedJson as String;
+
+  @override
+  Map<String, dynamic> toJson() => _$TestDayRecordingUploadLinkV2ToJson(this);
+}
+
+@JsonSerializable()
+class TestDayUnmarkedDTO extends TestDayPushNotificationDTO {
+  TestDayUnmarkedDTO();
+
+  factory TestDayUnmarkedDTO.fromJson(Map<String, dynamic> json) =>
+      _$TestDayUnmarkedDTOFromJson(json);
+
+  @override
+  Map<String, dynamic> toJson() => _$TestDayUnmarkedDTOToJson(this);
+}
+
+@JsonSerializable()
+class TestingFrequencyBundleDTO {
+  TestingFrequencyBundleDTO();
+
+  factory TestingFrequencyBundleDTO.fromJson(Map<String, dynamic> json) =>
+      _$TestingFrequencyBundleDTOFromJson(json);
+
+  @JsonKey(name: 'Id')
+  String id;
+  @JsonKey(name: 'PriceUSDSmallestUnit')
+  int priceUSDSmallestUnit;
+  @JsonKey(name: 'Name')
+  String name;
+  @JsonKey(name: 'Description')
+  String description;
+  @JsonKey(name: 'IsRecommended')
+  bool isRecommended;
+  @JsonKey(name: 'PercentOff')
+  int percentOff;
+  @JsonKey(name: 'TestingFrequency')
+  List<int> testingFrequency;
+  @JsonKey(name: 'TwiceWeeklyTestingCount')
+  int twiceWeeklyTestingCount;
+
+  Map<String, dynamic> toJson() => _$TestingFrequencyBundleDTOToJson(this);
+}
+
+@JsonSerializable()
+class TestInstructions implements IRemoteQuery<String> {
+  TestInstructions();
+
+  factory TestInstructions.fromJson(Map<String, dynamic> json) =>
+      _$TestInstructionsFromJson(json);
+
+  @override
+  String getFullName() =>
+      'Quittercheck.Core.Contracts.Client.TestDays.TestInstructions';
+
+  @override
+  String resultFactory(dynamic decodedJson) => decodedJson as String;
+
+  @override
+  Map<String, dynamic> toJson() => _$TestInstructionsToJson(this);
+}
+
+@JsonSerializable()
+class TestPushNotificationDTO extends PushNotificationDTO {
+  TestPushNotificationDTO();
+
+  factory TestPushNotificationDTO.fromJson(Map<String, dynamic> json) =>
+      _$TestPushNotificationDTOFromJson(json);
+
+  @JsonKey(name: 'UserId')
+  String userId;
+
+  @override
+  Map<String, dynamic> toJson() => _$TestPushNotificationDTOToJson(this);
+}
+
+@JsonSerializable()
+class TestRecordingDTO {
+  TestRecordingDTO();
+
+  factory TestRecordingDTO.fromJson(Map<String, dynamic> json) =>
+      _$TestRecordingDTOFromJson(json);
+
+  @JsonKey(name: 'TestRecordingId')
+  String testRecordingId;
+  @JsonKey(name: 'DateUploaded', fromJson: _dateTimeFromJson)
+  DateTime dateUploaded;
+  @JsonKey(name: 'IsMain')
+  bool isMain;
+  @JsonKey(name: 'Link')
+  String link;
+
+  Map<String, dynamic> toJson() => _$TestRecordingDTOToJson(this);
+}
+
+enum TestStatusDTO {
+  @JsonValue(0)
+  notSent,
+  @JsonValue(1)
+  inReview,
+  @JsonValue(2)
+  passed,
+  @JsonValue(3)
+  failed,
+  @JsonValue(4)
+  failedWithRetest,
+  @JsonValue(5)
+  unmark,
+}
+
+@JsonSerializable()
+class UnpaidTestDayFailedDTO {
+  UnpaidTestDayFailedDTO();
+
+  factory UnpaidTestDayFailedDTO.fromJson(Map<String, dynamic> json) =>
+      _$UnpaidTestDayFailedDTOFromJson(json);
+
+  @JsonKey(name: 'UserPlanId')
+  String userPlanId;
+  @JsonKey(name: 'TestDayId')
+  String testDayId;
+  @JsonKey(name: 'StripePaymentInfo')
+  StripePaymentInfoDTO stripePaymentInfo;
+
+  Map<String, dynamic> toJson() => _$UnpaidTestDayFailedDTOToJson(this);
+}
+
+@JsonSerializable()
+class UpdatePledgeAmount implements IRemoteCommand {
+  UpdatePledgeAmount();
+
+  factory UpdatePledgeAmount.fromJson(Map<String, dynamic> json) =>
+      _$UpdatePledgeAmountFromJson(json);
+
+  @JsonKey(name: 'UserPlanId')
+  String userPlanId;
+  @JsonKey(name: 'FailAmountSmallestUnitUSD')
+  int failAmountSmallestUnitUSD;
+
+  @override
+  String getFullName() =>
+      'Quittercheck.Core.Contracts.Client.UserPlans.UpdatePledgeAmount';
+
+  @override
+  Map<String, dynamic> toJson() => _$UpdatePledgeAmountToJson(this);
+}
+
+@JsonSerializable()
+class UpdatePledgeAmountErrorCodes {
+  UpdatePledgeAmountErrorCodes();
+
+  factory UpdatePledgeAmountErrorCodes.fromJson(Map<String, dynamic> json) =>
+      _$UpdatePledgeAmountErrorCodesFromJson(json);
+
+  static const userPlanPledgeDoesNotExist = 1;
+  static const failAmountMustBePositive = 2;
+  static const failAmountMustBeGreaterThanOrEqualToCurrentPledgeAmount = 3;
+
+  Map<String, dynamic> toJson() => _$UpdatePledgeAmountErrorCodesToJson(this);
+}
+
+@JsonSerializable()
+class UserAddressDTO {
+  UserAddressDTO();
+
+  factory UserAddressDTO.fromJson(Map<String, dynamic> json) =>
+      _$UserAddressDTOFromJson(json);
+
+  @JsonKey(name: 'Id')
+  String id;
+  @JsonKey(name: 'Address')
+  AddressV2DTO address;
+
+  Map<String, dynamic> toJson() => _$UserAddressDTOToJson(this);
+}
+
+enum UsernameStatusDTO {
+  @JsonValue(0)
+  unset,
+  @JsonValue(1)
+  prefilledAutomatically,
+  @JsonValue(2)
+  confirmed,
+}
+
+enum UserOnboardingStatusDTO {
+  @JsonValue(0)
+  registered,
+  @JsonValue(1)
+  confirmed,
+}
+
+@JsonSerializable()
+class UserOrderDTO {
+  UserOrderDTO();
+
+  factory UserOrderDTO.fromJson(Map<String, dynamic> json) =>
+      _$UserOrderDTOFromJson(json);
+
+  @JsonKey(name: 'OrderId')
+  String orderId;
+  @JsonKey(name: 'UserOrderType')
+  UserOrderTypeDTO userOrderType;
+  @JsonKey(name: 'UserPlanOrder', nullable: true)
+  UserPlanOrderDTO userPlanOrder;
+  @JsonKey(name: 'Products', nullable: true)
+  List<OrderProductDetailsDTO> products;
+  @JsonKey(name: 'DatePurchased', fromJson: _dateTimeFromJson)
+  DateTime datePurchased;
+  @JsonKey(name: 'OrderShipmentStatus')
+  OrderShipmentStatus orderShipmentStatus;
+  @JsonKey(name: 'ShippingPriceUSDSmallestUnit')
+  int shippingPriceUSDSmallestUnit;
+  @JsonKey(name: 'TaxUSDSmallestUnit')
+  int taxUSDSmallestUnit;
+  @JsonKey(name: 'TotalPriceUSDSmallestUnit')
+  int totalPriceUSDSmallestUnit;
+
+  Map<String, dynamic> toJson() => _$UserOrderDTOToJson(this);
+}
+
+@JsonSerializable()
+class UserOrdersByUserId implements IRemoteQuery<List<UserOrderDTO>> {
+  UserOrdersByUserId();
+
+  factory UserOrdersByUserId.fromJson(Map<String, dynamic> json) =>
+      _$UserOrdersByUserIdFromJson(json);
+
+  @override
+  String getFullName() =>
+      'Quittercheck.Core.Contracts.Client.Users.UserOrdersByUserId';
+
+  @override
+  List<UserOrderDTO> resultFactory(dynamic decodedJson) =>
+      _listFromJson(decodedJson as Iterable<dynamic>, _$UserOrderDTOFromJson);
+
+  @override
+  Map<String, dynamic> toJson() => _$UserOrdersByUserIdToJson(this);
+}
+
+@JsonSerializable()
+class UserOrdersByUserIdV2 implements IRemoteQuery<List<UserOrderV2DTO>> {
+  UserOrdersByUserIdV2();
+
+  factory UserOrdersByUserIdV2.fromJson(Map<String, dynamic> json) =>
+      _$UserOrdersByUserIdV2FromJson(json);
+
+  @override
+  String getFullName() =>
+      'Quittercheck.Core.Contracts.Client.Users.UserOrdersByUserIdV2';
+
+  @override
+  List<UserOrderV2DTO> resultFactory(dynamic decodedJson) =>
+      _listFromJson(decodedJson as Iterable<dynamic>, _$UserOrderV2DTOFromJson);
+
+  @override
+  Map<String, dynamic> toJson() => _$UserOrdersByUserIdV2ToJson(this);
+}
+
+enum UserOrderTypeDTO {
+  @JsonValue(0)
+  planOrder,
+  @JsonValue(1)
+  productsOrder,
+}
+
+@JsonSerializable()
+class UserOrderV2DTO {
+  UserOrderV2DTO();
+
+  factory UserOrderV2DTO.fromJson(Map<String, dynamic> json) =>
+      _$UserOrderV2DTOFromJson(json);
+
+  @JsonKey(name: 'OrderId')
+  String orderId;
+  @JsonKey(name: 'UserOrderType')
+  UserOrderTypeDTO userOrderType;
+  @JsonKey(name: 'UserPlanOrder', nullable: true)
+  UserPlanOrderV2DTO userPlanOrder;
+  @JsonKey(name: 'Bundles', nullable: true)
+  List<OrderBundleDetailsDTO> bundles;
+  @JsonKey(name: 'Products', nullable: true)
+  List<OrderProductDetailsV2DTO> products;
+  @JsonKey(name: 'DatePurchased', fromJson: _dateTimeFromJson)
+  DateTime datePurchased;
+  @JsonKey(name: 'OrderShipmentStatus')
+  OrderShipmentStatus orderShipmentStatus;
+  @JsonKey(name: 'ShippingPriceUSDSmallestUnit')
+  int shippingPriceUSDSmallestUnit;
+  @JsonKey(name: 'TaxUSDSmallestUnit')
+  int taxUSDSmallestUnit;
+  @JsonKey(name: 'TotalPriceUSDSmallestUnit')
+  int totalPriceUSDSmallestUnit;
+
+  Map<String, dynamic> toJson() => _$UserOrderV2DTOToJson(this);
+}
+
+@JsonSerializable()
+class UserPlanDTO {
+  UserPlanDTO();
+
+  factory UserPlanDTO.fromJson(Map<String, dynamic> json) =>
+      _$UserPlanDTOFromJson(json);
+
+  @JsonKey(name: 'UserPlanId')
+  String userPlanId;
+  @JsonKey(name: 'QuitDate', nullable: true)
+  DateTime quitDate;
+  @JsonKey(name: 'StartDate', nullable: true)
+  DateTime startDate;
+  @JsonKey(name: 'EndDate', nullable: true)
+  DateTime endDate;
+  @JsonKey(name: 'DatePurchased', fromJson: _dateTimeFromJson)
+  DateTime datePurchased;
+  @JsonKey(
+      name: 'LatestFailureDate',
+      nullable: true,
+      fromJson: _nullableDateTimeFromJson)
+  DateTime latestFailureDate;
+  @JsonKey(name: 'PlanDurationInDays')
+  int planDurationInDays;
+  @JsonKey(name: 'CurrentTestDay', nullable: true)
+  CurrentTestDayDTO currentTestDay;
+  @JsonKey(name: 'UnpaidTestDayFailed', nullable: true)
+  UnpaidTestDayFailedDTO unpaidTestDayFailed;
+  @JsonKey(name: 'Pledge', nullable: true)
+  CurrentPledgeDTO pledge;
+  @JsonKey(name: 'TotalRewardsUSDSmallestUnit', nullable: true)
+  int totalRewardsUSDSmallestUnit;
+  @JsonKey(name: 'WithPledge')
+  bool withPledge;
+  @JsonKey(name: 'FailureFineToAcknowledge', nullable: true)
+  FailureFineDTO failureFineToAcknowledge;
+  @JsonKey(name: 'QuittingPlan')
+  QuittingPlanDTO quittingPlan;
+  @JsonKey(name: 'HabitToBreak')
+  HabitToBreakDTO habitToBreak;
+  @JsonKey(name: 'IsPledgeConfigured')
+  bool isPledgeConfigured;
+  @JsonKey(name: 'IsPlanStarted')
+  bool isPlanStarted;
+  @JsonKey(name: 'IsPlanFinished')
+  bool isPlanFinished;
+  @JsonKey(name: 'PledgeSettlementRequested')
+  bool pledgeSettlementRequested;
+  @JsonKey(name: 'AntiCharity', nullable: true)
+  AntiCharityDTO antiCharity;
+
+  Map<String, dynamic> toJson() => _$UserPlanDTOToJson(this);
+}
+
+@JsonSerializable()
+class UserPlanOrderById implements IRemoteQuery<UserPlanOrderDTO> {
+  UserPlanOrderById();
+
+  factory UserPlanOrderById.fromJson(Map<String, dynamic> json) =>
+      _$UserPlanOrderByIdFromJson(json);
+
+  @JsonKey(name: 'UserPlanOrderId')
+  String userPlanOrderId;
+
+  @override
+  String getFullName() =>
+      'Quittercheck.Core.Contracts.Client.UserPlanOrders.UserPlanOrderById';
+
+  @override
+  UserPlanOrderDTO resultFactory(dynamic decodedJson) =>
+      _$UserPlanOrderDTOFromJson(decodedJson as Map<String, dynamic>);
+
+  @override
+  Map<String, dynamic> toJson() => _$UserPlanOrderByIdToJson(this);
+}
+
+@JsonSerializable()
+class UserPlanOrderByIdV2 implements IRemoteQuery<UserPlanOrderV2DTO> {
+  UserPlanOrderByIdV2();
+
+  factory UserPlanOrderByIdV2.fromJson(Map<String, dynamic> json) =>
+      _$UserPlanOrderByIdV2FromJson(json);
+
+  @JsonKey(name: 'UserPlanOrderId')
+  String userPlanOrderId;
+
+  @override
+  String getFullName() =>
+      'Quittercheck.Core.Contracts.Client.UserPlanOrders.UserPlanOrderByIdV2';
+
+  @override
+  UserPlanOrderV2DTO resultFactory(dynamic decodedJson) =>
+      _$UserPlanOrderV2DTOFromJson(decodedJson as Map<String, dynamic>);
+
+  @override
+  Map<String, dynamic> toJson() => _$UserPlanOrderByIdV2ToJson(this);
+}
+
+@JsonSerializable()
+class UserPlanOrderDTO {
+  UserPlanOrderDTO();
+
+  factory UserPlanOrderDTO.fromJson(Map<String, dynamic> json) =>
+      _$UserPlanOrderDTOFromJson(json);
+
+  @JsonKey(name: 'OrderId')
+  String orderId;
+  @JsonKey(name: 'StripePaymentInfo', nullable: true)
+  StripePaymentInfoDTO stripePaymentInfo;
+  @JsonKey(name: 'QuittingPlan')
+  QuittingPlanDTO quittingPlan;
+  @JsonKey(name: 'SelectedShippingOption', nullable: true)
+  ShippingOptionDTO selectedShippingOption;
+  @JsonKey(name: 'PaymentType')
+  QuittingPlanPaymentTypeDTO paymentType;
+  @JsonKey(name: 'BillingAddress', nullable: true)
+  AddressV2DTO billingAddress;
+  @JsonKey(name: 'ShippingAddress', nullable: true)
+  AddressV2DTO shippingAddress;
+  @JsonKey(name: 'PhoneNumber', nullable: true)
+  PhoneNumberDTO phoneNumber;
+  @JsonKey(name: 'ReceiptEmail', nullable: true)
+  String receiptEmail;
+  @JsonKey(name: 'ShippingPriceUSDSmallestUnit')
+  int shippingPriceUSDSmallestUnit;
+  @JsonKey(name: 'PlanPriceUSDSmallestUnit')
+  int planPriceUSDSmallestUnit;
+  @JsonKey(name: 'ExtraTestsPriceUSDSmallestUnit')
+  int extraTestsPriceUSDSmallestUnit;
+  @JsonKey(name: 'ExtraProductsTotalPriceSmallestUnit')
+  int extraProductsTotalPriceSmallestUnit;
+  @JsonKey(name: 'TaxUSDSmallestUnit')
+  int taxUSDSmallestUnit;
+  @JsonKey(name: 'TotalPriceWithoutTaxUSDSmallestUnit')
+  int totalPriceWithoutTaxUSDSmallestUnit;
+  @JsonKey(name: 'TotalPriceUSDSmallestUnit')
+  int totalPriceUSDSmallestUnit;
+  @JsonKey(name: 'TotalPriceBeforeDiscountUSDSmallestUnit')
+  int totalPriceBeforeDiscountUSDSmallestUnit;
+  @JsonKey(name: 'DiscountUSDSmallestUnit')
+  int discountUSDSmallestUnit;
+  @JsonKey(name: 'InitialRewardUSDSmallestUnit')
+  int initialRewardUSDSmallestUnit;
+  @JsonKey(name: 'ExtraProducts')
+  List<UserPlanOrderExtraProductDTO> extraProducts;
+  @JsonKey(name: 'AmountGiftCode', nullable: true)
+  GiftCodeDTO amountGiftCode;
+  @JsonKey(name: 'TestingFrequencyBundleId', nullable: true)
+  String testingFrequencyBundleId;
+  @JsonKey(name: 'TestingFrequencyBundle')
+  TestingFrequencyBundleDTO testingFrequencyBundle;
+  @JsonKey(name: 'PaymentStatus')
+  PaymentStatusDTO paymentStatus;
+  @JsonKey(name: 'OrderStatus')
+  UserPlanOrderPaymentStatusDTO orderStatus;
+  @JsonKey(name: 'ShippingDetails')
+  OrderShippingDetailsDTO shippingDetails;
+  @JsonKey(name: 'EligibleForEarlyBird')
+  bool eligibleForEarlyBird;
+  @JsonKey(name: 'EarlyBirdDescription')
+  String earlyBirdDescription;
+
+  Map<String, dynamic> toJson() => _$UserPlanOrderDTOToJson(this);
+}
+
+@JsonSerializable()
+class UserPlanOrderExtraProductDTO extends ProductDTO {
+  UserPlanOrderExtraProductDTO();
+
+  factory UserPlanOrderExtraProductDTO.fromJson(Map<String, dynamic> json) =>
+      _$UserPlanOrderExtraProductDTOFromJson(json);
+
+  @JsonKey(name: 'ProductBundleId', nullable: true)
+  String productBundleId;
+  @JsonKey(name: 'Quantity')
+  int quantity;
+  @JsonKey(name: 'TotalPriceUSDSmallestUnit')
+  int totalPriceUSDSmallestUnit;
+  @JsonKey(name: 'EarlyBirdProductDiscountUSDSmallestUnit')
+  int earlyBirdProductDiscountUSDSmallestUnit;
+  @JsonKey(name: 'EligibleForEarlyBird')
+  bool eligibleForEarlyBird;
+  @JsonKey(name: 'BundledProducts')
+  List<UserPlanOrderExtraProductDTO> bundledProducts;
+
+  @override
+  Map<String, dynamic> toJson() => _$UserPlanOrderExtraProductDTOToJson(this);
+}
+
+@JsonSerializable()
+class UserPlanOrderExtraProductV2DTO extends ProductV2DTO {
+  UserPlanOrderExtraProductV2DTO();
+
+  factory UserPlanOrderExtraProductV2DTO.fromJson(Map<String, dynamic> json) =>
+      _$UserPlanOrderExtraProductV2DTOFromJson(json);
+
+  @JsonKey(name: 'Quantity')
+  int quantity;
+  @JsonKey(name: 'TotalPriceUSDSmallestUnit')
+  int totalPriceUSDSmallestUnit;
+
+  @override
+  Map<String, dynamic> toJson() => _$UserPlanOrderExtraProductV2DTOToJson(this);
+}
+
+enum UserPlanOrderPaymentStatusDTO {
+  @JsonValue(0)
+  new_,
+  @JsonValue(1)
+  waitingForPayment,
+  @JsonValue(2)
+  succeeded,
+  @JsonValue(3)
+  canceled,
+  @JsonValue(4)
+  waitingForUserConfirmation,
+  @JsonValue(5)
+  orderConfirmedWithoutPayment,
+}
+
+@JsonSerializable()
+class UserPlanOrderSideProducts implements IRemoteQuery<List<ProductDTO>> {
+  UserPlanOrderSideProducts();
+
+  factory UserPlanOrderSideProducts.fromJson(Map<String, dynamic> json) =>
+      _$UserPlanOrderSideProductsFromJson(json);
+
+  @override
+  String getFullName() =>
+      'Quittercheck.Core.Contracts.Client.Products.UserPlanOrderSideProducts';
+
+  @override
+  List<ProductDTO> resultFactory(dynamic decodedJson) =>
+      _listFromJson(decodedJson as Iterable<dynamic>, _$ProductDTOFromJson);
+
+  @override
+  Map<String, dynamic> toJson() => _$UserPlanOrderSideProductsToJson(this);
+}
+
+@JsonSerializable()
+class UserPlanOrderSideProductsV2
+    implements IRemoteQuery<AllProductGeneralizationsResult> {
+  UserPlanOrderSideProductsV2();
+
+  factory UserPlanOrderSideProductsV2.fromJson(Map<String, dynamic> json) =>
+      _$UserPlanOrderSideProductsV2FromJson(json);
+
+  @override
+  String getFullName() =>
+      'Quittercheck.Core.Contracts.Client.Products.UserPlanOrderSideProductsV2';
+
+  @override
+  AllProductGeneralizationsResult resultFactory(dynamic decodedJson) =>
+      _$AllProductGeneralizationsResultFromJson(
+          decodedJson as Map<String, dynamic>);
+
+  @override
+  Map<String, dynamic> toJson() => _$UserPlanOrderSideProductsV2ToJson(this);
+}
+
+@JsonSerializable()
+class UserPlanOrderSideProductsV3
+    implements IRemoteQuery<AllProductGeneralizationsV2Result> {
+  UserPlanOrderSideProductsV3();
+
+  factory UserPlanOrderSideProductsV3.fromJson(Map<String, dynamic> json) =>
+      _$UserPlanOrderSideProductsV3FromJson(json);
+
+  @override
+  String getFullName() =>
+      'Quittercheck.Core.Contracts.Client.Products.UserPlanOrderSideProductsV3';
+
+  @override
+  AllProductGeneralizationsV2Result resultFactory(dynamic decodedJson) =>
+      _$AllProductGeneralizationsV2ResultFromJson(
+          decodedJson as Map<String, dynamic>);
+
+  @override
+  Map<String, dynamic> toJson() => _$UserPlanOrderSideProductsV3ToJson(this);
+}
+
+@JsonSerializable()
+class UserPlanOrderV2DTO {
+  UserPlanOrderV2DTO();
+
+  factory UserPlanOrderV2DTO.fromJson(Map<String, dynamic> json) =>
+      _$UserPlanOrderV2DTOFromJson(json);
+
+  @JsonKey(name: 'OrderId')
+  String orderId;
+  @JsonKey(name: 'StripePaymentInfo', nullable: true)
+  StripePaymentInfoDTO stripePaymentInfo;
+  @JsonKey(name: 'QuittingPlan')
+  QuittingPlanDTO quittingPlan;
+  @JsonKey(name: 'SelectedShippingOption', nullable: true)
+  ShippingOptionDTO selectedShippingOption;
+  @JsonKey(name: 'PaymentType')
+  QuittingPlanPaymentTypeDTO paymentType;
+  @JsonKey(name: 'BillingAddress', nullable: true)
+  AddressV2DTO billingAddress;
+  @JsonKey(name: 'ShippingAddress', nullable: true)
+  AddressV2DTO shippingAddress;
+  @JsonKey(name: 'PhoneNumber', nullable: true)
+  PhoneNumberDTO phoneNumber;
+  @JsonKey(name: 'ReceiptEmail', nullable: true)
+  String receiptEmail;
+  @JsonKey(name: 'ShippingPriceUSDSmallestUnit')
+  int shippingPriceUSDSmallestUnit;
+  @JsonKey(name: 'PlanPriceUSDSmallestUnit')
+  int planPriceUSDSmallestUnit;
+  @JsonKey(name: 'ExtraTestsPriceUSDSmallestUnit')
+  int extraTestsPriceUSDSmallestUnit;
+  @JsonKey(name: 'ExtraProductsTotalPriceSmallestUnit')
+  int extraProductsTotalPriceSmallestUnit;
+  @JsonKey(name: 'TaxUSDSmallestUnit')
+  int taxUSDSmallestUnit;
+  @JsonKey(name: 'TotalPriceWithoutTaxUSDSmallestUnit')
+  int totalPriceWithoutTaxUSDSmallestUnit;
+  @JsonKey(name: 'TotalPriceUSDSmallestUnit')
+  int totalPriceUSDSmallestUnit;
+  @JsonKey(name: 'TotalPriceBeforeDiscountUSDSmallestUnit')
+  int totalPriceBeforeDiscountUSDSmallestUnit;
+  @JsonKey(name: 'DiscountUSDSmallestUnit')
+  int discountUSDSmallestUnit;
+  @JsonKey(name: 'InitialRewardUSDSmallestUnit')
+  int initialRewardUSDSmallestUnit;
+  //TODO RT
+  @JsonKey(name: 'SubTotalPriceUSDSmallestUnit')
+  int subTotalPriceUSDSmallestUnit;
+  @JsonKey(name: 'ExtraProducts')
+  List<UserPlanOrderExtraProductV2DTO> extraProducts;
+  @JsonKey(name: 'ExtraBundles')
+  List<OrderExtraBundleDTO> extraBundles;
+  @JsonKey(name: 'AmountGiftCode', nullable: true)
+  GiftCodeDTO amountGiftCode;
+  @JsonKey(name: 'TestingFrequencyBundleId', nullable: true)
+  String testingFrequencyBundleId;
+  @JsonKey(name: 'TestingFrequencyBundle')
+  TestingFrequencyBundleDTO testingFrequencyBundle;
+  @JsonKey(name: 'PaymentStatus')
+  PaymentStatusDTO paymentStatus;
+  @JsonKey(name: 'OrderStatus')
+  UserPlanOrderPaymentStatusDTO orderStatus;
+  @JsonKey(name: 'ShippingDetails')
+  OrderShippingDetailsDTO shippingDetails;
+  @JsonKey(name: 'EarlyBirdProduct', nullable: true)
+  EarlyBirdProductDTO earlyBirdProduct;
+
+  Map<String, dynamic> toJson() => _$UserPlanOrderV2DTOToJson(this);
+}
+
+@JsonSerializable()
+class UserPlanSetupEnabledDTO extends PushNotificationDTO {
+  UserPlanSetupEnabledDTO();
+
+  factory UserPlanSetupEnabledDTO.fromJson(Map<String, dynamic> json) =>
+      _$UserPlanSetupEnabledDTOFromJson(json);
+
+  @override
+  Map<String, dynamic> toJson() => _$UserPlanSetupEnabledDTOToJson(this);
+}
+
+@JsonSerializable()
+class ValidateAddress implements IRemoteQuery<AddressErrorValidationResultDTO> {
+  ValidateAddress();
+
+  factory ValidateAddress.fromJson(Map<String, dynamic> json) =>
+      _$ValidateAddressFromJson(json);
+
+  @JsonKey(name: 'Address')
+  AddressDTO address;
+
+  @override
+  String getFullName() =>
+      'Quittercheck.Core.Contracts.Client.UserPlanOrders.ValidateAddress';
+
+  @override
+  AddressErrorValidationResultDTO resultFactory(dynamic decodedJson) =>
+      _$AddressErrorValidationResultDTOFromJson(
+          decodedJson as Map<String, dynamic>);
+
+  @override
+  Map<String, dynamic> toJson() => _$ValidateAddressToJson(this);
+}
+
+@JsonSerializable()
+class ValidateAddressV2
+    implements IRemoteQuery<AddressErrorValidationResultV2DTO> {
+  ValidateAddressV2();
+
+  factory ValidateAddressV2.fromJson(Map<String, dynamic> json) =>
+      _$ValidateAddressV2FromJson(json);
+
+  @JsonKey(name: 'Address')
+  AddressV2DTO address;
+
+  @override
+  String getFullName() =>
+      'Quittercheck.Core.Contracts.Client.UserPlanOrders.ValidateAddressV2';
+
+  @override
+  AddressErrorValidationResultV2DTO resultFactory(dynamic decodedJson) =>
+      _$AddressErrorValidationResultV2DTOFromJson(
+          decodedJson as Map<String, dynamic>);
+
+  @override
+  Map<String, dynamic> toJson() => _$ValidateAddressV2ToJson(this);
+}
+
+@JsonSerializable()
+class ValidatePhoneNumber
+    implements IRemoteQuery<PhoneNumberErrorValidationResultDTO> {
+  ValidatePhoneNumber();
+
+  factory ValidatePhoneNumber.fromJson(Map<String, dynamic> json) =>
+      _$ValidatePhoneNumberFromJson(json);
+
+  @JsonKey(name: 'PhoneNumber')
+  PhoneNumberDTO phoneNumber;
+
+  @override
+  String getFullName() =>
+      'Quittercheck.Core.Contracts.Client.UserPlanOrders.ValidatePhoneNumber';
+
+  @override
+  PhoneNumberErrorValidationResultDTO resultFactory(dynamic decodedJson) =>
+      _$PhoneNumberErrorValidationResultDTOFromJson(
+          decodedJson as Map<String, dynamic>);
+
+  @override
+  Map<String, dynamic> toJson() => _$ValidatePhoneNumberToJson(this);
+}
+
+@JsonSerializable()
+class ValidatePlanDates
+    implements IRemoteQuery<PlanDatesErrorValidationResultDTO> {
+  ValidatePlanDates();
+
+  factory ValidatePlanDates.fromJson(Map<String, dynamic> json) =>
+      _$ValidatePlanDatesFromJson(json);
+
+  @JsonKey(name: 'PlanDates')
+  PlanDatesDTO planDates;
+
+  @override
+  String getFullName() =>
+      'Quittercheck.Core.Contracts.Client.UserPlans.ValidatePlanDates';
+
+  @override
+  PlanDatesErrorValidationResultDTO resultFactory(dynamic decodedJson) =>
+      _$PlanDatesErrorValidationResultDTOFromJson(
+          decodedJson as Map<String, dynamic>);
+
+  @override
+  Map<String, dynamic> toJson() => _$ValidatePlanDatesToJson(this);
+}
