@@ -1,0 +1,230 @@
+// @dart=2.9
+
+import 'dart:async';
+import 'dart:convert';
+import 'package:firebase_messaging/firebase_messaging.dart';
+import 'package:flutter_local_notifications/flutter_local_notifications.dart';
+import 'package:meta/meta.dart';
+import 'package:quittercheck/contracts/contracts.dart';
+import 'package:quittercheck/data/app_cqrs.dart';
+import 'package:quittercheck/notifications/notification_parser.dart';
+import 'package:quittercheck/notifications/notificator_shared_preferences.dart';
+import 'package:quittercheck/utils/app_logger.dart';
+import 'package:quittercheck/utils/value_publish_subject.dart';
+
+class FcmNotifications {
+  FcmNotifications({
+    @required this.fcm,
+    @required this.cqrs,
+    @required this.localNotifications,
+    @required this.notificatorSharedPreferences,
+  })  : assert(fcm != null),
+        assert(cqrs != null),
+        assert(localNotifications != null),
+        assert(notificatorSharedPreferences != null) {
+    FirebaseMessaging.instance.onTokenRefresh
+        .listen((token) async => replaceToken(token));
+  }
+
+  final FlutterLocalNotificationsPlugin localNotifications;
+  final NotificatorSharedPreferences notificatorSharedPreferences;
+  final FirebaseMessaging fcm;
+  final AppCQRS cqrs;
+  final ValuePublishSubject<PushNotificationDTO> _notifications =
+      ValuePublishSubject();
+  final ValuePublishSubject<PushNotificationDTO> _instantNotifications =
+      ValuePublishSubject();
+
+  Stream<PushNotificationDTO> get notifications => _notifications;
+
+  Stream<PushNotificationDTO> get instantNotifications => _instantNotifications;
+
+  PushNotificationDTO get lastNotification => _notifications.value;
+
+  bool permissionsChecked = false;
+
+  String _currentToken;
+
+  Future<void> init() async {
+    try {
+      await _requestPermission();
+      await fcm.setForegroundNotificationPresentationOptions();
+      await _setupAndroidNotificationChannel();
+      await _initializeLocalNotifications();
+
+      _currentToken = await fcm.getToken();
+
+      await initializeTokenSending();
+
+      final message = await fcm.getInitialMessage();
+      _addEvent(message);
+
+      FirebaseMessaging.onMessage.listen(_onMessage);
+
+      FirebaseMessaging.onMessageOpenedApp.listen(_addEvent);
+      FirebaseMessaging.onMessageOpenedApp.listen(_addInstantEvent);
+    } catch (e, t) {
+      AppLogger.logException(e, t);
+    }
+  }
+
+  void _addEvent(RemoteMessage message) {
+    if (message != null) {
+      final notification = notificationParser(message);
+      if (notification != null) {
+        _notifications.add(notification);
+      }
+    }
+  }
+
+  void _addInstantEvent(RemoteMessage message) {
+    if (message != null) {
+      final notification = notificationParser(message);
+      if (notification != null) {
+        _instantNotifications.add(notification);
+      }
+    }
+  }
+
+  Future<bool> _requestPermission() async {
+    final settings = await fcm.requestPermission();
+
+    permissionsChecked = true;
+    AppLogger.info(
+      'Requested permission for notifications with status: ${settings.authorizationStatus}',
+    );
+
+    return settings.authorizationStatus == AuthorizationStatus.authorized ||
+        settings.authorizationStatus == AuthorizationStatus.provisional;
+  }
+
+  Future<bool> permission() async {
+    return _requestPermission();
+  }
+
+  Future<void> _setupAndroidNotificationChannel() {
+    return localNotifications
+        .resolvePlatformSpecificImplementation<
+            AndroidFlutterLocalNotificationsPlugin>()
+        ?.createNotificationChannel(_fcmNotificationChannel);
+  }
+
+  void showLocalNotification({
+    @required int hashCode,
+    @required String title,
+    @required String body,
+    String payloadJson,
+    String androidNotificationIcon,
+  }) {
+    localNotifications.show(
+      hashCode,
+      title,
+      body,
+      NotificationDetails(
+        android: AndroidNotificationDetails(
+          _fcmNotificationChannel.id,
+          _fcmNotificationChannel.name,
+          channelDescription: _fcmNotificationChannel.description,
+          icon: androidNotificationIcon,
+        ),
+        iOS: const IOSNotificationDetails(
+          presentAlert: true,
+          presentSound: false,
+          presentBadge: false,
+          sound: 'default',
+        ),
+      ),
+      payload: payloadJson,
+    );
+  }
+
+  void _onMessage(RemoteMessage message) {
+    final notification = message.notification;
+
+    if (notification != null) {
+      showLocalNotification(
+        hashCode: notification.hashCode,
+        title: notification.title,
+        body: notification.body,
+        payloadJson: json.encode(message.data),
+        androidNotificationIcon: notification.android?.smallIcon,
+      );
+      _addInstantEvent(message);
+    }
+  }
+
+  Future<void> _initializeLocalNotifications() => localNotifications.initialize(
+        const InitializationSettings(
+          android: AndroidInitializationSettings('notification_icon'),
+          iOS: IOSInitializationSettings(
+            defaultPresentSound: false,
+            defaultPresentBadge: false,
+            requestAlertPermission: false,
+            requestBadgePermission: false,
+            requestSoundPermission: false,
+          ),
+        ),
+        onSelectNotification: (payload) async => _addEvent(
+          RemoteMessage(
+            data: Map<String, dynamic>.from(json.decode(payload) as Map),
+          ),
+        ),
+      );
+
+  /// check whether the last saved device id is the same as current device id
+  Future<void> initializeTokenSending() async {
+    final lastSentToken = notificatorSharedPreferences.getSavedDeviceId();
+
+    /// if last sent token and current token are different that means we have to update it
+    if (lastSentToken != _currentToken) {
+      await replaceToken(_currentToken);
+    }
+  }
+
+  /// update token with removing the previous one first
+  Future<void> replaceToken(String token) async {
+    _currentToken = token;
+    await removeLastSavedDeviceToken();
+    await sendDeviceToken();
+  }
+
+  /// update device token with current token
+  Future<bool> sendDeviceToken() async {
+    if (_currentToken == null || _currentToken.isEmpty) return true;
+    final res =
+        await cqrs.noThrowRun(SetNotificationToken(token: _currentToken));
+
+    /// if the request was successful, save this token as last saved token
+    if (res.wasSuccessful) {
+      await notificatorSharedPreferences.setSavedDeviceId(_currentToken);
+    }
+
+    return res.wasSuccessful;
+  }
+
+  /// remove last saved device token
+  Future<bool> removeLastSavedDeviceToken() async {
+    final lastSentToken = notificatorSharedPreferences.getSavedDeviceId();
+
+    /// check whether there is last saved token to remove first
+    if (lastSentToken != null) {
+      final res =
+          await cqrs.noThrowRun(RemoveNotificationToken(token: lastSentToken));
+      return res.wasSuccessful;
+    } else {
+      return false;
+    }
+  }
+
+  Future<void> close() => Future.wait<void>([
+        _notifications.close(),
+        _instantNotifications.close(),
+      ]);
+}
+
+const _fcmNotificationChannel = AndroidNotificationChannel(
+  'quittercheck_fcm_notification_channel',
+  'Notifications',
+  description: 'Quittercheck notifications.',
+  importance: Importance.max,
+);
