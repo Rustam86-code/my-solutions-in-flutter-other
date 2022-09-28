@@ -1,0 +1,434 @@
+// @dart=2.9
+
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_analytics/firebase_analytics.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:firebase_messaging/firebase_messaging.dart';
+import 'package:flutter/widgets.dart';
+import 'package:flutter_local_notifications/flutter_local_notifications.dart';
+import 'package:flutter_segment/flutter_segment.dart';
+import 'package:logging/logging.dart';
+import 'package:logging_bugfender/logging_bugfender.dart';
+import 'package:login_client/login_client.dart';
+import 'package:login_client_flutter/login_client_flutter.dart';
+import 'package:package_info/package_info.dart';
+import 'package:quittercheck/app/navigation/app_navigator.dart';
+import 'package:quittercheck/app/navigation/first_page_loader.dart';
+import 'package:quittercheck/app/user_status.dart';
+import 'package:quittercheck/common/widgets/tip_banner/tip_banner_provider.dart';
+import 'package:quittercheck/common/widgets/tip_banner/tip_banner_repository.dart';
+import 'package:quittercheck/config/app_config.dart';
+import 'package:quittercheck/data/app_cqrs.dart';
+import 'package:quittercheck/data/app_shared_preferences.dart';
+import 'package:quittercheck/data/contentful/adapter.dart';
+import 'package:quittercheck/data/firestore/excuses_firestore.dart';
+import 'package:quittercheck/data/firestore/firebase_authenticator.dart';
+import 'package:quittercheck/data/firestore/reasons_firestore.dart';
+import 'package:quittercheck/deeplinks/deeplink_navigator.dart';
+import 'package:quittercheck/deeplinks/deeplink_uri_parser.dart';
+import 'package:quittercheck/deeplinks/leancode_deeplink.dart';
+import 'package:quittercheck/features/address_autocomplete/data/address_provider.dart';
+import 'package:quittercheck/features/app_start/app_start_loader_page.dart';
+import 'package:quittercheck/features/app_start/initial_page_from_user_status.dart';
+import 'package:quittercheck/features/faq/data/faq_repository.dart';
+import 'package:quittercheck/features/faq/data/why_quit_repository.dart';
+import 'package:quittercheck/features/force_update/force_update.dart';
+import 'package:quittercheck/features/giftcodes/data/gift_card_configuration_repository.dart';
+import 'package:quittercheck/features/lessons/data/providers/lesson_firestore.dart';
+import 'package:quittercheck/features/lessons/data/repositories/lesson_details_repository.dart';
+import 'package:quittercheck/features/lessons/data/repositories/lessons_repository.dart';
+import 'package:quittercheck/features/onboarding/data/questionnaire_user_selection_repository.dart';
+import 'package:quittercheck/features/order_summary/data/active_order_provider.dart';
+import 'package:quittercheck/features/payments/data/payment_adapter_factory.dart';
+import 'package:quittercheck/features/payments/data/payment_provider_impl.dart';
+import 'package:quittercheck/features/payments/domain/payment_status_checker.dart';
+import 'package:quittercheck/features/payments/domain/payment_use_case.dart';
+import 'package:quittercheck/features/remote_configuration/app_server_config.dart';
+import 'package:quittercheck/features/savings/data/savings_provider.dart';
+import 'package:quittercheck/features/savings/data/savings_repository.dart';
+import 'package:quittercheck/notifications/fcm_navigator.dart';
+import 'package:quittercheck/notifications/fcm_notifications.dart';
+import 'package:quittercheck/notifications/notificator_shared_preferences.dart';
+import 'package:http/http.dart';
+import 'package:quittercheck/utils/analytics/analytics.dart';
+import 'package:quittercheck/utils/analytics/facebook_tracking.dart';
+import 'package:quittercheck/utils/analytics/smartlook.dart';
+import 'package:quittercheck/utils/app_logger.dart';
+import 'package:quittercheck/utils/extract_user_id.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+
+class AppDependencies {
+  AppDependencies(this.appConfig);
+
+  final AppConfig appConfig;
+
+  LoggingBugfenderListener _logger;
+
+  FirebaseAuthenticator _firebaseAuthenticator;
+
+  FirebaseAuthenticator get firebaseAuthenticator => _firebaseAuthenticator;
+
+  LessonFirestore _lessonFirestore;
+
+  LessonFirestore get lessonFirestore => _lessonFirestore;
+
+  ReasonsFirestore _reasonsFirestore;
+
+  ReasonsFirestore get reasonsFirestore => _reasonsFirestore;
+
+  ExcusesFirestore _excusesFirestore;
+
+  ExcusesFirestore get excusesFirestore => _excusesFirestore;
+
+  UserStatus _userStatus;
+
+  UserStatus get userStatus => _userStatus;
+
+  AppCQRS _cqrs;
+
+  AppCQRS get cqrs => _cqrs;
+
+  LeanCodeDeeplink _deeplink;
+
+  LeanCodeDeeplink get deeplink => _deeplink;
+
+  DeeplinkNavigator _deeplinkNavigator;
+  FcmNavigator _fcmNavigator;
+
+  ForceUpdate _forceUpdate;
+
+  ForceUpdate get forceUpdate => _forceUpdate;
+
+  InitialPageFromUserStatus _initialPageFromUserStatus;
+
+  LoginClient _loginClient;
+
+  LoginClient get loginClient => _loginClient;
+
+  PackageInfo _packageInfo;
+
+  PackageInfo get packageInfo => _packageInfo;
+
+  AppNavigator _routerDelegate;
+
+  AppNavigator get routerDelegator => _routerDelegate;
+
+  FcmNotifications _fcmNotifications;
+
+  FcmNotifications get fcmNotifications => _fcmNotifications;
+
+  ContentfulAdapter _contentfulAdapter;
+
+  ContentfulAdapter get contentfulAdapter => _contentfulAdapter;
+
+  FirstPageLoader _firstPageLoader;
+
+  FirstPageLoader get firstPageLoader => _firstPageLoader;
+
+  CredentialsStorage _credentialsStorage;
+
+  CredentialsStorage get credentialsStorage => _credentialsStorage;
+
+  AppServerConfig _appServerConfig;
+
+  AppServerConfig get appServerConfig => _appServerConfig;
+
+  AppSharedPreferences _appSharedPreferences;
+
+  AppSharedPreferences get appSharedPreferences => _appSharedPreferences;
+
+  NotificatorSharedPreferences _notificatorSharedPreferences;
+
+  NotificatorSharedPreferences get notificatorSharedPreferences =>
+      _notificatorSharedPreferences;
+
+  // === Use-cases ===
+  PaymentUseCase _paymentUseCase;
+
+  PaymentUseCase get paymentUseCase => _paymentUseCase;
+
+  // === Repositories ===
+  LessonsRepository _lessonsRepository;
+
+  LessonsRepository get lessonsRepository => _lessonsRepository;
+
+  LessonDetailsRepository _lessonDetailsRepository;
+
+  LessonDetailsRepository get lessonDetailsRepository =>
+      _lessonDetailsRepository;
+
+  TipBannerRepository _bannerRepository;
+
+  TipBannerRepository get bannerRepository => _bannerRepository;
+
+  FAQRepository _faqRepository;
+
+  FAQRepository get faqRepository => _faqRepository;
+
+  WhyQuitRepository _whyQuitRepository;
+
+  WhyQuitRepository get whyQuitRepository => _whyQuitRepository;
+
+  SavingsRepository _savingsRepository;
+
+  SavingsRepository get savingsRepository => _savingsRepository;
+
+  GiftCardConfigurationRepository _giftCardConfigurationRepository;
+
+  GiftCardConfigurationRepository get giftCardConfigurationRepository =>
+      _giftCardConfigurationRepository;
+
+  QuestionnaireUserSelectionRepository _questionnaireUserSelectionRepository;
+
+  QuestionnaireUserSelectionRepository
+      get questionnaireUserSelectionRepository =>
+          _questionnaireUserSelectionRepository;
+
+  // === Providers ===
+
+  AddressProvider _addressProvider;
+
+  AddressProvider get addressProvider => _addressProvider;
+
+  SavingsProvider _savingsProvider;
+
+  SavingsProvider get savingsProvider => _savingsProvider;
+
+  ActiveOrderProvider _activeOrderProvider;
+
+  ActiveOrderProvider get activeOrderProvider => _activeOrderProvider;
+
+  UserIdProvider _userIdProvider;
+
+  UserIdProvider get userIdProvider => _userIdProvider;
+
+  // === Analytics ===
+
+  Analytics _analytics;
+
+  Analytics get analytics => _analytics;
+
+  SmartlookController _smartlookController;
+
+  SmartlookController get smartlookController => _smartlookController;
+
+  FacebookTracking _facebookTracking;
+
+  FacebookTracking get facebookTracking => _facebookTracking;
+
+  Future<void> initializeAsyncDeps(AppConfig config) async {
+    // It is important to initialize logger first
+    await _initLogger(config);
+
+    _credentialsStorage = const FlutterSecureCredentialsStorage();
+
+    _loginClient = LoginClient(
+      credentialsStorage: _credentialsStorage,
+      oAuthSettings: config.appConsts.authSettings,
+    );
+
+    _cqrs = AppCQRS(_loginClient, config.appConsts.apiEndpoint);
+
+    _deeplink = LeanCodeDeeplink(deeplinkUriParser);
+
+    _packageInfo = await PackageInfo.fromPlatform();
+
+    final _sharedPreferences = await SharedPreferences.getInstance();
+
+    _appSharedPreferences = AppSharedPreferences(_sharedPreferences);
+
+    _notificatorSharedPreferences =
+        NotificatorSharedPreferences(sharedPreferences: _sharedPreferences);
+
+    _fcmNotifications = FcmNotifications(
+      fcm: FirebaseMessaging.instance,
+      cqrs: cqrs,
+      localNotifications: FlutterLocalNotificationsPlugin(),
+      notificatorSharedPreferences: _notificatorSharedPreferences,
+    );
+
+    _routerDelegate = AppNavigator(
+      initialPage: const AppStartLoaderPage(),
+      analyticsObserver: FirebaseAnalyticsObserver(
+        analytics: FirebaseAnalytics.instance,
+      ),
+      segmentObserver: SegmentObserver(),
+    );
+
+    _appServerConfig = AppServerConfig(_cqrs);
+
+    _forceUpdate = ForceUpdate(_appServerConfig, _packageInfo, _routerDelegate);
+
+    await Future.wait([
+      _initLoginClient(appConfig.mode),
+      _deeplink.initializeAsync(),
+    ]);
+
+    _firebaseAuthenticator =
+        FirebaseAuthenticator(_cqrs, FirebaseAuth.instance, _loginClient);
+    if (appConfig.mode == AppRunningMode.e2eTest) {
+      await _firebaseAuthenticator.signOut();
+    }
+    _firebaseAuthenticator.initialize();
+
+    final firebaseInstance = FirebaseFirestore.instance;
+    _lessonFirestore =
+        LessonFirestore(firebaseInstance, _firebaseAuthenticator);
+    _reasonsFirestore =
+        ReasonsFirestore(firebaseInstance, _firebaseAuthenticator);
+    _excusesFirestore =
+        ExcusesFirestore(firebaseInstance, _firebaseAuthenticator);
+
+    _contentfulAdapter = ContentfulAdapter(
+      config.contentfulApiKey,
+      config.contentfulSpaceId,
+      config.contentfulEnvironmentId,
+    );
+
+    _userStatus = UserStatus(_cqrs, _loginClient, _appSharedPreferences);
+
+    _initialPageFromUserStatus = InitialPageFromUserStatus(_userStatus);
+
+    _deeplinkNavigator = DeeplinkNavigator(
+      _initialPageFromUserStatus,
+      _routerDelegate,
+      _deeplink,
+      _userStatus,
+    );
+
+    _fcmNavigator = FcmNavigator(
+      _initialPageFromUserStatus,
+      _routerDelegate,
+      _fcmNotifications,
+    );
+
+    // === Providers ===
+
+    _savingsProvider = SavingsProvider(
+      firebaseInstance,
+      _firebaseAuthenticator,
+    );
+
+    _addressProvider = AddressProvider(
+      apiKey: config.googleMapsApiKey,
+      http: Client(),
+    );
+
+    _activeOrderProvider = ActiveOrderProvider(preferences: _sharedPreferences);
+
+    _userIdProvider = UserIdProvider(credentialsStorage: _credentialsStorage);
+
+    // === Use-cases ===
+
+    _paymentUseCase = PaymentUseCase(
+      paymentStatusChecker: PaymentStatusChecker(cqrs),
+      paymentProvider: PaymentProviderImpl(
+        paymentAdapterFactory: PaymentAdapterFactory(
+          constants: config.appConsts,
+        ),
+      ),
+    );
+
+    // === Repositories ===
+
+    _lessonsRepository = LessonsRepository(
+      contentfulAdapter: contentfulAdapter,
+      firestore: lessonFirestore,
+    );
+
+    _lessonDetailsRepository = LessonDetailsRepository(
+      contentfulAdapter: contentfulAdapter,
+      firestore: lessonFirestore,
+      lessonsRepository: lessonsRepository,
+    );
+
+    _firstPageLoader = FirstPageLoader(
+      _fcmNavigator,
+      _initialPageFromUserStatus,
+      _deeplinkNavigator,
+      _routerDelegate,
+      _appServerConfig,
+    )..initialize();
+
+    _bannerRepository = TipBannerRepository(
+      provider: SharedPreferenceTipBannerStatusProvider(
+        preferences: _sharedPreferences,
+      ),
+    );
+
+    _faqRepository = FAQRepository(adapter: _contentfulAdapter);
+
+    _whyQuitRepository = WhyQuitRepository(adapter: _contentfulAdapter);
+
+    _savingsRepository = SavingsRepository(provider: _savingsProvider);
+
+    _giftCardConfigurationRepository = GiftCardConfigurationRepository();
+
+    _questionnaireUserSelectionRepository =
+        QuestionnaireUserSelectionRepository();
+
+    // === Analytics ===
+
+    _initSegment(config);
+
+    _analytics = Analytics();
+
+    _smartlookController =
+        SmartlookController(projectKey: config.smartlookProjectKey);
+
+    _facebookTracking = FacebookTracking()..init();
+  }
+
+  Future<void> _initLogger(AppConfig config) async {
+    if (config.debugMode) {
+      AppLogger.logger.level = Level.ALL;
+      AppLogger.logger.onRecord.listen((d) {
+        debugPrint(d.toString());
+        if (d.error != null) {
+          debugPrint(d.error.toString());
+        }
+        if (d.stackTrace != null) {
+          debugPrint(d.stackTrace.toString());
+        }
+      });
+    } else {
+      AppLogger.logger.level = Level.INFO;
+      FlutterError.onError = (d) {
+        AppLogger.logException(d.exception, d.stack);
+      };
+    }
+
+    _logger = LoggingBugfenderListener(
+      config.bugfenderKey,
+      enableAndroidLogcatLogging: false,
+    );
+    _logger.listen(AppLogger.logger);
+  }
+
+  void _initSegment(AppConfig config) {
+    assert(config.segmentWriteKey != null);
+    Segment.config(
+      options: SegmentConfig(
+        writeKey: config.segmentWriteKey,
+        debug: config.debugMode,
+      ),
+    );
+  }
+
+  Future<void> _initLoginClient(AppRunningMode mode) async {
+    if (mode == AppRunningMode.e2eTest) {
+      _credentialsStorage.clear();
+    }
+
+    try {
+      await _loginClient.initialize();
+    } catch (e) {
+      AppLogger.info(
+        'Failed to initialize login client, clearing secure storage',
+        e,
+      );
+      await _credentialsStorage.clear();
+      return _loginClient.initialize();
+    }
+  }
+}
